@@ -1,0 +1,60 @@
+<div class="flex h-screen bg-gray-50">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-sidebar text-sidebar-foreground flex flex-col shrink-0">
+    <!-- Brand -->
+    <div class="h-16 flex items-center gap-3 px-6 border-b border-white/10">
+      <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+        <span class="text-white font-bold text-sm">H</span>
+      </div>
+      <span class="text-white font-semibold text-lg">Haystax</span>
+    </div>
+
+    <!-- Nav -->
+    <nav class="flex-1 overflow-y-auto p-3 space-y-1">
+      @for (item of navItems; track item.route) {
+        @if (canSee(item)) {
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="sidebar-link-active"
+            [routerLinkActiveOptions]="{ exact: item.route === '/' }"
+            class="sidebar-link"
+          >
+            <ng-icon [name]="item.icon" size="20" />
+            <span>{{ item.label }}</span>
+          </a>
+        }
+      }
+    </nav>
+  </aside>
+
+  <!-- Main column -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Topbar -->
+    <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0">
+      <div class="flex items-center gap-2">
+        <h1 class="text-lg font-semibold text-gray-900">Haystax</h1>
+      </div>
+      <div class="flex items-center gap-4">
+        <button class="p-2 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Notifications">
+          <ng-icon name="heroBell" size="20" />
+        </button>
+        <div class="flex items-center gap-2">
+          <ng-icon name="heroUserCircle" size="32" class="text-gray-400" />
+          <div class="text-sm">
+            <p class="font-medium text-gray-900">{{ currentUser().displayName }}</p>
+            <p class="text-xs text-gray-500">
+              @if (currentUser().isAdmin) { Admin }
+              @else if (currentUser().isOwner) { Owner }
+              @else { Tenant }
+            </p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Routed content -->
+    <main class="flex-1 overflow-y-auto">
+      <router-outlet />
+    </main>
+  </div>
+</div>

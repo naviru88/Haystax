@@ -1,0 +1,26 @@
+<div class="analytics-container">
+  <h2>Engagement & Occupancy Analytics</h2>
+
+  <div class="kpi-grid">
+    <div class="kpi-card card">
+      <span class="kpi-title">Total Inquiries</span>
+      <span class="kpi-value">{{ totalInquiries }}</span>
+    </div>
+    <div class="kpi-card card">
+      <span class="kpi-title">Total Bookings</span>
+      <span class="kpi-value">{{ totalBookings }}</span>
+    </div>
+    <div class="kpi-card card">
+      <span class="kpi-title">Occupancy Rate</span>
+      <span class="kpi-value">{{ occupancyRate }}%</span>
+    </div>
+    <div class="kpi-card card">
+      <span class="kpi-title">Estimated Revenue</span>
+      <span class="kpi-value">Rs. {{ estimatedRevenue | number }}</span>
+    </div>
+    <div class="kpi-card card">
+      <span class="kpi-title">Average Rating</span>
+      <span class="kpi-value">⭐ {{ averageRating }}</span>
+    </div>
+  </div>
+</div>

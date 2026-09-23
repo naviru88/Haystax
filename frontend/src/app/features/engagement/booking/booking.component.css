@@ -1,0 +1,13 @@
+.booking-container { padding: 20px; font-family: sans-serif; }
+.card { background: #ffffff; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.error-banner { background: #ffebee; color: #c62828; padding: 12px; border-radius: 4px; margin-bottom: 16px; }
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; margin-bottom: 4px; font-weight: bold; }
+.form-group input, .form-group textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+.btn-primary { background: #1976d2; color: #fff; border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; }
+.btn-primary:disabled { background: #90caf9; }
+.booking-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.status-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+.status-badge.pending { background: #fff3e0; color: #e65100; }
+.status-badge.approved { background: #e8f5e9; color: #2e7d32; }
+.status-badge.rejected { background: #ffebee; color: #c62828; }

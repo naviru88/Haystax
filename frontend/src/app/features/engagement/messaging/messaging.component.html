@@ -1,0 +1,17 @@
+<div class="messaging-container">
+  <h2>Messages & Notifications</h2>
+
+  <div class="chat-window card">
+    <div class="messages-list">
+      <div *ngFor="let msg of messages" class="message-bubble" [ngClass]="{'sent': msg.senderId === currentUserId, 'received': msg.senderId !== currentUserId}">
+        <p class="content">{{ msg.content }}</p>
+        <small class="time">{{ msg.createdAt | date:'shortTime' }}</small>
+      </div>
+    </div>
+
+    <div class="chat-input">
+      <input type="text" [(ngModel)]="newMessageContent" (keyup.enter)="sendMessage()" placeholder="Type a message..." />
+      <button (click)="sendMessage()" class="btn-send">Send</button>
+    </div>
+  </div>
+</div>

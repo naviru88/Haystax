@@ -1,0 +1,14 @@
+<div class="reviews-container">
+  <h2>Boarding Reviews & Ratings</h2>
+
+  <div *ngFor="let rev of reviews" class="review-card card">
+    <div class="rating-stars">
+      ⭐ {{ rev.rating }} / 5
+    </div>
+    <p class="comment">"{{ rev.comment }}"</p>
+    <div *ngIf="rev.ownerResponse" class="owner-reply">
+      <strong>Owner Response:</strong> {{ rev.ownerResponse }}
+    </div>
+    <small class="date">{{ rev.createdAt | date:'mediumDate' }}</small>
+  </div>
+</div>

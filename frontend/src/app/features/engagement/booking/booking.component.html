@@ -1,0 +1,52 @@
+<div class="booking-container">
+  <h2>My Bookings & Inquiries</h2>
+
+  <div *ngIf="errorMessage" class="error-banner">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Booking Form Card -->
+  <div class="card form-card">
+    <h3>New Tenancy Inquiry</h3>
+    <form (ngSubmit)="submitBooking()">
+      <div class="form-group">
+        <label>Listing ID:</label>
+        <input type="text" [(ngModel)]="newBooking.listingId" name="listingId" readonly />
+      </div>
+      <div class="form-group">
+        <label>Move-In Date:</label>
+        <input type="date" [(ngModel)]="newBooking.moveInDate" name="moveInDate" required />
+      </div>
+      <div class="form-group">
+        <label>Notes / Inquiry Details:</label>
+        <textarea [(ngModel)]="newBooking.notes" name="notes" placeholder="Enter special requirements or questions..."></textarea>
+      </div>
+      <button type="submit" [disabled]="submitting" class="btn-primary">
+        {{ submitting ? 'Submitting...' : 'Submit Request' }}
+      </button>
+    </form>
+  </div>
+
+  <!-- Bookings List -->
+  <div class="bookings-list">
+    <h3>Active Requests</h3>
+
+    <div *ngIf="loading" class="loading-state">
+      Loading bookings...
+    </div>
+
+    <div *ngIf="!loading && bookings.length === 0" class="empty-state">
+      No active tenancy requests found.
+    </div>
+
+    <div *ngFor="let booking of bookings" class="booking-item card">
+      <div class="booking-header">
+        <span class="listing-id">{{ booking.listingId }}</span>
+        <span class="status-badge" [ngClass]="booking.status.toLowerCase()">{{ booking.status }}</span>
+      </div>
+      <p><strong>Move-in Date:</strong> {{ booking.moveInDate }}</p>
+      <p><strong>Notes:</strong> {{ booking.notes || 'None' }}</p>
+      <small>Requested on: {{ booking.createdAt | date:'short' }}</small>
+    </div>
+  </div>
+</div>

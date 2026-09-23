@@ -1,0 +1,5 @@
+.reviews-container { padding: 20px; }
+.card { background: #fff; padding: 16px; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.rating-stars { font-weight: bold; color: #fbc02d; font-size: 16px; margin-bottom: 8px; }
+.comment { font-style: italic; color: #333; margin-bottom: 8px; }
+.owner-reply { background: #f5f5f5; padding: 8px; border-left: 3px solid #1976d2; margin-top: 8px; font-size: 14px; }

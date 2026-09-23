@@ -1,0 +1,9 @@
+.messaging-container { padding: 20px; }
+.card { background: #fff; padding: 16px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.messages-list { height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.message-bubble { max-width: 60%; padding: 10px 14px; border-radius: 12px; font-size: 14px; }
+.message-bubble.sent { background: #e3f2fd; align-self: flex-end; }
+.message-bubble.received { background: #f5f5f5; align-self: flex-start; }
+.chat-input { display: flex; gap: 8px; }
+.chat-input input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+.btn-send { background: #1976d2; color: #fff; border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; }

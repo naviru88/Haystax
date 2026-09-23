@@ -1,0 +1,5 @@
+.analytics-container { padding: 20px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+.kpi-card { background: #fff; padding: 20px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.kpi-title { font-size: 14px; color: #666; margin-bottom: 8px; }
+.kpi-value { font-size: 24px; font-weight: bold; color: #1976d2; }

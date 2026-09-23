@@ -1,0 +1,25 @@
+<div class="p-6 max-w-7xl mx-auto">
+
+  <section class="card mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Find your next boarding</h1>
+    <p class="text-gray-600 mb-6">
+      Search from hundreds of verified boarding listings across Sri Lanka.
+    </p>
+    <a routerLink="/search" class="btn-primary inline-block">Browse listings</a>
+  </section>
+
+  <section>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold text-gray-900">Featured listings</h2>
+      <a routerLink="/search" class="text-sm text-primary hover:underline">View all</a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (listing of featured(); track listing.id) {
+        <app-listing-card [listing]="listing" />
+      } @empty {
+        <app-state-view kind="empty" title="No listings yet" />
+      }
+    </div>
+  </section>
+</div>

@@ -1,0 +1,44 @@
+<a [routerLink]="['/listings', listing().id]"
+   class="card hover:shadow-md transition-shadow block">
+
+  <!-- Photo -->
+  <div class="aspect-video bg-gray-100 rounded-lg mb-4 overflow-hidden flex items-center justify-center text-gray-400 text-sm">
+    @if (listing().photos.length > 0) {
+      <img [src]="listing().photos[0].storagePath"
+           [alt]="listing().photos[0].altText || listing().title"
+           class="w-full h-full object-cover" />
+    } @else {
+      No photo
+    }
+  </div>
+
+  <!-- Title + city -->
+  <h3 class="font-semibold text-gray-900 mb-1 truncate">{{ listing().title }}</h3>
+  <p class="text-sm text-gray-500 mb-3">
+    {{ listing().city }}
+    @if (listing().locationLabel) { · {{ listing().locationLabel }} }
+  </p>
+
+  <!-- Price + status -->
+  <div class="flex items-center justify-between">
+    <span class="text-lg font-bold text-primary">
+      {{ listing().priceAmount | number }} {{ listing().currencyCode }}
+    </span>
+    @if (listing().availableSlots > 0) {
+      <span class="badge-available">
+        Available ({{ listing().availableSlots }}/{{ listing().totalSlots }})
+      </span>
+    } @else {
+      <span class="badge-danger">Full</span>
+    }
+  </div>
+
+  <!-- Rating -->
+  @if (listing().ratingSummary; as rs) {
+    <div class="flex items-center gap-1 mt-3 text-sm text-gray-600">
+      <span class="text-warning">★</span>
+      <span class="font-medium">{{ rs.averageRating.toFixed(1) }}</span>
+      <span class="text-gray-400">({{ rs.reviewCount }} reviews)</span>
+    </div>
+  }
+</a>

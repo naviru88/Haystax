@@ -1,0 +1,27 @@
+<div class="p-6 max-w-7xl mx-auto">
+
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Recommended for you</h1>
+    <p class="text-gray-500 text-sm mt-1">
+      Based on your preferences and the most popular listings on Haystax.
+    </p>
+  </div>
+
+  @if (recommended().length > 0) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (l of recommended(); track l.id) {
+        <div class="flex flex-col gap-2">
+          <app-listing-card [listing]="l" />
+          <p class="text-xs text-gray-500 px-1">
+            <span class="font-medium text-primary">Why:</span> {{ reasonFor(l) }}
+          </p>
+        </div>
+      }
+    </div>
+  } @else {
+    <app-state-view
+      kind="empty"
+      title="No recommendations yet"
+      message="Check back after you browse a few listings." />
+  }
+</div>

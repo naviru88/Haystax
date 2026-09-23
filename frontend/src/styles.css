@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+@theme {
+  /* Haystax palette (from reference design) */
+  --color-primary: #1E6B7A;
+  --color-primary-50: #F0F7F9;
+  --color-primary-100: #D9EBEF;
+  --color-primary-500: #2C7A8C;
+  --color-primary-600: #1E6B7A;
+  --color-primary-700: #155263;
+  --color-primary-foreground: #FFFFFF;
+
+  --color-sidebar: #1F2937;
+  --color-sidebar-hover: #374151;
+  --color-sidebar-active: #2C7A8C;
+  --color-sidebar-foreground: #D1D5DB;
+
+  --color-success: #22C55E;
+  --color-success-bg: #DCFCE7;
+  --color-success-text: #166534;
+
+  --color-warning: #F59E0B;
+  --color-warning-bg: #FEF3C7;
+  --color-warning-text: #92400E;
+
+  --color-destructive: #DC2626;
+  --color-destructive-bg: #FEE2E2;
+  --color-destructive-text: #991B1B;
+
+  --color-muted: #6B7280;
+  --color-muted-bg: #F3F4F6;
+
+  --radius-card: 1rem;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+@layer base {
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-2xl border border-gray-200 shadow-sm p-6;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium
+           hover:bg-primary-700 transition-colors;
+  }
+
+  .btn-outline {
+    @apply border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium
+           hover:bg-gray-50 transition-colors;
+  }
+
+  .btn-danger {
+    @apply bg-destructive text-white rounded-lg px-4 py-2 text-sm font-medium
+           hover:bg-red-700 transition-colors;
+  }
+
+  .badge-available {
+    @apply bg-success-bg text-success-text rounded-full px-2 py-0.5 text-xs font-medium;
+  }
+
+  .badge-warning {
+    @apply bg-warning-bg text-warning-text rounded-full px-2 py-0.5 text-xs font-medium;
+  }
+
+  .badge-danger {
+    @apply bg-destructive-bg text-destructive-text rounded-full px-2 py-0.5 text-xs font-medium;
+  }
+
+  .badge-muted {
+    @apply bg-muted-bg text-muted rounded-full px-2 py-0.5 text-xs font-medium;
+  }
+
+  .form-input {
+    @apply w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
+           focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none;
+  }
+
+  .sidebar-link {
+    @apply flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
+           text-sidebar-foreground hover:bg-sidebar-hover transition-colors;
+  }
+
+  .sidebar-link-active {
+    @apply bg-sidebar-active text-white hover:bg-sidebar-active;
+  }
+}

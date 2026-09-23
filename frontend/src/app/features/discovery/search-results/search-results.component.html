@@ -1,0 +1,103 @@
+<div class="p-6 max-w-7xl mx-auto">
+
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Search boardings</h1>
+    <p class="text-gray-500 text-sm mt-1">
+      {{ result().total }} listing{{ result().total === 1 ? '' : 's' }} match your filters
+    </p>
+  </div>
+
+  <!-- Filter chips -->
+  <div class="card mb-6">
+    <div class="flex flex-wrap gap-4 items-end">
+
+      <!-- City -->
+      <div class="flex flex-col gap-1 min-w-[160px]">
+        <label class="text-xs font-medium text-gray-500">City</label>
+        <select class="form-input"
+                [value]="filters().city || ''"
+                (change)="updateFilter('city', $any($event.target).value)">
+          <option value="">All cities</option>
+          @for (c of cities; track c) {
+            <option [value]="c">{{ c }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Min price -->
+      <div class="flex flex-col gap-1 w-32">
+        <label class="text-xs font-medium text-gray-500">Min price</label>
+        <input type="number" class="form-input" placeholder="0"
+               [value]="filters().minPrice ?? ''"
+               (change)="updateFilter('minPrice', $any($event.target).value ? +$any($event.target).value : undefined)" />
+      </div>
+
+      <!-- Max price -->
+      <div class="flex flex-col gap-1 w-32">
+        <label class="text-xs font-medium text-gray-500">Max price</label>
+        <input type="number" class="form-input" placeholder="Any"
+               [value]="filters().maxPrice ?? ''"
+               (change)="updateFilter('maxPrice', $any($event.target).value ? +$any($event.target).value : undefined)" />
+      </div>
+
+      <!-- Gender -->
+      <div class="flex flex-col gap-1 min-w-[160px]">
+        <label class="text-xs font-medium text-gray-500">Gender policy</label>
+        <select class="form-input"
+                [value]="filters().genderPolicy || ''"
+                (change)="updateFilter('genderPolicy', $any($event.target).value || undefined)">
+          @for (g of genderOptions; track g.value) {
+            <option [value]="g.value">{{ g.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Sort -->
+      <div class="flex flex-col gap-1 min-w-[180px]">
+        <label class="text-xs font-medium text-gray-500">Sort by</label>
+        <select class="form-input"
+                [value]="filters().sort || 'relevance'"
+                (change)="updateFilter('sort', $any($event.target).value)">
+          @for (s of sortOptions; track s.value) {
+            <option [value]="s.value">{{ s.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Clear -->
+      <button class="btn-outline ml-auto" (click)="clearFilters()">
+        Clear filters
+      </button>
+    </div>
+  </div>
+
+  <!-- Results grid -->
+  @if (result().items.length > 0) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (l of result().items; track l.id) {
+        <app-listing-card [listing]="l" />
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="flex items-center justify-center gap-2 mt-8">
+        <button class="btn-outline" [disabled]="page() === 1" (click)="goToPage(page() - 1)">
+          Previous
+        </button>
+        <span class="text-sm text-gray-600">
+          Page {{ page() }} of {{ totalPages() }}
+        </span>
+        <button class="btn-outline" [disabled]="page() === totalPages()" (click)="goToPage(page() + 1)">
+          Next
+        </button>
+      </div>
+    }
+  } @else {
+    <app-state-view
+      kind="empty"
+      title="No listings match your filters"
+      message="Try removing some filters or searching a different city." />
+  }
+</div>

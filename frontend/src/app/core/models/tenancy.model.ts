@@ -1,18 +1,18 @@
 export interface TenancyRequest {
   id: string;
   listingId: string;
-  studentId: string;
+  tenantId: string;
   ownerId: string;
   moveInDate: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'COMPLETED';
-  notes?: string;
+  status: 'submitted' | 'approved' | 'rejected' | 'cancelled' | 'active';
+  message?: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export interface CreateTenancyPayload {
   listingId: string;
-  studentId: string;
+  tenantId: string;
   moveInDate: string;
   notes?: string;
 }

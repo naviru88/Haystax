@@ -1,44 +1,71 @@
 <a [routerLink]="['/listings', listing().id]"
-   class="card hover:shadow-md transition-shadow block">
+   class="card hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 block group">
 
-  <!-- Photo -->
-  <div class="aspect-video bg-gray-100 rounded-lg mb-4 overflow-hidden flex items-center justify-center text-gray-400 text-sm">
+  <!-- Photo with overlays -->
+  <div class="relative aspect-video bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-4 overflow-hidden">
+
     @if (listing().photos.length > 0) {
       <img [src]="listing().photos[0].storagePath"
            [alt]="listing().photos[0].altText || listing().title"
-           class="w-full h-full object-cover" />
+           class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
     } @else {
-      No photo
+      <div class="w-full h-full flex items-center justify-center">
+        <span class="text-gray-400 text-sm">No photo yet</span>
+      </div>
+    }
+
+    <!-- Availability badge (top-right) -->
+    <div class="absolute top-3 right-3">
+      @if (listing().availableSlots > 0) {
+        <span class="bg-success-bg text-success-text rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm">
+          Available
+        </span>
+      } @else {
+        <span class="bg-destructive-bg text-destructive-text rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm">
+          Full
+        </span>
+      }
+    </div>
+
+    <!-- Gender policy chip (top-left) -->
+    @if (listing().genderPolicy !== 'any') {
+      <div class="absolute top-3 left-3">
+        <span class="bg-white/95 text-primary rounded-full px-2 py-0.5 text-xs font-medium shadow-sm">
+          {{ listing().genderPolicy === 'female_only' ? 'Female only' : 'Male only' }}
+        </span>
+      </div>
     }
   </div>
 
-  <!-- Title + city -->
+  <!-- Title -->
   <h3 class="font-semibold text-gray-900 mb-1 truncate">{{ listing().title }}</h3>
-  <p class="text-sm text-gray-500 mb-3">
-    {{ listing().city }}
-    @if (listing().locationLabel) { · {{ listing().locationLabel }} }
+
+  <!-- Location -->
+  <p class="text-sm text-gray-500 mb-3 flex items-center gap-1">
+    <span>{{ listing().city }}</span>
+    @if (listing().locationLabel) {
+      <span class="text-gray-300">·</span>
+      <span>{{ listing().locationLabel }}</span>
+    }
   </p>
 
-  <!-- Price + status -->
-  <div class="flex items-center justify-between">
-    <span class="text-lg font-bold text-primary">
-      {{ listing().priceAmount | number }} {{ listing().currencyCode }}
-    </span>
-    @if (listing().availableSlots > 0) {
-      <span class="badge-available">
-        Available ({{ listing().availableSlots }}/{{ listing().totalSlots }})
-      </span>
-    } @else {
-      <span class="badge-danger">Full</span>
-    }
-  </div>
-
-  <!-- Rating -->
+  <!-- Rating row -->
   @if (listing().ratingSummary; as rs) {
-    <div class="flex items-center gap-1 mt-3 text-sm text-gray-600">
+    <div class="flex items-center gap-1.5 mb-3 text-xs">
       <span class="text-warning">★</span>
-      <span class="font-medium">{{ rs.averageRating.toFixed(1) }}</span>
-      <span class="text-gray-400">({{ rs.reviewCount }} reviews)</span>
+      <span class="font-semibold text-gray-800">{{ rs.averageRating.toFixed(1) }}</span>
+      <span class="text-gray-400">({{ rs.reviewCount }})</span>
     </div>
   }
+
+  <!-- Footer: price + slots -->
+  <div class="flex items-end justify-between pt-3 border-t border-gray-100">
+    <div>
+      <span class="text-lg font-bold text-primary">{{ listing().priceAmount | number }}</span>
+      <span class="text-xs text-gray-500 ml-1">{{ listing().currencyCode }}/mo</span>
+    </div>
+    <span class="text-xs text-gray-500">
+      {{ listing().availableSlots }}/{{ listing().totalSlots }} slots
+    </span>
+  </div>
 </a>

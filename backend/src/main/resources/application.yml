@@ -26,9 +26,9 @@ spring:
     activate:
       on-profile: prod
   datasource:
-    url: ${SUPABASE_DB_URL:jdbc:postgresql://db.YOUR_SUPABASE_PROJECT_REF.supabase.co:5432/postgres}
+    url: ${SUPABASE_DB_URL:jdbc:postgresql://db.ccagnpobykqcucetfvlp.supabase.co:5432/postgres}
     username: ${SUPABASE_DB_USER:postgres}
-    password: ${SUPABASE_DB_PASSWORD:your-supabase-db-password}
+    password: ${SUPABASE_DB_PASSWORD:haystax1234#}
     driver-class-name: org.postgresql.Driver
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect

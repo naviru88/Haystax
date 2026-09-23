@@ -1,51 +1,47 @@
 package com.haystax.engagement.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
-@Table(name = "messages_notifications")
+@Table(name = "messages", schema = "public")
 public class MessageEntity {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
 
-    @Column(nullable = false)
-    private String type;
+    @Column(name = "conversation_id", nullable = false)
+    private UUID conversationId;
 
     @Column(name = "sender_id", nullable = false)
-    private String senderId;
-
-    @Column(name = "recipient_id", nullable = false)
-    private String recipientId;
+    private UUID senderId;
 
     @Column(nullable = false)
-    private String content;
+    private String body;
 
-    @Column(name = "is_read")
-    private boolean isRead;
+    @Column(name = "attachment_path")
+    private String attachmentPath;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(name = "sent_at", nullable = false)
+    private OffsetDateTime sentAt;
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
 
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    public UUID getConversationId() { return conversationId; }
+    public void setConversationId(UUID conversationId) { this.conversationId = conversationId; }
 
-    public String getSenderId() { return senderId; }
-    public void setSenderId(String senderId) { this.senderId = senderId; }
+    public UUID getSenderId() { return senderId; }
+    public void setSenderId(UUID senderId) { this.senderId = senderId; }
 
-    public String getRecipientId() { return recipientId; }
-    public void setRecipientId(String recipientId) { this.recipientId = recipientId; }
+    public String getBody() { return body; }
+    public void setBody(String body) { this.body = body; }
 
-    public String getContent() { return content; }
-    public void setContent(String content) { this.content = content; }
+    public String getAttachmentPath() { return attachmentPath; }
+    public void setAttachmentPath(String attachmentPath) { this.attachmentPath = attachmentPath; }
 
-    public boolean isRead() { return isRead; }
-    public void setRead(boolean read) { isRead = read; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public OffsetDateTime getSentAt() { return sentAt; }
+    public void setSentAt(OffsetDateTime sentAt) { this.sentAt = sentAt; }
 }

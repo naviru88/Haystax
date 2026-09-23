@@ -2,68 +2,83 @@ package com.haystax.engagement.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
-@Table(name = "tenancy_requests")
+@Table(name = "tenancies", schema = "public")
 public class TenancyEntity {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
 
     @Column(name = "listing_id", nullable = false)
-    private String listingId;
-
-    @Column(name = "student_id", nullable = false)
-    private String studentId;
+    private UUID listingId;
 
     @Column(name = "owner_id", nullable = false)
-    private String ownerId;
+    private UUID ownerId;
 
-    @Column(name = "move_in_date", nullable = false)
-    private LocalDate moveInDate;
+    @Column(name = "tenant_id", nullable = false)
+    private UUID tenantId;
+
+    @Column(name = "tenancy_request_id", unique = true)
+    private UUID tenancyRequestId;
 
     @Column(nullable = false)
     private String status;
 
-    private String notes;
+    @Column(name = "start_date")
+    private LocalDate startDate;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(name = "end_date")
+    private LocalDate endDate;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "confirmed_by", nullable = false)
+    private UUID confirmedBy;
 
-    @Version
-    private Long version;
+    @Column(name = "confirmed_at", nullable = false)
+    private OffsetDateTime confirmedAt;
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    @Column(name = "created_at", nullable = false)
+    private OffsetDateTime createdAt;
 
-    public String getListingId() { return listingId; }
-    public void setListingId(String listingId) { this.listingId = listingId; }
+    @Column(name = "updated_at", nullable = false)
+    private OffsetDateTime updatedAt;
 
-    public String getStudentId() { return studentId; }
-    public void setStudentId(String studentId) { this.studentId = studentId; }
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
 
-    public String getOwnerId() { return ownerId; }
-    public void setOwnerId(String ownerId) { this.ownerId = ownerId; }
+    public UUID getListingId() { return listingId; }
+    public void setListingId(UUID listingId) { this.listingId = listingId; }
 
-    public LocalDate getMoveInDate() { return moveInDate; }
-    public void setMoveInDate(LocalDate moveInDate) { this.moveInDate = moveInDate; }
+    public UUID getOwnerId() { return ownerId; }
+    public void setOwnerId(UUID ownerId) { this.ownerId = ownerId; }
+
+    public UUID getTenantId() { return tenantId; }
+    public void setTenantId(UUID tenantId) { this.tenantId = tenantId; }
+
+    public UUID getTenancyRequestId() { return tenancyRequestId; }
+    public void setTenancyRequestId(UUID tenancyRequestId) { this.tenancyRequestId = tenancyRequestId; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    public String getNotes() { return notes; }
-    public void setNotes(String notes) { this.notes = notes; }
+    public LocalDate getStartDate() { return startDate; }
+    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDate getEndDate() { return endDate; }
+    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
 
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public UUID getConfirmedBy() { return confirmedBy; }
+    public void setConfirmedBy(UUID confirmedBy) { this.confirmedBy = confirmedBy; }
 
-    public Long getVersion() { return version; }
-    public void setVersion(Long version) { this.version = version; }
+    public OffsetDateTime getConfirmedAt() { return confirmedAt; }
+    public void setConfirmedAt(OffsetDateTime confirmedAt) { this.confirmedAt = confirmedAt; }
+
+    public OffsetDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
+
+    public OffsetDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(OffsetDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

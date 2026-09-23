@@ -1,28 +1,32 @@
 -- ====================================================================
--- Flyway Seed V3_1: Seed Data for Member 3 (Engagement & Insights)
+-- Flyway Seed V3_1: Seed Data Aligned with Official Supabase UUID Schema
 -- ====================================================================
 
 -- 1. Seed Tenancy Requests
-INSERT INTO tenancy_requests (id, listing_id, student_id, owner_id, move_in_date, status, notes, created_at)
+INSERT INTO public.tenancy_requests (id, listing_id, tenant_id, message, status, created_at)
 VALUES
-  ('tn-001', 'listing-101', 'student-01', 'owner-01', '2026-10-01', 'APPROVED', 'Looking forward to moving in!', NOW() - INTERVAL '5 days'),
-  ('tn-002', 'listing-102', 'student-02', 'owner-01', '2026-10-15', 'PENDING', 'Is the deposit refundable?', NOW() - INTERVAL '2 days'),
-  ('tn-003', 'listing-101', 'student-03', 'owner-01', '2026-11-01', 'PENDING', 'Interested in a 6-month stay.', NOW() - INTERVAL '1 day');
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'b1111111-0000-0000-0000-000000000101', 'u1111111-0000-0000-0000-000000000001', 'Interested in moving in next month.', 'submitted', NOW() - INTERVAL '3 days')
+ON CONFLICT (id) DO NOTHING;
 
--- 2. Seed Messages & Notifications
-INSERT INTO messages_notifications (id, type, sender_id, recipient_id, content, is_read, created_at)
+-- 2. Seed Tenancies
+INSERT INTO public.tenancies (id, listing_id, owner_id, tenant_id, tenancy_request_id, status, start_date, end_date, confirmed_by, created_at)
 VALUES
-  ('msg-001', 'MESSAGE', 'student-01', 'owner-01', 'Hi, is room 204 still available for October?', TRUE, NOW() - INTERVAL '6 days'),
-  ('msg-002', 'MESSAGE', 'owner-01', 'student-01', 'Yes it is! Feel free to send a booking inquiry.', TRUE, NOW() - INTERVAL '6 days'),
-  ('msg-003', 'NOTIFICATION', 'SYSTEM', 'student-01', 'Your tenancy request tn-001 has been APPROVED.', FALSE, NOW() - INTERVAL '5 days');
+  ('a1b2c3d4-0000-0000-0000-000000000002', 'b1111111-0000-0000-0000-000000000101', 'u1111111-0000-0000-0000-000000000002', 'u1111111-0000-0000-0000-000000000001', 'a1b2c3d4-0000-0000-0000-000000000001', 'active', '2026-10-01', '2027-03-31', 'u1111111-0000-0000-0000-000000000002', NOW() - INTERVAL '2 days')
+ON CONFLICT (id) DO NOTHING;
 
--- 3. Seed Reviews & Ratings
-INSERT INTO boarding_reviews (id, listing_id, student_id, rating, comment, owner_response, created_at)
+-- 3. Seed Conversations & Messages
+INSERT INTO public.conversations (id, listing_id, tenancy_request_id, status, created_by, created_at)
 VALUES
-  ('rev-001', 'listing-101', 'student-04', 5, 'Great location near campus, clean rooms and reliable Wi-Fi.', 'Thanks for the review!', NOW() - INTERVAL '10 days'),
-  ('rev-002', 'listing-101', 'student-05', 4, 'Spacious room, quiet study environment. Water pressure could be better.', NULL, NOW() - INTERVAL '8 days');
+  ('c1111111-0000-0000-0000-000000000001', 'b1111111-0000-0000-0000-000000000101', 'a1b2c3d4-0000-0000-0000-000000000001', 'open', 'u1111111-0000-0000-0000-000000000001', NOW() - INTERVAL '3 days')
+ON CONFLICT (id) DO NOTHING;
 
--- 4. Seed Analytics Summaries
-INSERT INTO analytics_summaries (id, owner_id, total_inquiries, total_bookings, occupancy_rate, estimated_revenue, average_rating, summary_date, created_at)
+INSERT INTO public.messages (id, conversation_id, sender_id, body, sent_at)
 VALUES
-  ('an-001', 'owner-01', 24, 18, 85.50, 45000.00, 4.70, CURRENT_DATE - INTERVAL '1 day', NOW());
+  ('m1111111-0000-0000-0000-000000000001', 'c1111111-0000-0000-0000-000000000001', 'u1111111-0000-0000-0000-000000000001', 'Hi, is room 101 available?', NOW() - INTERVAL '3 days')
+ON CONFLICT (id) DO NOTHING;
+
+-- 4. Seed Reviews
+INSERT INTO public.reviews (id, listing_id, author_id, tenancy_id, rating, title, body, status, created_at)
+VALUES
+  ('r1111111-0000-0000-0000-000000000001', 'b1111111-0000-0000-0000-000000000101', 'u1111111-0000-0000-0000-000000000001', 'a1b2c3d4-0000-0000-0000-000000000002', 5, 'Awesome place!', 'Very clean environment and close to university campus.', 'published', NOW() - INTERVAL '1 day')
+ON CONFLICT (id) DO NOTHING;

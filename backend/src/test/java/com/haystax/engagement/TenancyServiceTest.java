@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,29 +33,35 @@ public class TenancyServiceTest {
 
     @Test
     public void testCreateTenancySuccess() {
+        UUID listingId = UUID.randomUUID();
+        UUID tenantId = UUID.randomUUID();
+
         TenancyDto dto = new TenancyDto();
-        dto.setListingId("listing-101");
-        dto.setStudentId("student-01");
+        dto.setListingId(listingId);
+        dto.setTenantId(tenantId);
         dto.setMoveInDate(LocalDate.of(2026, 10, 1));
 
-        when(tenancyRepository.countOverlappingBookings("listing-101", LocalDate.of(2026, 10, 1))).thenReturn(0L);
+        when(tenancyRepository.countOverlappingBookings(listingId, LocalDate.of(2026, 10, 1))).thenReturn(0L);
         when(tenancyRepository.save(any(TenancyEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         TenancyDto created = tenancyService.createTenancyRequest(dto);
 
         assertNotNull(created);
-        assertEquals("PENDING", created.getStatus());
+        assertEquals("active", created.getStatus());
         verify(tenancyRepository, times(1)).save(any(TenancyEntity.class));
     }
 
     @Test
     public void testDoubleBookingExceptionThrown() {
+        UUID listingId = UUID.randomUUID();
+        UUID tenantId = UUID.randomUUID();
+
         TenancyDto dto = new TenancyDto();
-        dto.setListingId("listing-101");
-        dto.setStudentId("student-02");
+        dto.setListingId(listingId);
+        dto.setTenantId(tenantId);
         dto.setMoveInDate(LocalDate.of(2026, 10, 1));
 
-        when(tenancyRepository.countOverlappingBookings("listing-101", LocalDate.of(2026, 10, 1))).thenReturn(1L);
+        when(tenancyRepository.countOverlappingBookings(listingId, LocalDate.of(2026, 10, 1))).thenReturn(1L);
 
         assertThrows(DoubleBookingException.class, () -> {
             tenancyService.createTenancyRequest(dto);

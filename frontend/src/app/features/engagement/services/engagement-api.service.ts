@@ -9,45 +9,43 @@ import { DirectMessage, SendMessagePayload } from '../../../core/models/message.
 export class EngagementApiService {
   private bookings: TenancyRequest[] = [
     {
-      id: "tn-001",
-      listingId: "listing-101",
-      studentId: "student-01",
-      ownerId: "owner-01",
+      id: "a1b2c3d4-0000-0000-0000-000000000002",
+      listingId: "b1111111-0000-0000-0000-000000000101",
+      tenantId: "u1111111-0000-0000-0000-000000000001",
+      ownerId: "u1111111-0000-0000-0000-000000000002",
       moveInDate: "2026-10-01",
-      status: "APPROVED",
-      notes: "Looking forward to moving in!",
-      createdAt: "2026-09-14T10:00:00Z",
-      updatedAt: "2026-09-15T12:00:00Z"
+      status: "active",
+      message: "Looking forward to moving in!",
+      createdAt: "2026-09-14T10:00:00Z"
     }
   ];
 
   private messages: DirectMessage[] = [
     {
-      id: "msg-001",
+      id: "m1111111-0000-0000-0000-000000000001",
       type: "MESSAGE",
-      senderId: "student-01",
-      recipientId: "owner-01",
-      content: "Hi, is room 204 still available for October?",
+      senderId: "u1111111-0000-0000-0000-000000000001",
+      recipientId: "u1111111-0000-0000-0000-000000000002",
+      content: "Hi, is room 101 available?",
       isRead: true,
       createdAt: "2026-09-13T09:00:00Z"
     }
   ];
 
   public getBookings(userId: string): Observable<TenancyRequest[]> {
-    return of(this.bookings.filter(b => b.studentId === userId || b.ownerId === userId));
+    return of(this.bookings.filter(b => b.tenantId === userId || b.ownerId === userId));
   }
 
   public createBooking(payload: CreateTenancyPayload): Observable<TenancyRequest> {
     const newBooking: TenancyRequest = {
-      id: `tn-${Date.now()}`,
+      id: `a1b2c3d4-0000-0000-0000-${Date.now().toString().slice(-12)}`,
       listingId: payload.listingId,
-      studentId: payload.studentId,
-      ownerId: 'owner-01',
+      tenantId: payload.tenantId,
+      ownerId: 'u1111111-0000-0000-0000-000000000002',
       moveInDate: payload.moveInDate,
-      status: 'PENDING',
-      notes: payload.notes,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      status: 'submitted',
+      message: payload.notes,
+      createdAt: new Date().toISOString()
     };
     this.bookings.push(newBooking);
     return of(newBooking);
@@ -59,7 +57,7 @@ export class EngagementApiService {
 
   public sendMessage(payload: SendMessagePayload, senderId: string): Observable<DirectMessage> {
     const newMsg: DirectMessage = {
-      id: `msg-${Date.now()}`,
+      id: `m1111111-0000-0000-0000-${Date.now().toString().slice(-12)}`,
       type: 'MESSAGE',
       senderId,
       recipientId: payload.recipientId,
@@ -74,11 +72,11 @@ export class EngagementApiService {
   public getReviews(listingId: string): Observable<any[]> {
     return of([
       {
-        id: "rev-001",
+        id: "r1111111-0000-0000-0000-000000000001",
         listingId: listingId,
-        studentId: "student-04",
+        studentId: "u1111111-0000-0000-0000-000000000001",
         rating: 5,
-        comment: "Great location near campus, clean rooms and reliable Wi-Fi.",
+        comment: "Awesome place! Very clean environment and close to university campus.",
         ownerResponse: "Thanks for the review!",
         createdAt: "2026-09-09T16:00:00Z"
       }

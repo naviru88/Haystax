@@ -14,8 +14,8 @@ export class BookingComponent implements OnInit {
   submitting = false;
 
   newBooking: CreateTenancyPayload = {
-    listingId: 'listing-101',
-    studentId: 'student-01',
+    listingId: 'b1111111-0000-0000-0000-000000000101',
+    tenantId: 'u1111111-0000-0000-0000-000000000001',
     moveInDate: '',
     notes: ''
   };
@@ -28,7 +28,7 @@ export class BookingComponent implements OnInit {
 
   loadBookings(): void {
     this.loading = true;
-    this.apiService.getBookings('student-01').subscribe({
+    this.apiService.getBookings('u1111111-0000-0000-0000-000000000001').subscribe({
       next: (data) => {
         this.bookings = data;
         this.loading = false;

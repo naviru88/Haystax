@@ -1,4 +1,30 @@
 spring:
+  profiles:
+    active: dev
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:h2:mem:haystaxdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  h2:
+    console:
+      enabled: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
   datasource:
     url: ${SUPABASE_DB_URL:jdbc:postgresql://db.YOUR_SUPABASE_PROJECT_REF.supabase.co:5432/postgres}
     username: ${SUPABASE_DB_USER:postgres}
@@ -9,9 +35,6 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
   flyway:
     enabled: true
     locations: classpath:db/migration

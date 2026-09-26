@@ -200,11 +200,11 @@ spring.datasource.password=<your-db-password>
 
 This brings up:
 
-Frontend - http://localhost:4200
-Backend  - http://localhost:8080
-Backend health - http://localhost:8080/actuator/health
-RabbitMQ Management UI - http://localhost:15672 (`haystax` / `haystax`)
-Redis - `localhost:6379`
+|Frontend - http://localhost:4200
+|Backend  - http://localhost:8080
+|Backend health - http://localhost:8080/actuator/health
+|RabbitMQ Management UI - http://localhost:15672 (`haystax` / `haystax`)
+|Redis - `localhost:6379`|
 
 ### Stop everything
 

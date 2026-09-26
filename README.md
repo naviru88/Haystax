@@ -1,6 +1,3 @@
-Here is the file in its proper Markdown format, cleaned up and ready to use as your `README.md`. I've fixed the formatting issues, converted the plain-text tables into proper Markdown tables, and corrected minor structural inconsistencies.
-
-```markdown
 # Haystax — Boarding Management Platform
 
 A full-stack boarding house discovery and management platform for Sri Lanka, built with Angular 21, Spring Boot, Supabase (PostgreSQL + PostGIS), RabbitMQ, and Docker.

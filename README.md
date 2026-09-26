@@ -382,4 +382,3 @@ cd backend
 ## License
 
 This project is developed by the above 3 members as part of a PET project. All rights reserved by the authors.
-```

@@ -95,7 +95,7 @@ The project is developed by three members, each owning a vertical slice of the s
 - **Consistent states** — every page renders loading, empty, error, and success states through shared components, so the UI feels uniform across all slices.
 
 
-**Tech Stack**
+## Tech Stack
 
 **Frontend**
 - Angular 21 (lazy-loaded feature routes, standalone components)
@@ -392,4 +392,4 @@ cd backend
 
 ## License
 
-This project is developed as part of a university software engineering module. All rights reserved by the authors.
+This project is developed by the above 3 members as part of a PET project. All rights reserved by the authors.

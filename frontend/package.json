@@ -32,7 +32,6 @@
     "leaflet": "^1.9.4",
     "ng-animated-icons": "^22.0.0",
     "ng2-charts": "^10.0.0",
-    "ngx-heroicon": "^2.5.0",
     "postcss": "^8.5.28",
     "rxjs": "~7.8.0",
     "tailwindcss": "^4.3.3",

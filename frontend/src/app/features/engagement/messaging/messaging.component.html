@@ -1,17 +1,104 @@
-<div class="messaging-container">
-  <h2>Messages & Notifications</h2>
+<div class="messaging-page">
+  <!-- Page Header & Tab Bar -->
+  <div class="page-header">
+    <h2>Messages & Notifications Center</h2>
+    <div class="tab-buttons">
+      <button class="tab-btn" [class.active]="activeTab === 'messages'" (click)="activeTab = 'messages'">
+        💬 Messages
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'notifications'" (click)="activeTab = 'notifications'">
+        🔔 Notifications
+        <span *ngIf="notifications.length > 0" class="badge-count">{{ notifications.length }}</span>
+      </button>
+    </div>
+  </div>
 
-  <div class="chat-window card">
-    <div class="messages-list">
-      <div *ngFor="let msg of messages" class="message-bubble" [ngClass]="{'sent': msg.senderId === currentUserId, 'received': msg.senderId !== currentUserId}">
-        <p class="content">{{ msg.content }}</p>
-        <small class="time">{{ msg.createdAt | date:'shortTime' }}</small>
+  <!-- Messages Tab View -->
+  <div *ngIf="activeTab === 'messages'" class="messaging-layout">
+    <!-- Sidebar Conversation Threads -->
+    <div class="threads-sidebar card">
+      <div class="sidebar-header">
+        <h3>Conversations</h3>
+      </div>
+      <div class="threads-list">
+        <div 
+          *ngFor="let thread of threads" 
+          class="thread-item"
+          [class.selected]="selectedThread.id === thread.id"
+          (click)="selectThread(thread)"
+        >
+          <div class="avatar">{{ thread.name.charAt(0) }}</div>
+          <div class="thread-info">
+            <div class="thread-title">
+              <span class="name">{{ thread.name }}</span>
+              <span class="time">{{ thread.lastMessageTime }}</span>
+            </div>
+            <div class="role-tag">{{ thread.role }}</div>
+            <p class="preview">{{ thread.lastMessage }}</p>
+          </div>
+          <span *ngIf="thread.unreadCount > 0" class="unread-pill">{{ thread.unreadCount }}</span>
+        </div>
       </div>
     </div>
 
-    <div class="chat-input">
-      <input type="text" [(ngModel)]="newMessageContent" (keyup.enter)="sendMessage()" placeholder="Type a message..." />
-      <button (click)="sendMessage()" class="btn-send">Send</button>
+    <!-- Chat Window -->
+    <div class="chat-main card">
+      <div class="chat-header">
+        <div class="active-user">
+          <div class="avatar-large">{{ selectedThread.name.charAt(0) }}</div>
+          <div>
+            <h4>{{ selectedThread.name }}</h4>
+            <span class="status-online">● Online</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="messages-list">
+        <div 
+          *ngFor="let msg of messages" 
+          class="message-bubble" 
+          [ngClass]="{'sent': msg.senderId === currentUserId, 'received': msg.senderId !== currentUserId}"
+        >
+          <p class="content">{{ msg.content }}</p>
+          <small class="time">{{ msg.createdAt | date:'shortTime' }}</small>
+        </div>
+      </div>
+
+      <div class="chat-input-bar">
+        <input 
+          type="text" 
+          [(ngModel)]="newMessageContent" 
+          (keyup.enter)="sendMessage()" 
+          placeholder="Type a message to {{ selectedThread.name }}..." 
+        />
+        <button (click)="sendMessage()" [disabled]="!newMessageContent.trim()" class="btn-send">
+          Send ➔
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications Tab View -->
+  <div *ngIf="activeTab === 'notifications'" class="notifications-layout card">
+    <h3>System & Activity Alerts</h3>
+    <div class="notif-list">
+      <div 
+        *ngFor="let notif of notifications" 
+        class="notif-card"
+        [class.unread]="!notif.isRead"
+        (click)="markNotificationRead(notif)"
+      >
+        <div class="notif-icon" [ngClass]="notif.type">
+          {{ notif.type === 'success' ? '✔' : 'ℹ' }}
+        </div>
+        <div class="notif-content">
+          <div class="notif-header">
+            <strong class="title">{{ notif.title }}</strong>
+            <span class="time">{{ notif.time }}</span>
+          </div>
+          <p class="body">{{ notif.body }}</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>

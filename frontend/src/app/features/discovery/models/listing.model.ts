@@ -21,6 +21,14 @@ export interface RatingSummary {
   distribution: Record<string, number>;
 }
 
+export interface Preference {
+  id: string;
+  code: string;
+  name: string;
+  isRequired: boolean;
+  notes?: string;
+}
+
 export interface Listing {
   id: string;
   title: string;
@@ -39,6 +47,7 @@ export interface Listing {
   ownerDisplayName: string;
   amenities: Amenity[];
   photos: ListingPhoto[];
+  preferences: Preference[];
   ratingSummary?: RatingSummary;
 }
 
@@ -51,6 +60,8 @@ export interface SearchFilters {
   page?: number;
   pageSize?: number;
 }
+
+export type DiscoveryView = 'recommended' | 'all';
 
 export interface PaginatedListings {
   items: Listing[];

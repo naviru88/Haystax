@@ -1,0 +1,84 @@
+@if (report(); as r) {
+  <div class="fixed inset-0 bg-black/40 z-40 flex justify-end" (click)="close.emit()">
+    <div class="bg-white w-full max-w-xl h-full overflow-y-auto shadow-xl"
+         (click)="$event.stopPropagation()">
+
+      <!-- Header -->
+      <div class="p-6 border-b border-gray-200 flex items-start justify-between gap-3">
+        <div>
+          <p class="text-xs text-gray-500 uppercase tracking-wide">Report {{ r.id }}</p>
+          <h2 class="text-lg font-semibold text-gray-900 mt-1">{{ r.categoryLabel }}</h2>
+          <p class="text-xs text-gray-500 mt-1">
+            Submitted {{ r.createdAt | date:'medium' }} · by {{ r.reporterDisplayName }}
+          </p>
+        </div>
+        <button class="btn-outline !px-3 !py-1 text-xs" (click)="close.emit()">Close</button>
+      </div>
+
+      <!-- Status -->
+      <div class="p-6 border-b border-gray-100">
+        <span class="badge-muted capitalize">{{ statusLabel(r.status) }}</span>
+      </div>
+
+      <!-- Affected listing -->
+      <div class="p-6 border-b border-gray-100">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Affected listing</p>
+        <a [href]="'/listings/' + r.listingId"
+           class="text-primary hover:underline font-medium">
+          {{ r.listingTitle }}
+        </a>
+        <p class="text-xs text-gray-400 mt-1">{{ r.listingId }}</p>
+      </div>
+
+      <!-- Description -->
+      <div class="p-6 border-b border-gray-100">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Reporter's description</p>
+        <p class="text-sm text-gray-700 whitespace-pre-line">{{ r.description }}</p>
+      </div>
+
+      <!-- Evidence -->
+      <div class="p-6 border-b border-gray-100">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+          Evidence ({{ r.evidence.length }})
+        </p>
+        @if (r.evidence.length > 0) {
+          <div class="grid grid-cols-2 gap-3">
+            @for (e of r.evidence; track e.id) {
+              <div class="border border-gray-200 rounded-lg overflow-hidden">
+                <div class="aspect-video bg-gray-100 flex items-center justify-center text-xs text-gray-400">
+                  {{ e.evidenceType }} preview
+                </div>
+                <div class="p-2 text-xs text-gray-500">
+                  <p class="truncate" [title]="e.storagePath">{{ e.storagePath }}</p>
+                  <p class="text-gray-400 mt-0.5">{{ e.mimeType }} · {{ e.fileSizeBytes }} bytes</p>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="text-sm text-gray-500">No evidence attached.</p>
+        }
+      </div>
+
+      <!-- Resolution (if resolved/rejected) -->
+      @if (r.resolutionNote) {
+        <div class="p-6 border-b border-gray-100">
+          <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Resolution note</p>
+          <p class="text-sm text-gray-700 whitespace-pre-line">{{ r.resolutionNote }}</p>
+          @if (r.resolvedAt) {
+            <p class="text-xs text-gray-400 mt-2">Resolved {{ r.resolvedAt | date:'medium' }}</p>
+          }
+        </div>
+      }
+
+      <!-- Actions -->
+      @if (r.status === 'submitted' || r.status === 'under_review') {
+        <div class="p-6">
+          <button class="btn-primary w-full" (click)="moderate.emit(r)">
+            Apply moderation action
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}

@@ -1,0 +1,64 @@
+<!-- Compose -->
+<div class="card mb-6">
+  <h2 class="text-lg font-semibold text-gray-900 mb-4">Send a broadcast</h2>
+
+  <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Title</label>
+  <input type="text" class="form-input w-full mt-2 mb-4"
+         placeholder="e.g. Scheduled maintenance"
+         [value]="formTitle()"
+         (input)="setTitle($any($event.target).value)" />
+
+  <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Body</label>
+  <textarea class="form-input w-full mt-2 mb-4" rows="4"
+            placeholder="Message to send to the selected audience..."
+            [value]="formBody()"
+            (input)="setBody($any($event.target).value)"></textarea>
+
+  <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Audience</label>
+  <div class="flex gap-2 mt-2 mb-4">
+    @for (a of audiences; track a.value) {
+      <button type="button"
+              class="px-3 py-1.5 rounded-lg text-sm border transition-colors"
+              [class.border-primary]="formAudience() === a.value"
+              [class.bg-primary-50]="formAudience() === a.value"
+              [class.border-gray-200]="formAudience() !== a.value"
+              (click)="setAudience(a.value)">
+        {{ a.label }}
+      </button>
+    }
+  </div>
+
+  @if (formError(); as err) {
+    <p class="text-xs text-destructive-text mb-3">{{ err }}</p>
+  }
+  @if (formSuccess(); as ok) {
+    <p class="text-xs text-success-text mb-3">{{ ok }}</p>
+  }
+
+  <div class="flex justify-end">
+    <button class="btn-primary" (click)="send()">Send broadcast</button>
+  </div>
+</div>
+
+<!-- History -->
+<div class="card">
+  <h2 class="text-lg font-semibold text-gray-900 mb-4">Sent broadcasts</h2>
+
+  <div class="space-y-4">
+    @for (b of broadcasts(); track b.id) {
+      <div class="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+        <div class="flex items-start justify-between gap-3 mb-1">
+          <h3 class="font-medium text-gray-900">{{ b.title }}</h3>
+          <span class="badge-muted capitalize">{{ b.status }}</span>
+        </div>
+        <p class="text-sm text-gray-700 whitespace-pre-line mb-2">{{ b.body }}</p>
+        <p class="text-xs text-gray-400">
+          To: {{ b.audience }} · Sent by {{ b.createdByDisplayName }}
+          @if (b.sentAt) { · {{ b.sentAt | date:'medium' }} }
+        </p>
+      </div>
+    } @empty {
+      <p class="text-sm text-gray-500">No broadcasts yet.</p>
+    }
+  </div>
+</div>

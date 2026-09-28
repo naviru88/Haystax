@@ -1,0 +1,43 @@
+<div class="card !p-0 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 border-b border-gray-200">
+      <tr>
+        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Action</th>
+        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Listing / Owner</th>
+        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Reason</th>
+        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Admin</th>
+        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (a of actions(); track a.id) {
+        <tr class="border-b border-gray-100 hover:bg-gray-50">
+          <td class="px-4 py-3">
+            <span class="badge-muted capitalize">{{ a.actionType.replace('_', ' ') }}</span>
+          </td>
+          <td class="px-4 py-3">
+            @if (a.listingTitle) {
+              <p class="font-medium text-gray-900">{{ a.listingTitle }}</p>
+            }
+            @if (a.ownerDisplayName) {
+              <p class="text-xs text-gray-500">Owner: {{ a.ownerDisplayName }}</p>
+            }
+          </td>
+          <td class="px-4 py-3 text-gray-700 max-w-md">
+            {{ a.reason }}
+          </td>
+          <td class="px-4 py-3 text-gray-700">{{ a.adminDisplayName }}</td>
+          <td class="px-4 py-3 text-gray-500 text-xs">
+            {{ a.createdAt | date:'medium' }}
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="5" class="text-center py-12 text-gray-500">
+            No moderation actions yet.
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

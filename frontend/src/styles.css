@@ -1,8 +1,136 @@
-/* Global Styles */
-body {
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: #f4f6f8;
-  color: #333;
+@import "tailwindcss";
+
+@theme {
+  /* Haystax palette (from reference design) */
+  --color-primary: #1E6B7A;
+  --color-primary-50: #F0F7F9;
+  --color-primary-100: #D9EBEF;
+  --color-primary-500: #2C7A8C;
+  --color-primary-600: #1E6B7A;
+  --color-primary-700: #155263;
+  --color-primary-foreground: #FFFFFF;
+
+  --color-sidebar: #1F2937;
+  --color-sidebar-hover: #374151;
+  --color-sidebar-active: #2C7A8C;
+  --color-sidebar-foreground: #D1D5DB;
+
+  --color-success: #22C55E;
+  --color-success-bg: #DCFCE7;
+  --color-success-text: #166534;
+
+  --color-warning: #F59E0B;
+  --color-warning-bg: #FEF3C7;
+  --color-warning-text: #92400E;
+
+  --color-destructive: #DC2626;
+  --color-destructive-bg: #FEE2E2;
+  --color-destructive-text: #991B1B;
+
+  --color-muted: #6B7280;
+  --color-muted-bg: #F3F4F6;
+
+  --radius-card: 1rem;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+@layer base {
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer components {
+  /* Cards & buttons */
+  .card {
+    @apply bg-white rounded-2xl border border-gray-200 shadow-sm p-6;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium
+           hover:bg-primary-700 transition-colors;
+  }
+
+  .btn-outline {
+    @apply border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium
+           hover:bg-gray-50 transition-colors;
+  }
+
+  /* Form controls */
+  .form-input {
+    @apply border border-gray-300 rounded-lg px-3 py-2 text-sm
+           focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary
+           transition-colors bg-white;
+  }
+
+  /* Badges */
+  .badge-muted {
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+           bg-muted-bg text-gray-700;
+  }
+
+  .badge-available {
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+           bg-success-bg text-success-text;
+  }
+
+  .badge-danger {
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+           bg-destructive-bg text-destructive-text;
+  }
+
+  /* Sidebar links — collapse-friendly */
+
+  .sidebar-link {
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm
+           text-sidebar-foreground hover:bg-sidebar-hover
+           transition-colors whitespace-nowrap;
+  }
+
+  .sidebar-link-active {
+    @apply bg-sidebar-active text-white hover:bg-sidebar-active;
+  }
+
+  /* Admin tabs*/
+  .admin-tab {
+    @apply px-4 py-2 text-sm font-medium text-gray-500 rounded-t-lg
+           hover:text-gray-900 hover:bg-gray-50 transition-colors whitespace-nowrap;
+  }
+
+  .admin-tab-active {
+    @apply text-primary border-b-2 border-primary bg-primary-50;
+  }
+
+  .tooltip-host {
+    @apply relative;
+  }
+
+  .tooltip-host::after {
+    content: attr(data-tooltip);
+    @apply absolute left-full top-1/2 -translate-y-1/2 ml-3
+           bg-gray-900 text-white text-xs rounded-md px-2 py-1
+           whitespace-nowrap opacity-0 pointer-events-none
+           transition-opacity duration-150 z-50;
+  }
+
+  .tooltip-host:hover::after {
+    @apply opacity-100;
+  }
+}
+
+@layer utilities {
+  @media (max-width: 1023px) {
+    .mobile-drawer-backdrop {
+      @apply fixed inset-0 bg-black/40 z-30 transition-opacity;
+    }
+
+    .mobile-drawer-open {
+      @apply fixed inset-y-0 left-0 z-40 shadow-xl;
+    }
+  }
 }

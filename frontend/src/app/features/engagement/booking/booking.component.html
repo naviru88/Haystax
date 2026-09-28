@@ -45,7 +45,7 @@
         <span class="status-badge" [ngClass]="booking.status.toLowerCase()">{{ booking.status }}</span>
       </div>
       <p><strong>Move-in Date:</strong> {{ booking.moveInDate }}</p>
-      <p><strong>Notes:</strong> {{ booking.notes || 'None' }}</p>
+      <p><strong>Message:</strong> {{ booking.message || 'None' }}</p>
       <small>Requested on: {{ booking.createdAt | date:'short' }}</small>
     </div>
   </div>

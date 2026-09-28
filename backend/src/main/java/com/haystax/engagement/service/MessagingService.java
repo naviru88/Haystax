@@ -1,6 +1,7 @@
 package com.haystax.engagement.service;
 
 import com.haystax.engagement.dto.MessageDto;
+import com.haystax.engagement.dto.MessageEvent;
 import com.haystax.engagement.entity.MessageEntity;
 import com.haystax.engagement.repository.MessageRepository;
 import org.springframework.stereotype.Service;
@@ -14,9 +15,12 @@ import java.util.UUID;
 public class MessagingService {
 
     private final MessageRepository messageRepository;
+    private final MessagePublisher  messagePublisher;
 
-    public MessagingService(MessageRepository messageRepository) {
+    public MessagingService(MessageRepository messageRepository,
+                            MessagePublisher messagePublisher) {
         this.messageRepository = messageRepository;
+        this.messagePublisher  = messagePublisher;
     }
 
     public List<MessageDto> getMessagesForConversation(UUID conversationId) {
@@ -25,8 +29,14 @@ public class MessagingService {
                 .toList();
     }
 
+    /**
+     * Persists the message to the DB first (primary operation), then publishes
+     * a {@link MessageEvent} to RabbitMQ for downstream consumers (notifications, etc.).
+     * A RabbitMQ failure does NOT roll back the DB save.
+     */
     @Transactional
     public MessageDto sendMessage(MessageDto dto) {
+        // 1. Persist to DB
         MessageEntity entity = new MessageEntity();
         entity.setId(dto.getId() != null ? UUID.fromString(dto.getId()) : UUID.randomUUID());
         entity.setConversationId(dto.getRecipientId() != null ? UUID.fromString(dto.getRecipientId()) : UUID.randomUUID());
@@ -35,7 +45,20 @@ public class MessagingService {
         entity.setSentAt(OffsetDateTime.now());
 
         MessageEntity saved = messageRepository.save(entity);
-        return mapToDto(saved);
+        MessageDto    result = mapToDto(saved);
+
+        // 2. Publish event to RabbitMQ (safe — exceptions are swallowed in publisher)
+        MessageEvent event = new MessageEvent(
+                saved.getId().toString(),
+                saved.getConversationId().toString(),
+                saved.getSenderId().toString(),
+                result.getRecipientId(),
+                saved.getBody(),
+                saved.getSentAt().toLocalDateTime()
+        );
+        messagePublisher.publish(event);
+
+        return result;
     }
 
     private MessageDto mapToDto(MessageEntity entity) {

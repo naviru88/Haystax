@@ -46,6 +46,7 @@
 }
 
 @layer components {
+  /* Cards & buttons */
   .card {
     @apply bg-white rounded-2xl border border-gray-200 shadow-sm p-6;
   }
@@ -60,38 +61,76 @@
            hover:bg-gray-50 transition-colors;
   }
 
-  .btn-danger {
-    @apply bg-destructive text-white rounded-lg px-4 py-2 text-sm font-medium
-           hover:bg-red-700 transition-colors;
+  /* Form controls */
+  .form-input {
+    @apply border border-gray-300 rounded-lg px-3 py-2 text-sm
+           focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary
+           transition-colors bg-white;
+  }
+
+  /* Badges */
+  .badge-muted {
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+           bg-muted-bg text-gray-700;
   }
 
   .badge-available {
-    @apply bg-success-bg text-success-text rounded-full px-2 py-0.5 text-xs font-medium;
-  }
-
-  .badge-warning {
-    @apply bg-warning-bg text-warning-text rounded-full px-2 py-0.5 text-xs font-medium;
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+           bg-success-bg text-success-text;
   }
 
   .badge-danger {
-    @apply bg-destructive-bg text-destructive-text rounded-full px-2 py-0.5 text-xs font-medium;
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+           bg-destructive-bg text-destructive-text;
   }
 
-  .badge-muted {
-    @apply bg-muted-bg text-muted rounded-full px-2 py-0.5 text-xs font-medium;
-  }
-
-  .form-input {
-    @apply w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
-           focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none;
-  }
+  /* Sidebar links — collapse-friendly */
 
   .sidebar-link {
-    @apply flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
-           text-sidebar-foreground hover:bg-sidebar-hover transition-colors;
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm
+           text-sidebar-foreground hover:bg-sidebar-hover
+           transition-colors whitespace-nowrap;
   }
 
   .sidebar-link-active {
     @apply bg-sidebar-active text-white hover:bg-sidebar-active;
+  }
+
+  /* Admin tabs*/
+  .admin-tab {
+    @apply px-4 py-2 text-sm font-medium text-gray-500 rounded-t-lg
+           hover:text-gray-900 hover:bg-gray-50 transition-colors whitespace-nowrap;
+  }
+
+  .admin-tab-active {
+    @apply text-primary border-b-2 border-primary bg-primary-50;
+  }
+
+  .tooltip-host {
+    @apply relative;
+  }
+
+  .tooltip-host::after {
+    content: attr(data-tooltip);
+    @apply absolute left-full top-1/2 -translate-y-1/2 ml-3
+           bg-gray-900 text-white text-xs rounded-md px-2 py-1
+           whitespace-nowrap opacity-0 pointer-events-none
+           transition-opacity duration-150 z-50;
+  }
+
+  .tooltip-host:hover::after {
+    @apply opacity-100;
+  }
+}
+
+@layer utilities {
+  @media (max-width: 1023px) {
+    .mobile-drawer-backdrop {
+      @apply fixed inset-0 bg-black/40 z-30 transition-opacity;
+    }
+
+    .mobile-drawer-open {
+      @apply fixed inset-y-0 left-0 z-40 shadow-xl;
+    }
   }
 }

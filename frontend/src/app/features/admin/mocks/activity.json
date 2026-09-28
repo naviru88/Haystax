@@ -1,0 +1,17 @@
+[
+  { "day": "2026-08-29", "searches": 42, "listingViews": 118, "filtersApplied": 31, "recommendationViews": 22, "listingContacts": 5 },
+  { "day": "2026-08-30", "searches": 38, "listingViews": 102, "filtersApplied": 29, "recommendationViews": 19, "listingContacts": 3 },
+  { "day": "2026-08-31", "searches": 51, "listingViews": 141, "filtersApplied": 38, "recommendationViews": 27, "listingContacts": 7 },
+  { "day": "2026-09-01", "searches": 57, "listingViews": 156, "filtersApplied": 44, "recommendationViews": 31, "listingContacts": 9 },
+  { "day": "2026-09-02", "searches": 61, "listingViews": 162, "filtersApplied": 47, "recommendationViews": 33, "listingContacts": 8 },
+  { "day": "2026-09-03", "searches": 54, "listingViews": 149, "filtersApplied": 41, "recommendationViews": 28, "listingContacts": 6 },
+  { "day": "2026-09-04", "searches": 48, "listingViews": 134, "filtersApplied": 36, "recommendationViews": 24, "listingContacts": 4 },
+  { "day": "2026-09-05", "searches": 63, "listingViews": 178, "filtersApplied": 51, "recommendationViews": 35, "listingContacts": 10 },
+  { "day": "2026-09-06", "searches": 72, "listingViews": 201, "filtersApplied": 58, "recommendationViews": 41, "listingContacts": 12 },
+  { "day": "2026-09-07", "searches": 68, "listingViews": 190, "filtersApplied": 54, "recommendationViews": 37, "listingContacts": 11 },
+  { "day": "2026-09-08", "searches": 59, "listingViews": 165, "filtersApplied": 46, "recommendationViews": 30, "listingContacts": 8 },
+  { "day": "2026-09-09", "searches": 52, "listingViews": 148, "filtersApplied": 40, "recommendationViews": 26, "listingContacts": 6 },
+  { "day": "2026-09-10", "searches": 66, "listingViews": 184, "filtersApplied": 53, "recommendationViews": 36, "listingContacts": 10 },
+  { "day": "2026-09-11", "searches": 71, "listingViews": 197, "filtersApplied": 57, "recommendationViews": 40, "listingContacts": 12 },
+  { "day": "2026-09-12", "searches": 74, "listingViews": 205, "filtersApplied": 60, "recommendationViews": 42, "listingContacts": 13 }
+]

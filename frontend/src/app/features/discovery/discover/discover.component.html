@@ -1,0 +1,51 @@
+<div class="p-6 max-w-7xl mx-auto">
+
+  <!-- Search filter bar (replaces the old hero) -->
+  <app-filter-bar
+    [filters]="filters()"
+    (filtersChange)="onFiltersChange($event)" />
+
+  <!-- Header + toggle -->
+  <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Discover boardings</h1>
+      <p class="text-gray-500 text-sm mt-1">
+        {{ result().total }} listing{{ result().total === 1 ? '' : 's' }}
+        @if (view() === 'recommended') { recommended for you }
+        @else { sorted A–Z }
+      </p>
+    </div>
+
+    <app-listing-toggle
+      [value]="view()"
+      (valueChange)="onViewChange($event)" />
+  </div>
+
+  <!-- Grid -->
+  @if (result().items.length > 0) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (l of result().items; track l.id) {
+        <app-listing-card [listing]="l" />
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="flex items-center justify-center gap-2 mt-8">
+        <button class="btn-outline" [disabled]="page() === 1" (click)="goToPage(page() - 1)">
+          Previous
+        </button>
+        <span class="text-sm text-gray-600">
+          Page {{ page() }} of {{ totalPages() }}
+        </span>
+        <button class="btn-outline" [disabled]="page() === totalPages()" (click)="goToPage(page() + 1)">
+          Next
+        </button>
+      </div>
+    }
+  } @else {
+    <app-state-view
+      kind="empty"
+      title="No listings match your filters"
+      message="Try removing some filters or searching a different city." />
+  }
+</div>

@@ -1,0 +1,134 @@
+[
+  {
+    "id": "rep-0001",
+    "listingId": "1a2b3c4d-0004-4000-8000-000000000004",
+    "listingTitle": "Spacious 3-Bedroom House in Negombo",
+    "reporterId": "u-0023",
+    "reporterDisplayName": "Ishara S.",
+    "categoryCode": "misleading_listing",
+    "categoryLabel": "Misleading listing",
+    "description": "The listing says it's walking distance to the beach, but it's actually about 3 km away.",
+    "status": "submitted",
+    "createdAt": "2026-09-26T14:22:00Z",
+    "updatedAt": "2026-09-26T14:22:00Z",
+    "evidence": [
+      {
+        "id": "ev-0001",
+        "storagePath": "report-evidence/rep-0001/screenshot-1.png",
+        "evidenceType": "screenshot",
+        "mimeType": "image/png",
+        "fileSizeBytes": 182340
+      }
+    ]
+  },
+  {
+    "id": "rep-0002",
+    "listingId": "1a2b3c4d-0007-4000-8000-000000000007",
+    "listingTitle": "Lakeside Apartment in Kandy",
+    "reporterId": "u-0041",
+    "reporterDisplayName": "Dilan P.",
+    "categoryCode": "wrong_availability",
+    "categoryLabel": "Wrong availability",
+    "description": "Listing shows 1 slot available but owner told me it was already taken.",
+    "status": "submitted",
+    "createdAt": "2026-09-25T09:11:00Z",
+    "updatedAt": "2026-09-25T09:11:00Z",
+    "evidence": [
+      {
+        "id": "ev-0002",
+        "storagePath": "report-evidence/rep-0002/screenshot-1.png",
+        "evidenceType": "screenshot",
+        "mimeType": "image/png",
+        "fileSizeBytes": 94210
+      }
+    ]
+  },
+  {
+    "id": "rep-0003",
+    "listingId": "1a2b3c4d-0001-4000-8000-000000000001",
+    "listingTitle": "Modern Apartment near University of Colombo",
+    "reporterId": "u-0034",
+    "reporterDisplayName": "Sanduni K.",
+    "categoryCode": "unsafe_condition",
+    "categoryLabel": "Unsafe condition",
+    "description": "The shared kitchen had exposed wiring when I visited. Attached photo.",
+    "status": "under_review",
+    "assignedAdminId": "admin-01",
+    "createdAt": "2026-09-24T17:45:00Z",
+    "updatedAt": "2026-09-25T08:02:00Z",
+    "evidence": [
+      {
+        "id": "ev-0003",
+        "storagePath": "report-evidence/rep-0003/photo-1.jpg",
+        "evidenceType": "photo",
+        "mimeType": "image/jpeg",
+        "fileSizeBytes": 502180
+      }
+    ]
+  },
+  {
+    "id": "rep-0004",
+    "listingId": "1a2b3c4d-0002-4000-8000-000000000002",
+    "listingTitle": "Female-Only Boarding in Kandy",
+    "reporterId": "u-0055",
+    "reporterDisplayName": "Nimali W.",
+    "categoryCode": "harassment",
+    "categoryLabel": "Harassment",
+    "description": "Owner was inappropriate in messages after I enquired.",
+    "status": "under_review",
+    "assignedAdminId": "admin-01",
+    "createdAt": "2026-09-23T11:30:00Z",
+    "updatedAt": "2026-09-24T10:15:00Z",
+    "evidence": [
+      {
+        "id": "ev-0004",
+        "storagePath": "report-evidence/rep-0004/screenshot-1.png",
+        "evidenceType": "screenshot",
+        "mimeType": "image/png",
+        "fileSizeBytes": 221340
+      }
+    ]
+  },
+  {
+    "id": "rep-0005",
+    "listingId": "1a2b3c4d-0005-4000-8000-000000000005",
+    "listingTitle": "Executive Suite in Colombo 03",
+    "reporterId": "u-0012",
+    "reporterDisplayName": "Ravi J.",
+    "categoryCode": "wrong_location",
+    "categoryLabel": "Wrong location",
+    "description": "Map pin shows a different building a few streets away.",
+    "status": "resolved",
+    "assignedAdminId": "admin-01",
+    "resolutionNote": "Owner updated the pin. Listing location verified.",
+    "resolvedAt": "2026-09-20T16:00:00Z",
+    "createdAt": "2026-09-18T13:05:00Z",
+    "updatedAt": "2026-09-20T16:00:00Z",
+    "evidence": [
+      {
+        "id": "ev-0005",
+        "storagePath": "report-evidence/rep-0005/screenshot-1.png",
+        "evidenceType": "screenshot",
+        "mimeType": "image/png",
+        "fileSizeBytes": 156700
+      }
+    ]
+  },
+  {
+    "id": "rep-0006",
+    "listingId": "1a2b3c4d-0003-4000-8000-000000000003",
+    "listingTitle": "Male-Only Room near Galle Fort",
+    "reporterId": "u-0022",
+    "reporterDisplayName": "Dilan P.",
+    "categoryCode": "other",
+    "categoryLabel": "Other",
+    "description": "Reported for the wrong reason; withdrawing.",
+    "status": "rejected",
+    "assignedAdminId": "admin-01",
+    "resolutionNote": "Reporter confirmed the report was submitted in error.",
+    "resolvedAt": "2026-09-15T09:30:00Z",
+    "createdAt": "2026-09-14T19:40:00Z",
+    "updatedAt": "2026-09-15T09:30:00Z",
+    "evidence": []
+  }
+]

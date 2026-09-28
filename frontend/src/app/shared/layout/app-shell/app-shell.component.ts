@@ -1,18 +1,18 @@
-import { Component, signal } from '@angular/core';
+import { Component, effect, signal, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   heroHome,
-  heroMagnifyingGlass,
-  heroSparkles,
   heroBuildingOffice2,
   heroPlusCircle,
   heroChatBubbleLeftRight,
-  heroStar,
   heroChartBar,
   heroShieldCheck,
   heroBell,
   heroUserCircle,
+  heroBars3,
+  heroChevronDoubleLeft,
+  heroChevronDoubleRight,
 } from '@ng-icons/heroicons/outline';
 
 interface NavItem {
@@ -28,16 +28,16 @@ interface NavItem {
   providers: [
     provideIcons({
       heroHome,
-      heroMagnifyingGlass,
-      heroSparkles,
       heroBuildingOffice2,
       heroPlusCircle,
       heroChatBubbleLeftRight,
-      heroStar,
       heroChartBar,
       heroShieldCheck,
       heroBell,
       heroUserCircle,
+      heroBars3,
+      heroChevronDoubleLeft,
+      heroChevronDoubleRight,
     }),
   ],
   templateUrl: './app-shell.component.html',
@@ -47,25 +47,53 @@ export class AppShellComponent {
   readonly currentUser = signal({
     displayName: 'Guest',
     isOwner: false,
-    isAdmin: false,
+    isAdmin: true,
     isTenant: true,
   });
 
   readonly navItems: NavItem[] = [
-    // Member 1 — Public Discovery
-    { label: 'Home',            route: '/',                icon: 'heroHome',                capability: 'public' },
-    { label: 'Search',          route: '/search',          icon: 'heroMagnifyingGlass',     capability: 'public' },
-    { label: 'Recommendations', route: '/recommendations', icon: 'heroSparkles',            capability: 'public' },
-    // Member 2 — Owner & Identity
-    { label: 'Owner Dashboard', route: '/owner',           icon: 'heroBuildingOffice2',     capability: 'owner' },
-    { label: 'Add Listing',     route: '/owner/listings/new', icon: 'heroPlusCircle',       capability: 'owner' },
-    // Member 3 — Engagement
-    { label: 'Messages',        route: '/messages',        icon: 'heroChatBubbleLeftRight', capability: 'tenant' },
-    { label: 'Reviews',         route: '/reviews',         icon: 'heroStar',                capability: 'tenant' },
-    { label: 'Analytics',       route: '/analytics',       icon: 'heroChartBar',            capability: 'owner' },
-    // Admin
-    { label: 'Admin Panel',     route: '/admin',           icon: 'heroShieldCheck',         capability: 'admin' },
+    { label: 'Home',            route: '/',                     icon: 'heroHome',                capability: 'public' },
+    { label: 'Owner Dashboard', route: '/owner',                icon: 'heroBuildingOffice2',     capability: 'owner' },
+    { label: 'Add Listing',     route: '/owner/listings/new',   icon: 'heroPlusCircle',          capability: 'owner' },
+    { label: 'Messages',        route: '/messages',             icon: 'heroChatBubbleLeftRight', capability: 'tenant' },
+    { label: 'Analytics',       route: '/analytics',            icon: 'heroChartBar',            capability: 'owner' },
+    { label: 'Admin Panel',     route: '/admin',                icon: 'heroShieldCheck',         capability: 'admin' },
   ];
+
+  // ---------- Sidebar collapse ----------
+  private readonly STORAGE_KEY = 'haystax.sidebar.collapsed';
+
+  readonly collapsed = signal<boolean>(this.readCollapsed());
+
+  private readCollapsed(): boolean {
+    try {
+      return localStorage.getItem(this.STORAGE_KEY) === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  constructor() {
+    effect(() => {
+      try {
+        localStorage.setItem(this.STORAGE_KEY, this.collapsed() ? '1' : '0');
+      } catch {
+        // ignore quota / private mode errors
+      }
+    });
+  }
+
+  toggleSidebar(): void {
+    this.collapsed.update(v => !v);
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onKeydown(e: KeyboardEvent): void {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+      e.preventDefault();
+      this.toggleSidebar();
+    }
+  }
 
   canSee(item: NavItem): boolean {
     const u = this.currentUser();

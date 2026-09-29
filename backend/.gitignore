@@ -1,33 +1,63 @@
-HELP.md
+#  Haystax backend — .gitignore
+#  Spring Boot 4 / Java 21 / Maven
+#
+#  NOTE: This file complements the root .gitignore. Anything repo-wide
+#  (IDE files, OS files, .env, logs) is handled by the root file.
+#  This file only covers backend-specific artifacts.
+
+
+#  🏗️  BUILD OUTPUT
+
 target/
-.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
+# Maven wrapper (the jar is kept, the extracted wrapper files are not)
+.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/timing.properties
+
+# Gradle (only if you ever switch)
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+
+#  ☕  JAVA ARTIFACTS
+
+*.class
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+
+#  🔧  SPRING BOOT DEVTOOLS
+
+# The devtools restart trigger
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+#  🧪  TEST OUTPUT
 
-### VS Code ###
-.vscode/
+# JaCoCo / coverage reports (if you add them later)
+jacoco.exec
+site/jacoco/
+target/site/jacoco/
+
+
+#  📝  LOCAL CONFIG
+
+# Any local overrides you make for backend-specific testing — these are
+# gitignored here AND at the root. Keeping this here for clarity.
+src/main/resources/application-local.yml
+src/main/resources/application-local.yaml
+src/main/resources/application-*-secret.yml
+
+
+#  🐳  DOCKER (backend-adjacent)
+
+# If you build a local image for the backend
+backend.iml

@@ -1,9 +1,13 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { EngagementApiService } from '../services/engagement-api.service';
 import { TenancyRequest, CreateTenancyPayload } from '../../../core/models/tenancy.model';
 
 @Component({
   selector: 'app-booking',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './booking.component.html',
   styleUrls: ['./booking.component.css']
 })

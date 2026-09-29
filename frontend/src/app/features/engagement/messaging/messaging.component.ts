@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { EngagementApiService } from '../services/engagement-api.service';
 import { DirectMessage } from '../../../core/models/message.model';
 
@@ -13,12 +15,14 @@ export interface ConversationThread {
 
 @Component({
   selector: 'app-messaging',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './messaging.component.html',
   styleUrls: ['./messaging.component.css']
 })
 export class MessagingComponent implements OnInit {
   activeTab: 'messages' | 'notifications' = 'messages';
-  
+
   threads: ConversationThread[] = [
     {
       id: 'c1111111-0000-0000-0000-000000000001',

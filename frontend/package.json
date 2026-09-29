@@ -12,7 +12,6 @@
     "stop:all": "cd .. && ./stop-all.sh"
   },
   "private": true,
-  "packageManager": "npm@11.5.2",
   "dependencies": {
     "@angular/cdk": "^21.2.14",
     "@angular/common": "^21.2.0",

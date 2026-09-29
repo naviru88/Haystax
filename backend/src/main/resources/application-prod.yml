@@ -1,0 +1,9 @@
+spring:
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    com.haystax: INFO
+    org.hibernate: WARN
+    root: WARN

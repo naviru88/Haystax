@@ -1,0 +1,42 @@
+[
+  {
+    "id": "r-0001",
+    "listingId": "1a2b3c4d-0001-4000-8000-000000000001",
+    "authorDisplayName": "Ishara S.",
+    "rating": 5,
+    "body": "Great location, walking distance to campus. Owner is responsive and the rooms are clean.",
+    "createdAt": "2026-08-12T09:14:00Z"
+  },
+  {
+    "id": "r-0002",
+    "listingId": "1a2b3c4d-0001-4000-8000-000000000001",
+    "authorDisplayName": "Dilan P.",
+    "rating": 4,
+    "body": "Good value for the area. Wi-Fi is fast and the kitchen is well kept.",
+    "createdAt": "2026-08-30T14:22:00Z"
+  },
+  {
+    "id": "r-0003",
+    "listingId": "1a2b3c4d-0002-4000-8000-000000000002",
+    "authorDisplayName": "Sanduni K.",
+    "rating": 5,
+    "body": "Very quiet and safe. The study area is a big plus for exam season.",
+    "createdAt": "2026-07-04T18:40:00Z"
+  },
+  {
+    "id": "r-0004",
+    "listingId": "1a2b3c4d-0005-4000-8000-000000000005",
+    "authorDisplayName": "Ravi J.",
+    "rating": 5,
+    "body": "Premium unit, exactly as listed. Excellent for a working professional.",
+    "createdAt": "2026-09-01T07:55:00Z"
+  },
+  {
+    "id": "r-0005",
+    "listingId": "1a2b3c4d-0005-4000-8000-000000000005",
+    "authorDisplayName": "Nimal D.",
+    "rating": 5,
+    "body": "Central location, safe building, responsive owner. Would recommend.",
+    "createdAt": "2026-09-10T11:02:00Z"
+  }
+]

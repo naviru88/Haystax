@@ -1,0 +1,228 @@
+<div class="p-6 max-w-6xl mx-auto">
+
+  <!-- Back -->
+  <a routerLink="/" class="text-sm text-primary hover:underline inline-flex items-center gap-1 mb-4">
+    ← Back to discover
+  </a>
+
+  @if (notFound()) {
+    <app-state-view
+      kind="error"
+      title="Listing not found"
+      message="This listing may have been removed or is no longer available." />
+  } @else if (listing(); as l) {
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- LEFT: Photos + description + amenities + preferences -->
+      <div class="lg:col-span-2 space-y-6">
+
+        <!-- Photo gallery -->
+        <div class="card p-0 overflow-hidden">
+          <div class="aspect-video bg-gray-100 flex items-center justify-center">
+            @if (primaryPhoto(); as p) {
+              <img [src]="p.storagePath" [alt]="p.altText || l.title"
+                   class="w-full h-full object-cover" />
+            } @else {
+              <span class="text-gray-400">No photo available</span>
+            }
+          </div>
+
+          @if (l.photos.length > 1) {
+            <div class="grid grid-cols-5 gap-2 p-3">
+              @for (p of l.photos; track p.id; let i = $index) {
+                <button (click)="setActivePhoto(i)"
+                        class="aspect-square rounded-lg overflow-hidden border-2 transition-colors"
+                        [class.border-primary]="i === activePhotoIndex()"
+                        [class.border-transparent]="i !== activePhotoIndex()">
+                  <img [src]="p.storagePath" [alt]="p.altText || ''"
+                       class="w-full h-full object-cover" />
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Description -->
+        <div class="card">
+          <h2 class="text-lg font-semibold text-gray-900 mb-3">About this boarding</h2>
+          <p class="text-gray-700 whitespace-pre-line">{{ l.description }}</p>
+        </div>
+
+        <!-- Amenities -->
+        @if (l.amenities.length > 0) {
+          <div class="card">
+            <h2 class="text-lg font-semibold text-gray-900 mb-3">Amenities</h2>
+            <div class="flex flex-wrap gap-2">
+              @for (a of l.amenities; track a.id) {
+                <span class="badge-muted">{{ a.name }}</span>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Preferences (hidden if empty) -->
+        @if (l.preferences.length > 0) {
+          <div class="card">
+            <h2 class="text-lg font-semibold text-gray-900 mb-3">Preferences</h2>
+            <div class="flex flex-wrap gap-2">
+              @for (p of l.preferences; track p.id) {
+                <span class="badge-muted inline-flex items-center gap-1">
+                  {{ p.name }}
+                  @if (p.isRequired) {
+                    <span class="text-xs font-semibold text-destructive-text">·Required</span>
+                  }
+                </span>
+              }
+            </div>
+            <p class="text-xs text-gray-500 mt-3">
+              Owner preferences for prospective tenants. These are optional and not enforced by the platform.
+            </p>
+          </div>
+        }
+      </div>
+
+      <!-- RIGHT: Sidebar -->
+      <div class="lg:col-span-1 space-y-6">
+
+        <!-- Pricing + action card -->
+        <div class="card">
+          <div class="flex items-baseline gap-2 mb-2">
+            <span class="text-2xl font-bold text-primary">
+              {{ l.priceAmount | number }} {{ l.currencyCode }}
+            </span>
+            <span class="text-sm text-gray-500">/ month</span>
+          </div>
+
+          @if (l.availableSlots > 0) {
+            <span class="badge-available">
+              {{ l.availableSlots }} of {{ l.totalSlots }} slots available
+            </span>
+          } @else {
+            <span class="badge-danger">Currently full</span>
+          }
+
+          <div class="mt-4 space-y-2">
+            <button class="btn-primary w-full" [disabled]="l.availableSlots === 0">
+              Request tenancy
+            </button>
+            <button class="btn-outline w-full">
+              Send inquiry
+            </button>
+          </div>
+
+          <p class="text-xs text-gray-500 mt-3 text-center">
+            Actions enabled in Week 2 integration
+          </p>
+        </div>
+
+        <!-- Owner -->
+        <div class="card">
+          <p class="text-xs font-medium text-gray-500 mb-1">Owner</p>
+          <p class="font-medium text-gray-900">{{ l.ownerDisplayName }}</p>
+        </div>
+
+        <!-- Rating summary -->
+        @if (l.ratingSummary; as rs) {
+          <div class="card">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="text-3xl font-bold text-gray-900">{{ rs.averageRating.toFixed(1) }}</span>
+              <div>
+                <app-rating-stars [value]="Math.round(rs.averageRating)" />
+                <p class="text-xs text-gray-500 mt-0.5">{{ rs.reviewCount }} reviews</p>
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              @for (n of [5,4,3,2,1]; track n) {
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="w-3 text-gray-600">{{ n }}</span>
+                  <div class="flex-1 bg-gray-100 rounded-full h-1.5">
+                    <div class="bg-warning h-full rounded-full"
+                         [style.width.%]="((rs.distribution[n.toString()] || 0) / rs.reviewCount) * 100"></div>
+                  </div>
+                  <span class="w-6 text-right text-gray-500">{{ rs.distribution[n.toString()] || 0 }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Location (compact, right rail) -->
+        <div class="card">
+          <h2 class="text-lg font-semibold text-gray-900 mb-3">Location</h2>
+          <p class="text-sm text-gray-700 mb-3">
+            {{ l.locationLabel || l.city }}
+            @if (l.district) { , {{ l.district }} }
+          </p>
+          <div class="rounded-lg overflow-hidden border border-gray-200 bg-gray-100 flex items-center justify-center"
+               style="height: 180px;">
+            <span class="text-xs text-gray-400">Map placeholder (Leaflet integration coming)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reviews (full width, below everything) -->
+    <div class="card mt-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Reviews &amp; ratings</h2>
+
+      <!-- Form (always visible) -->
+      <div class="border border-gray-200 rounded-lg p-4 mb-6 bg-gray-50">
+        <p class="text-sm font-medium text-gray-900 mb-2">Leave a review</p>
+
+        <div class="flex items-center gap-1 mb-3">
+          @for (n of starOptions; track n) {
+            <button type="button"
+                    class="text-2xl leading-none transition-colors"
+                    [class.text-warning]="n <= formRating()"
+                    [class.text-gray-300]="n > formRating()"
+                    (click)="setFormRating(n)"
+                    [attr.aria-label]="n + ' stars'">
+              ★
+            </button>
+          }
+          @if (formRating() > 0) {
+            <span class="text-xs text-gray-500 ml-2">{{ formRating() }} / 5</span>
+          }
+        </div>
+
+        <textarea class="form-input w-full"
+                  rows="3"
+                  placeholder="Share your experience with this boarding..."
+                  [value]="formBody()"
+                  (input)="setFormBody($any($event.target).value)"></textarea>
+
+        @if (formError(); as err) {
+          <p class="text-xs text-destructive-text mt-2">{{ err }}</p>
+        }
+
+        <div class="flex justify-end mt-3">
+          <button class="btn-primary" (click)="submitReview()">
+            Submit review
+          </button>
+        </div>
+      </div>
+
+      <!-- List -->
+      @if (reviews().length > 0) {
+        <div class="space-y-4">
+          @for (r of reviews(); track r.id) {
+            <div class="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+              <div class="flex items-center gap-3 mb-1">
+                <span class="font-medium text-gray-900 text-sm">{{ r.authorDisplayName }}</span>
+                <app-rating-stars [value]="r.rating" />
+                <span class="text-xs text-gray-400 ml-auto">
+                  {{ r.createdAt | date:'mediumDate' }}
+                </span>
+              </div>
+              <p class="text-sm text-gray-700 whitespace-pre-line">{{ r.body }}</p>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="text-sm text-gray-500">No reviews yet. Be the first to leave one.</p>
+      }
+    </div>
+  }
+</div>

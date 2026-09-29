@@ -1,0 +1,20 @@
+<div class="inline-flex items-center rounded-lg border border-gray-200 bg-white p-1 text-sm">
+  <button
+    type="button"
+    class="px-3 py-1.5 rounded-md transition-colors"
+    [class.bg-primary]="value() === 'recommended'"
+    [class.text-white]="value() === 'recommended'"
+    [class.text-gray-700]="value() !== 'recommended'"
+    (click)="valueChange.emit('recommended')">
+    Recommended first
+  </button>
+  <button
+    type="button"
+    class="px-3 py-1.5 rounded-md transition-colors"
+    [class.bg-primary]="value() === 'all'"
+    [class.text-white]="value() === 'all'"
+    [class.text-gray-700]="value() !== 'all'"
+    (click)="valueChange.emit('all')">
+    All listings (A–Z)
+  </button>
+</div>

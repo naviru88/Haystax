@@ -1,0 +1,55 @@
+[
+  {
+    "id": "aud-0001",
+    "actorId": "admin-01",
+    "actorDisplayName": "Nadeesha P.",
+    "action": "listing.restored",
+    "entityType": "boarding_listing",
+    "entityId": "1a2b3c4d-0005-4000-8000-000000000005",
+    "reason": "Location pin corrected by owner.",
+    "requestId": "req-9f21a3",
+    "createdAt": "2026-09-20T16:00:00Z"
+  },
+  {
+    "id": "aud-0002",
+    "actorId": "admin-01",
+    "actorDisplayName": "Nadeesha P.",
+    "action": "listing.removed",
+    "entityType": "boarding_listing",
+    "entityId": "1a2b3c4d-0008-4000-8000-000000000008",
+    "reason": "Three valid reports confirmed.",
+    "requestId": "req-2e18c9",
+    "createdAt": "2026-09-08T14:20:00Z"
+  },
+  {
+    "id": "aud-0003",
+    "actorId": "admin-01",
+    "actorDisplayName": "Nadeesha P.",
+    "action": "user.suspended",
+    "entityType": "profile",
+    "entityId": "u-0014",
+    "reason": "Third removed listing in 30 days.",
+    "requestId": "req-3a77f1",
+    "createdAt": "2026-09-08T14:21:00Z"
+  },
+  {
+    "id": "aud-0004",
+    "actorId": "admin-01",
+    "actorDisplayName": "Nadeesha P.",
+    "action": "broadcast.sent",
+    "entityType": "broadcast",
+    "entityId": "bc-0001",
+    "createdAt": "2026-09-20T18:00:00Z"
+  },
+  {
+    "id": "aud-0005",
+    "actorId": "admin-01",
+    "actorDisplayName": "Nadeesha P.",
+    "action": "moderation.warning",
+    "entityType": "boarding_listing",
+    "entityId": "1a2b3c4d-0006-4000-8000-000000000006",
+    "reason": "Stock image detected in listing photos.",
+    "requestId": "req-1c42b8",
+    "createdAt": "2026-09-12T11:05:00Z"
+  }
+]

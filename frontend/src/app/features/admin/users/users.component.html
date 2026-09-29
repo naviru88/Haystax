@@ -1,0 +1,95 @@
+<div class="mb-4">
+  <input type="text" class="form-input w-full max-w-md"
+         placeholder="Search users by name or ID..."
+         [value]="query()"
+         (input)="setQuery($any($event.target).value)" />
+</div>
+
+<div class="card !p-0 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 border-b border-gray-200">
+      <tr>
+        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">User</th>
+        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Roles</th>
+        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Listings</th>
+        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Last seen</th>
+        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Status</th>
+        <th class="px-4 py-3"></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (u of filtered(); track u.id) {
+        <tr class="border-b border-gray-100 hover:bg-gray-50">
+          <td class="px-4 py-3">
+            <p class="font-medium text-gray-900">{{ u.displayName }}</p>
+            <p class="text-xs text-gray-400 font-mono">{{ u.id }}</p>
+          </td>
+          <td class="px-4 py-3 space-x-1">
+            @if (u.isAdmin) { <span class="badge-muted">Admin</span> }
+            @if (u.isOwner) { <span class="badge-muted">Owner</span> }
+            @if (!u.isAdmin && !u.isOwner) { <span class="badge-muted">Tenant</span> }
+          </td>
+          <td class="px-4 py-3 text-gray-700">{{ u.ownedListingCount }}</td>
+          <td class="px-4 py-3 text-xs text-gray-500">
+            {{ u.lastSeenAt ? (u.lastSeenAt | date:'mediumDate') : '—' }}
+          </td>
+          <td class="px-4 py-3">
+            @if (u.isSuspended) {
+              <span class="badge-muted !bg-destructive-bg !text-destructive-text">
+                Suspended
+              </span>
+            } @else {
+              <span class="badge-muted !bg-success-bg !text-success-text">Active</span>
+            }
+          </td>
+          <td class="px-4 py-3 text-right">
+            @if (u.isAdmin) {
+              <span class="text-xs text-gray-400">—</span>
+            } @else if (u.isSuspended) {
+              <button class="btn-outline !px-3 !py-1 text-xs" (click)="unsuspend(u)">
+                Unsuspend
+              </button>
+            } @else {
+              <button class="btn-outline !px-3 !py-1 text-xs" (click)="openSuspend(u)">
+                Suspend
+              </button>
+            }
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="6" class="text-center py-12 text-gray-500">
+            No users match.
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<!-- Suspend modal -->
+@if (suspendTarget(); as t) {
+  <div class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
+       (click)="closeSuspend()">
+    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6"
+         (click)="$event.stopPropagation()">
+      <h2 class="text-lg font-semibold text-gray-900 mb-1">Suspend user</h2>
+      <p class="text-sm text-gray-500 mb-4">{{ t.displayName }}</p>
+
+      <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Reason</label>
+      <textarea class="form-input w-full mt-2" rows="3"
+                placeholder="Required for the audit log"
+                [value]="suspendReason()"
+                (input)="setSuspendReason($any($event.target).value)"></textarea>
+
+      @if (suspendError(); as err) {
+        <p class="text-xs text-destructive-text mt-2">{{ err }}</p>
+      }
+
+      <div class="flex justify-end gap-2 mt-6">
+        <button class="btn-outline" (click)="closeSuspend()">Cancel</button>
+        <button class="btn-primary" (click)="confirmSuspend()">Suspend</button>
+      </div>
+    </div>
+  </div>
+}

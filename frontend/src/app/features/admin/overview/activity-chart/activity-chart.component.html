@@ -1,0 +1,35 @@
+<div class="card">
+  <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+    <h2 class="text-lg font-semibold text-gray-900">Daily activity</h2>
+    <p class="text-xs text-gray-500">
+      Showing {{ orderedData().length }} days · metric: {{ metric() }}
+    </p>
+  </div>
+
+  <div class="w-full overflow-x-auto">
+    <svg [attr.viewBox]="'0 0 ' + (orderedData().length * 40 + 40) + ' 180'"
+         class="h-48"
+         preserveAspectRatio="none"
+         style="width: 100%; min-width: 600px;">
+      @for (d of orderedData(); track d.day; let i = $index) {
+        <rect
+          [attr.x]="i * 40 + 20"
+          [attr.y]="160 - barHeight(d[metric()])"
+          width="24"
+          [attr.height]="barHeight(d[metric()])"
+          rx="3"
+          class="fill-primary" />
+      }
+      <line x1="0" y1="160" [attr.x2]="orderedData().length * 40 + 40" y2="160"
+            stroke="#E5E7EB" stroke-width="1" />
+    </svg>
+  </div>
+
+  <div class="flex justify-between text-xs text-gray-400 mt-1 px-2">
+    @for (d of orderedData(); track d.day; let i = $index) {
+      @if (i % 2 === 0 || i === orderedData().length - 1) {
+        <span>{{ shortDay(d.day) }}</span>
+      }
+    }
+  </div>
+</div>

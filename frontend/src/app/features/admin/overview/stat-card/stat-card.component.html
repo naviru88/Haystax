@@ -1,0 +1,16 @@
+<div class="card">
+  <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+    {{ label() }}
+  </p>
+  <p class="text-3xl font-bold"
+     [class.text-gray-900]="tone() === 'default'"
+     [class.text-primary]="tone() === 'primary'"
+     [class.text-warning-text]="tone() === 'warning'"
+     [class.text-destructive-text]="tone() === 'danger'"
+     [class.text-success-text]="tone() === 'success'">
+    {{ value() }}
+  </p>
+  @if (hint()) {
+    <p class="text-xs text-gray-500 mt-1">{{ hint() }}</p>
+  }
+</div>

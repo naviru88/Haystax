@@ -1,0 +1,191 @@
+[
+  {
+    "id": "1a2b3c4d-0001-4000-8000-000000000001",
+    "title": "Modern Apartment near University of Colombo",
+    "description": "Bright 2-bedroom apartment with attached bathroom and kitchen. Walking distance to campus and public transport.",
+    "city": "Colombo",
+    "district": "Western",
+    "locationLabel": "Colombo 07",
+    "lat": 6.9271,
+    "lng": 79.8612,
+    "priceAmount": 35000,
+    "currencyCode": "LKR",
+    "genderPolicy": "any",
+    "totalSlots": 3,
+    "availableSlots": 2,
+    "status": "published",
+    "ownerDisplayName": "Amal F.",
+    "amenities": [
+      { "id": "a1", "code": "wifi", "name": "Wi-Fi" },
+      { "id": "a2", "code": "furnished", "name": "Furnished" },
+      { "id": "a3", "code": "attached_bathroom", "name": "Attached bathroom" }
+    ],
+    "photos": [],
+    "preferences": [
+      { "id": "p1", "code": "university_students", "name": "University students", "isRequired": false },
+      { "id": "p2", "code": "non_smokers", "name": "Non-smokers", "isRequired": true },
+      { "id": "p3", "code": "quiet_hours", "name": "Quiet hours observed", "isRequired": false }
+    ],
+    "ratingSummary": { "reviewCount": 12, "averageRating": 4.6, "distribution": { "5": 8, "4": 3, "3": 1 } }
+  },
+  {
+    "id": "1a2b3c4d-0002-4000-8000-000000000002",
+    "title": "Female-Only Boarding in Kandy",
+    "description": "Quiet boarding house exclusively for female students. Common kitchen and study area.",
+    "city": "Kandy",
+    "district": "Central",
+    "locationLabel": "Peradeniya",
+    "lat": 7.2906,
+    "lng": 80.6337,
+    "priceAmount": 22000,
+    "currencyCode": "LKR",
+    "genderPolicy": "female_only",
+    "totalSlots": 6,
+    "availableSlots": 4,
+    "status": "published",
+    "ownerDisplayName": "Nadeesha P.",
+    "amenities": [
+      { "id": "a1", "code": "wifi", "name": "Wi-Fi" },
+      { "id": "a4", "code": "common_kitchen", "name": "Common kitchen" },
+      { "id": "a5", "code": "security", "name": "Security" }
+    ],
+    "photos": [],
+    "preferences": [
+      { "id": "p4", "code": "female_only", "name": "Female tenants only", "isRequired": true },
+      { "id": "p5", "code": "university_students", "name": "University students", "isRequired": false }
+    ],
+    "ratingSummary": { "reviewCount": 5, "averageRating": 4.8, "distribution": { "5": 4, "4": 1 } }
+  },
+  {
+    "id": "1a2b3c4d-0003-4000-8000-000000000003",
+    "title": "Male-Only Room near Galle Fort",
+    "description": "Single room for a working professional. Shared bathroom, water and electricity included.",
+    "city": "Galle",
+    "district": "Southern",
+    "locationLabel": "Galle Fort",
+    "lat": 6.0535,
+    "lng": 80.2210,
+    "priceAmount": 18000,
+    "currencyCode": "LKR",
+    "genderPolicy": "male_only",
+    "totalSlots": 2,
+    "availableSlots": 0,
+    "status": "published",
+    "ownerDisplayName": "Ravi J.",
+    "amenities": [
+      { "id": "a6", "code": "water_included", "name": "Water included" },
+      { "id": "a7", "code": "electricity_included", "name": "Electricity included" }
+    ],
+    "photos": [],
+    "preferences": [
+      { "id": "p6", "code": "male_only", "name": "Male tenants only", "isRequired": true },
+      { "id": "p7", "code": "working_professionals", "name": "Working professionals", "isRequired": false }
+    ],
+    "ratingSummary": { "reviewCount": 3, "averageRating": 4.2, "distribution": { "5": 1, "4": 1, "3": 1 } }
+  },
+  {
+    "id": "1a2b3c4d-0004-4000-8000-000000000004",
+    "title": "Spacious 3-Bedroom House in Negombo",
+    "description": "Family-friendly house with garden and parking. Close to the beach and main road.",
+    "city": "Negombo",
+    "district": "Western",
+    "locationLabel": "Negombo Beach Road",
+    "lat": 7.2083,
+    "lng": 79.8358,
+    "priceAmount": 55000,
+    "currencyCode": "LKR",
+    "genderPolicy": "any",
+    "totalSlots": 4,
+    "availableSlots": 3,
+    "status": "published",
+    "ownerDisplayName": "Shanuka R.",
+    "amenities": [
+      { "id": "a1", "code": "wifi", "name": "Wi-Fi" },
+      { "id": "a2", "code": "furnished", "name": "Furnished" },
+      { "id": "a8", "code": "parking", "name": "Parking" }
+    ],
+    "photos": [],
+    "preferences": [],
+    "ratingSummary": { "reviewCount": 8, "averageRating": 4.5, "distribution": { "5": 5, "4": 2, "3": 1 } }
+  },
+  {
+    "id": "1a2b3c4d-0005-4000-8000-000000000005",
+    "title": "Executive Suite in Colombo 03",
+    "description": "Premium fully-serviced apartment in the heart of the business district. Ideal for executives.",
+    "city": "Colombo",
+    "district": "Western",
+    "locationLabel": "Colombo 03",
+    "lat": 6.9147,
+    "lng": 79.8500,
+    "priceAmount": 72000,
+    "currencyCode": "LKR",
+    "genderPolicy": "any",
+    "totalSlots": 1,
+    "availableSlots": 1,
+    "status": "published",
+    "ownerDisplayName": "Shanuka R.",
+    "amenities": [
+      { "id": "a2", "code": "furnished", "name": "Furnished" },
+      { "id": "a9", "code": "air_conditioning", "name": "Air conditioning" },
+      { "id": "a5", "code": "security", "name": "Security" },
+      { "id": "a3", "code": "attached_bathroom", "name": "Attached bathroom" },
+      { "id": "a8", "code": "parking", "name": "Parking" }
+    ],
+    "photos": [],
+    "preferences": [
+      { "id": "p8", "code": "working_professionals", "name": "Working professionals", "isRequired": false },
+      { "id": "p9", "code": "no_pets", "name": "No pets", "isRequired": true }
+    ],
+    "ratingSummary": { "reviewCount": 18, "averageRating": 5.0, "distribution": { "5": 18 } }
+  },
+  {
+    "id": "1a2b3c4d-0006-4000-8000-000000000006",
+    "title": "Luxury Studio in Colombo 05",
+    "description": "Newly built studio with modern fittings. Close to restaurants, gyms, and public transport.",
+    "city": "Colombo",
+    "district": "Western",
+    "locationLabel": "Colombo 05",
+    "lat": 6.8940,
+    "lng": 79.8680,
+    "priceAmount": 48000,
+    "currencyCode": "LKR",
+    "genderPolicy": "any",
+    "totalSlots": 2,
+    "availableSlots": 2,
+    "status": "published",
+    "ownerDisplayName": "Amal F.",
+    "amenities": [
+      { "id": "a1", "code": "wifi", "name": "Wi-Fi" },
+      { "id": "a2", "code": "furnished", "name": "Furnished" },
+      { "id": "a9", "code": "air_conditioning", "name": "Air conditioning" }
+    ],
+    "photos": [],
+    "preferences": [],
+    "ratingSummary": { "reviewCount": 4, "averageRating": 4.7, "distribution": { "5": 3, "4": 1 } }
+  },
+  {
+    "id": "1a2b3c4d-0007-4000-8000-000000000007",
+    "title": "Lakeside Apartment in Kandy",
+    "description": "Peaceful apartment overlooking the Kandy lake. Ideal for students or working professionals.",
+    "city": "Kandy",
+    "district": "Central",
+    "locationLabel": "Kandy Lake",
+    "lat": 7.2906,
+    "lng": 80.6417,
+    "priceAmount": 28000,
+    "currencyCode": "LKR",
+    "genderPolicy": "any",
+    "totalSlots": 3,
+    "availableSlots": 1,
+    "status": "published",
+    "ownerDisplayName": "Nadeesha P.",
+    "amenities": [
+      { "id": "a1", "code": "wifi", "name": "Wi-Fi" },
+      { "id": "a4", "code": "common_kitchen", "name": "Common kitchen" },
+      { "id": "a5", "code": "security", "name": "Security" }
+    ],
+    "photos": [],
+    "preferences": [],
+    "ratingSummary": { "reviewCount": 6, "averageRating": 4.4, "distribution": { "5": 3, "4": 2, "3": 1 } }
+  }
+]

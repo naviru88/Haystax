@@ -1,0 +1,46 @@
+<div class="mb-4">
+  <input type="text" class="form-input w-full max-w-md"
+         placeholder="Search by action, actor, entity, or reason..."
+         [value]="query()"
+         (input)="setQuery($any($event.target).value)" />
+</div>
+
+<div class="card !p-0 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 border-b border-gray-200">
+      <tr>
+        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Action</th>
+        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Entity</th>
+        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Actor</th>
+        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Reason</th>
+        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">When</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (l of filtered(); track l.id) {
+        <tr class="border-b border-gray-100 hover:bg-gray-50">
+          <td class="px-4 py-3 font-mono text-xs text-gray-700">{{ l.action }}</td>
+          <td class="px-4 py-3 text-gray-600 text-xs">
+            {{ l.entityType }}
+            @if (l.entityId) {
+              <span class="text-gray-400"> · {{ l.entityId.slice(0, 8) }}…</span>
+            }
+          </td>
+          <td class="px-4 py-3 text-gray-700">{{ l.actorDisplayName || 'system' }}</td>
+          <td class="px-4 py-3 text-gray-600 max-w-md truncate" [title]="l.reason || ''">
+            {{ l.reason || '—' }}
+          </td>
+          <td class="px-4 py-3 text-gray-500 text-xs">
+            {{ l.createdAt | date:'medium' }}
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="5" class="text-center py-12 text-gray-500">
+            No audit log entries match.
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

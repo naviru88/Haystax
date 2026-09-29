@@ -1,0 +1,41 @@
+[
+  {
+    "id": "mod-0001",
+    "reportId": "rep-0005",
+    "listingId": "1a2b3c4d-0005-4000-8000-000000000005",
+    "listingTitle": "Executive Suite in Colombo 03",
+    "ownerId": "u-0010",
+    "ownerDisplayName": "Shanuka R.",
+    "adminId": "admin-01",
+    "adminDisplayName": "Nadeesha P.",
+    "actionType": "restore_listing",
+    "reason": "Owner updated the location pin, listing verified.",
+    "createdAt": "2026-09-20T16:00:00Z"
+  },
+  {
+    "id": "mod-0002",
+    "listingId": "1a2b3c4d-0006-4000-8000-000000000006",
+    "listingTitle": "Luxury Studio in Colombo 05",
+    "ownerId": "u-0009",
+    "ownerDisplayName": "Amal F.",
+    "adminId": "admin-01",
+    "adminDisplayName": "Nadeesha P.",
+    "actionType": "warning",
+    "reason": "Photo set included a stock image; asked owner to replace.",
+    "thresholdCount": 1,
+    "createdAt": "2026-09-12T11:05:00Z"
+  },
+  {
+    "id": "mod-0003",
+    "listingId": "1a2b3c4d-0008-4000-8000-000000000008",
+    "listingTitle": "Budget Room in Anuradhapura",
+    "ownerId": "u-0014",
+    "ownerDisplayName": "Kasun M.",
+    "adminId": "admin-01",
+    "adminDisplayName": "Nadeesha P.",
+    "actionType": "remove_listing",
+    "reason": "Three valid reports confirmed inaccurate capacity. Removed per policy.",
+    "thresholdCount": 3,
+    "createdAt": "2026-09-08T14:20:00Z"
+  }
+]

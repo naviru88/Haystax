@@ -5,11 +5,20 @@
     ← Back to discover
   </a>
 
-  @if (notFound()) {
+  @if (loading()) {
+    <div class="card text-center py-12">
+      <p class="text-gray-500">Loading listing...</p>
+    </div>
+  } @else if (notFound()) {
     <app-state-view
       kind="error"
       title="Listing not found"
       message="This listing may have been removed or is no longer available." />
+  } @else if (error(); as e) {
+    <app-state-view
+      kind="error"
+      title="Couldn't load listing"
+      [message]="e" />
   } @else if (listing(); as l) {
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">

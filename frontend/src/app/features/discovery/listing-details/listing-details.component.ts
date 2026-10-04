@@ -2,8 +2,10 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { DiscoveryApiService } from '../services/discovery-api.service';
+import { HttpDiscoveryApiService } from '../services/http-discovery-api.service';
 import { Listing } from '../models/listing.model';
 import { Review } from '../models/review.model';
+import { environment } from '../../../../environments/environment';
 import { RatingStarsComponent } from '../../../shared/components/rating-stars/rating-stars.component';
 import { StateViewComponent } from '../../../shared/components/state-view/state-view.component';
 
@@ -13,16 +15,19 @@ import { StateViewComponent } from '../../../shared/components/state-view/state-
   templateUrl: './listing-details.component.html',
 })
 export class ListingDetailsComponent {
-  private readonly api = inject(DiscoveryApiService);
+  private readonly mockApi = inject(DiscoveryApiService);
+  private readonly httpApi = inject(HttpDiscoveryApiService);
   private readonly route = inject(ActivatedRoute);
 
   protected readonly Math = Math;
 
   readonly listing = signal<Listing | undefined>(undefined);
   readonly notFound = signal(false);
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
   readonly activePhotoIndex = signal(0);
 
-  /** Reviews for the current listing. */
+  /** Reviews for the current listing. Still mock-only (M3 owns the real API). */
   readonly reviews = signal<Review[]>([]);
 
   /** New-review form state. */
@@ -44,13 +49,36 @@ export class ListingDetailsComponent {
       this.notFound.set(true);
       return;
     }
-    const found = this.api.getById(id);
-    if (!found) {
-      this.notFound.set(true);
-    } else {
-      this.listing.set(found);
-      this.reviews.set(this.api.getReviewsForListing(found.id));
+
+    if (environment.useMockApi) {
+      const found = this.mockApi.getById(id);
+      if (!found) {
+        this.notFound.set(true);
+      } else {
+        this.listing.set(found);
+        this.reviews.set(this.mockApi.getReviewsForListing(found.id));
+      }
+      return;
     }
+
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.httpApi.fetchById(id).subscribe({
+      next: (data) => {
+        this.listing.set(data);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        if (err?.status === 404) {
+          this.notFound.set(true);
+        } else {
+          this.error.set('Failed to load listing. Is the backend running?');
+          console.error('Listing fetch failed', err);
+        }
+        this.loading.set(false);
+      },
+    });
   }
 
   setActivePhoto(i: number): void {
@@ -89,7 +117,7 @@ export class ListingDetailsComponent {
       createdAt: new Date().toISOString(),
     };
 
-    this.reviews.update(rs => [newReview, ...rs]);
+    this.reviews.update((rs) => [newReview, ...rs]);
     this.formRating.set(0);
     this.formBody.set('');
     this.formError.set(null);

@@ -1,6 +1,5 @@
 package com.haystax.owner.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 
@@ -12,8 +11,8 @@ import java.util.List;
  * <p>
  * Contract quirk: the error payload uses snake_case everywhere EXCEPT the 422-only
  * {@code fieldErrors} property (the C1 spec names it fieldErrors verbatim), so this
- * record deliberately has NO class-level {@code @JsonNaming} — the exact wire name
- * is pinned with {@link JsonProperty}. Damage contained: timestamp/status/error/
+ * record deliberately has NO class-level {@code @JsonNaming} — the exact wire name is the record component name itself
+ * ({@code fieldErrors}), with no naming strategy applied. Damage contained: timestamp/status/error/
  * message/path are single words, unaffected by naming strategy.
  */
 public record ErrorResponseDto(
@@ -22,7 +21,7 @@ public record ErrorResponseDto(
         @NotNull String error,
         @NotNull String message,
         @NotNull String path,
-        @JsonProperty("fieldErrors") List<FieldErrorDto> fieldErrors
+        List<FieldErrorDto> fieldErrors
 ) {
 
     public record FieldErrorDto(String field, String message) {

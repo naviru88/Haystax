@@ -1,7 +1,7 @@
 package com.haystax.owner.dto;
 
-import com.fasterxml.jackson.annotation.JsonNaming;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.annotation.JsonNaming;
+import tools.jackson.databind.PropertyNamingStrategies;
 
 /**
  * PostGIS point ({@code geography(Point,4326)}) — OpenAPI {@code location}

@@ -7,15 +7,23 @@ Read this whole file before doing anything. It is the source of truth for Week 1
 
 ## 0. Hard rules (never break)
 
-1. **Do not invent.** Do not add endpoints, fields, tables, enums, libraries, or pages that are not listed in this file. If something is missing or ambiguous, write `TODO(ask Anoj): <question>` in the file and STOP that item. Do not guess.
-2. **Work on one task at a time** (T1, T2, ...). Finish it, run its checks, commit, then stop and report. Do not start the next task unless told.
-3. **Edit only your own paths** (section 2). Never edit another member's folders. Shared folders (`core/`, `shared/`, `common/`) need Anoj's explicit OK per file.
-4. **Never push to `develop` or `main`.** Work only on the branch Anoj created for the task. No force-push. No rebasing without being asked.
-5. **Never trust the client for roles or ownership.** `is_owner`, `is_admin`, and `owner_id` always come from the server/DB/JWT, never from request bodies.
-6. **Do not guess versions.** Run `node -v`, `npm -v`, `ng version`, `java -version`, `mvn -v` and report the output before scaffolding. Use what is installed; ask if a version is unsuitable.
-7. **Dev-only secrets.** No real passwords/keys in the repo. Use `.env.example` with placeholders; real `.env` is git-ignored.
-8. **Week 1 = contracts, design, setup, seed, minimal skeleton.** Do NOT implement full CRUD, photo upload logic, or full page UIs (that is Weeks 2–3).
-9. After every task, report: files created/changed, commands run + their output summary, anything skipped, open questions.
+1. **Do not invent.** Do not add endpoints, fields, tables, enums, libraries, or pages that are not listed in this file or in the source files it points to. If something is missing or ambiguous, write `TODO(ask Anoj): <question>` and STOP that item. Do not guess.
+2. **Work in checkpoints (section 4).** Week 1 has exactly **3 commits**. After each commit you STOP, print the CHECKPOINT report (section 5), and wait for Anoj to approve. Never start the next commit on your own.
+3. **Edit only your own paths** (section 2). Shared folders need Anoj's explicit OK per file.
+4. **Never push.** Anoj pushes. Never touch `develop` or `main`. No force-push, no rebase, no amend unless asked.
+5. **Never trust the client for roles or ownership.** `is_owner`, `is_admin`, `owner_id` come from the server/DB/JWT, never from request bodies.
+6. **Do not guess versions.** Run the version commands and report them. Use what is installed.
+7. **Secrets:** see section 0.1.
+8. **Week 1 = contracts, review, setup, skeletons, fixtures.** Do NOT implement full CRUD, photo upload logic, or finished page UIs (Weeks 2–3).
+9. **No extra commits.** Do not split into many small commits, and do not add "polish" or "cleanup" commits.
+
+## 0.1 Secrets and the shared Supabase database
+
+- The team shares one live Supabase database. Credentials live only in `backend/.env` (git-ignored). **Never read, print, quote, copy into any file, or commit them.** If you need a value, name the variable (e.g. `HAYSTAX_DB_URL`) and ask Anoj.
+- Do not run `cat .env`, `env`, or `printenv`. Do not use `source` on `.env` (the password contains characters that break the shell).
+- Before every commit run `git status --short` and confirm no `.env`, credentials file, backup file or SQL file with secrets is staged.
+- **Do not run migrations, seeds, DROP, TRUNCATE, INSERT, UPDATE or DELETE against the live database.** Read-only `SELECT` on the catalog is allowed only if Anoj asks. Anoj starts the backend himself (section 6); you do not start it against the live DB unless told to.
+- The initial migration (`Haystax_Supabase_Initial_Migration.sql`) and Anoj's live-schema snapshot (`~/haystax-live-schema.txt`, outside the repo) are the source of truth for tables. The live DB has **extra objects not in the migration file**: `admin_daily_activity`, `listing_preferences`, `preference_catalog`, `user_settings`. Ask Anoj for the paths of both files and read them before C1.
 
 ---
 
@@ -23,27 +31,29 @@ Read this whole file before doing anything. It is the source of truth for Week 1
 
 **Haystax** = boarding (rental room) marketplace. Angular SPA + Spring Boot API + Supabase PostgreSQL (PostGIS). Monorepo: `frontend/`, `backend/`, `notification-service/`, `infra/`, `docs/`.
 
-**Team slices (vertical):**
-- Member 1 (Naviru): Public Discovery — Home, Search Results, Listing Details, Recommendations.
-- **Member 2 (Anoj, YOU work for him): Owner & Identity — Owner Dashboard, Listing Editor, Login/Register (unified), Admin Panel.**
+**Team slices:**
+- Member 1 (Naviru): Public Discovery (Home, Search, Listing Details, Recommendations) **and the Admin Panel** (it was moved to him and he has already built part of it in `frontend/src/app/features/admin/`).
+- **Member 2 (Anoj, YOU work for him): Owner & Identity — exactly 3 pages: Login/Register (unified), Owner Dashboard, Listing Editor.** Plus the owner/identity backend and its tables.
 - Member 3 (Binuwara): Engagement — Booking/Inquiry, Messaging/Notifications, Reviews & Ratings, Analytics.
 
-**Rule between members:** communication only via versioned REST endpoints or events. No importing another member's source, no reading another member's tables. Weeks 1–3 use mocks/fixtures for anything cross-member.
+**The Admin Panel is NOT yours.** Do not build, edit, extend, restyle or duplicate anything in `features/admin/`. Do not create admin endpoints (no `/api/owner/admin/**`), admin pages or moderation actions. Your only admin-related duties: the JWT/role model must expose `is_admin` correctly, and login must redirect admin users to the existing admin route (read the route path from `app.routes.ts`; do not invent it).
 
-**Roles (one account model, no separate tenant/owner accounts):**
-- Tenant: normal user, `is_owner=false`, `is_admin=false`. (No `is_tenant` flag exists.)
-- Owner: `is_owner=true`, `is_admin=false`. A dual-role user is also just `is_owner=true`; ownership is checked **per listing**, never globally.
-- Admin: `is_admin=true`. Cannot self-register; seeded/invited only. A signup form must never be able to produce an admin.
-- JWT carries capability claims `is_owner` and `is_admin`. Backend is the source of truth; UI hiding is not security.
+**Rule between members:** communication only via versioned REST endpoints or events. No importing another member's source, no reading another member's tables from your code. Read other members' files to *align*, never to import.
 
-**Week 1 deliverables (from the WBS, Member 2):**
-1. Define the 4 page contracts and role rules.
-2. Design the 4 owned table groups.
-3. Set up Spring Boot REST + Spring Security/JPA connected to PostgreSQL (Supabase, or local Postgres for dev).
-4. Seed student(tenant), owner, and admin fixtures plus local image fixtures.
-5. (Header also says "Angular design, setup & seed") Minimal Angular skeleton for the owned feature folder with local mock auth/role fixtures. Keep this small.
+**Roles (one account model):**
+- Tenant: `is_owner=false`, `is_admin=false`. (No `is_tenant` flag.)
+- Owner: `is_owner=true`. A dual-role user is also just `is_owner=true`; ownership is checked **per listing**, never globally.
+- Admin: `is_admin=true`. Cannot self-register.
+- The backend is the source of truth for authorization. UI hiding is not security.
 
-Later (do NOT build now): Week 2 listing CRUD, photo upload, login/register, JWT claims, owner profile, moderation endpoints + tests. Week 3 build all 4 Angular pages against real local API. Week 4 merge with other members.
+**Week 1 deliverables (WBS, Member 2, adjusted):**
+1. The 3 page contracts and role rules.
+2. Review of the 3 owned table groups against the live DB (they already exist; no new tables).
+3. Spring Boot owner-slice skeleton connected to the Supabase PostgreSQL (read-only smoke check).
+4. Local fixtures: mock student(tenant), owner and admin users, mock listings, local image fixtures (as frontend mocks; nothing is written to the live DB).
+5. Minimal Angular skeleton for `features/owner-identity/` that matches the team's existing design.
+
+Later (do NOT build now): Week 2 listing CRUD, photo upload, owner profile, role-boundary tests. Week 3 full Angular pages against the real local API. Week 4 merge.
 
 ---
 
@@ -54,187 +64,188 @@ Later (do NOT build now): Week 2 listing CRUD, photo upload, login/register, JWT
 | `frontend/src/app/features/owner-identity/**` | Yours |
 | `backend/src/main/java/com/haystax/owner/**` | Yours |
 | `backend/src/test/java/com/haystax/owner/**` | Yours |
-| `docs/page-contracts/m2-owner-identity.md` | Yours |
-| `docs/api-contracts/openapi-owner.yaml` | Yours |
-| `backend/src/main/resources/db/migration/` (files named for owner/identity tables only) | Yours |
-| `frontend/src/app/core/**`, `frontend/src/app/shared/**`, `backend/.../common/**`, `infra/**` | **Shared — ask first** |
-| `features/discovery/**`, `features/engagement/**`, `.../discovery/**`, `.../engagement/**`, `notification-service/**` | **FORBIDDEN** |
+| `docs/page-contracts/m2-owner-identity.md` (empty file, fill it) | Yours |
+| `docs/api-contracts/openapi-owner.yaml` (empty file, fill it) | Yours |
+| `docs/m2-db-notes.md` (new) | Yours |
+| `frontend/src/app/app.routes.ts`, `frontend/src/app/shared/**`, `frontend/src/app/core/**`, `frontend/src/styles.css`, `backend/pom.xml`, `backend/src/main/resources/application*.yml`, `backend/.../config/**`, `backend/.../common/**`, `infra/**` | **Shared — show the exact diff and ask first** |
+| `features/admin/**`, `features/discovery/**`, `features/engagement/**`, `.../engagement/**`, `backend/src/main/resources/db/migration/**`, `notification-service/**` | **FORBIDDEN** |
 
-Naming: files kebab-case; classes PascalCase; backend DTOs `*Dto`; DB tables snake_case plural; API routes `/api/<slice>/<resource>` (yours: `/api/owner/...`); events `domain.action`.
+Never touch the two broken files `frontend/canvas,<CR>` and `frontend/svg,<CR>` (names end in a carriage return; hidden on this machine by sparse-checkout). Never create files whose names contain `? * : " < > |` or trailing commas.
+
+Naming: kebab-case files; PascalCase classes; backend DTOs `*Dto`; routes `/api/owner/...`; events `domain.action`.
 
 ---
 
 ## 3. Data facts for the tables you own
 
-Use PostgreSQL. UUID PKs (`gen_random_uuid()`), `timestamptz`, `created_at`/`updated_at` on mutable tables.
+PostgreSQL via Supabase. UUID PKs, `timestamptz`.
 
-### Enums
-- `listing_status`: `draft`, `pending_review`, `published`, `paused`, `removed`
-- `gender_policy`: `any`, `female_only`, `male_only`
+**Auth (resolved): Supabase Auth.** Identity is in `auth.users`; `public.profiles.id` references `auth.users(id)`. There is no password table; Spring does not store or hash passwords. A trigger creates the `profiles` row on signup (new users: `is_owner=false`, `is_admin=false`, `is_suspended=false`). A trigger blocks non-admins from changing `is_admin`, `is_suspended`, `suspension_reason` (it does NOT block `is_owner`). Helper SQL functions exist: `current_user_is_admin()`, `current_user_is_owner()`, `owns_listing(uuid)`. Spring's role: validate the Supabase-issued JWT and resolve `is_owner`/`is_admin` from `public.profiles`. Do not invent another token scheme.
 
-### 3.1 Identity / roles (WBS group "UsersRoles")
-Columns for the profile record:
-`id uuid PK`, `display_name text NOT NULL (2–120 chars)`, `phone_number text NULL`, `avatar_path text NULL`, `is_owner boolean NOT NULL default false`, `is_admin boolean NOT NULL default false`, `is_suspended boolean NOT NULL default false`, `suspension_reason text NULL (admin-only visibility)`, `created_at`, `updated_at`, `last_seen_at NULL`.
-Rules: normal users can never set `is_admin`, `is_suspended`, `suspension_reason`. A DB trigger or server logic must block it.
+Known issues — **report them in C1 notes, do not fix:**
+1. Any authenticated user can set their own `is_owner=true` through the profiles update policy. Is this the intended "become an owner" flow?
+2. A direct JDBC connection has no `auth.uid()`, so the escalation trigger and RLS helper functions behave differently from Supabase-client calls; Spring must enforce ownership itself because the DB owner role bypasses RLS.
+3. The `.env.example` has `HAYSTAX_JWT_SECRET` as a stub "until Member 2 ships the real JwtService". How Supabase JWTs are verified (shared secret vs JWKS) is undecided.
 
-> **OPEN DECISION D1 (auth source) — ask Anoj before writing the identity migration.**
-> The database spec says identity lives in Supabase `auth.users` with `profiles.id` FK to it (no own password table). The WBS and test plan say Spring Boot issues/refreshes JWTs and hashes passwords (`UsersRoles`). These conflict.
-> - Option A: Supabase Auth issues JWT; Spring validates it; `profiles` links to `auth.users`.
-> - Option B: Spring owns a `users_roles` table with `password_hash` (BCrypt) and issues its own JWT; works with plain local Postgres.
-> Until Anoj answers, do **not** create the identity table migration. Do T1 and T2 with the decision left as a clearly marked section.
+### profiles
+`id uuid PK (FK auth.users)`, `display_name text NOT NULL (2–120)`, `phone_number`, `avatar_path`, `is_owner bool NOT NULL default false`, `is_admin bool NOT NULL default false`, `is_suspended bool NOT NULL default false`, `suspension_reason`, `created_at`, `updated_at`, `last_seen_at`. There is **no `owner_profiles` table**; owner capability is `is_owner`.
 
-### 3.2 Owner profile (WBS group "OwnerProfiles")
-**No exact column list exists in the spec.** Do not invent one. Write `TODO(ask Anoj)` and propose a minimal list in the contract doc for him to approve (suggestion only, marked "PROPOSED").
+### boarding_listings
+`id uuid PK default gen_random_uuid()`, `owner_id uuid NOT NULL FK profiles(id) on delete restrict`, `title text NOT NULL (5–160)`, `description text NOT NULL`, `address_line_1 NOT NULL`, `address_line_2`, `city NOT NULL`, `district`, `location_label`, `location geography(Point,4326) NOT NULL`, `price_amount numeric(12,2) NOT NULL >=0`, `currency_code char(3) default 'LKR'`, `gender_policy gender_policy NOT NULL default 'any'` (values `any`, `female_only`, `male_only`), `total_slots int NOT NULL >0`, `available_slots int NOT NULL (0..total_slots)`, `status listing_status NOT NULL default 'draft'` (values `draft`, `pending_review`, `published`, `paused`, `removed`), `moderation_note`, `published_at`, `removed_at`, `created_at`, `updated_at`.
+Trigger `validate_listing_owner` requires the owner to have `is_owner=true`. RLS: published listings are public; owners read/insert/update/delete their own; admins everything.
+Team business answer: **gender preference is optional; every other listing field is mandatory** (price, amenities, capacity, photos, address, location coordinates). One owner can have many listings. Clients can never set `owner_id`.
 
-### 3.3 `boarding_listings` (WBS group "Listings")
-| column | type | notes |
-|---|---|---|
-| id | uuid PK | |
-| owner_id | uuid NOT NULL | FK to profile; must be an `is_owner=true` user; set by server only |
-| title | text NOT NULL | 5–160 chars |
-| description | text NOT NULL | required before publication |
-| address_line_1 | text NOT NULL | |
-| address_line_2 | text NULL | |
-| city | text NOT NULL | indexed |
-| district | text NULL | |
-| location_label | text NULL | |
-| location | geography(Point,4326) NOT NULL | PostGIS; GIST index |
-| price_amount | numeric(12,2) NOT NULL | >= 0 |
-| currency_code | char(3) NOT NULL default 'LKR' | |
-| gender_policy | gender_policy NOT NULL default 'any' | **optional for owner to choose** |
-| total_slots | int NOT NULL | > 0 |
-| available_slots | int NOT NULL | 0..total_slots |
-| status | listing_status NOT NULL default 'draft' | |
-| moderation_note | text NULL | owner-visible |
-| published_at, removed_at | timestamptz NULL | |
-| created_at, updated_at | timestamptz | |
+### listing_photos
+`id`, `listing_id FK (cascade)`, `storage_path text NOT NULL UNIQUE`, `alt_text`, `sort_order int default 0`, `is_primary bool default false` (partial unique index: one primary per listing), `is_approved bool default false`, `created_at`, `updated_at`. Storage bucket `listing-photos` is private; path pattern `{listing_id}/{file}`. DB stores the object path, never a public URL.
 
-Business answer from the team: **gender preference is optional; all other listing fields are mandatory** (price, amenities, capacity, photos, address, location coordinates).
-Only `published` listings are publicly visible. `available_slots = 0` is still readable but shown unavailable. Clients can never set `owner_id`. One owner can have many listings.
+### Related (listing-adjacent, used by the editor)
+`amenities(id, code unique, name, description, is_active, sort_order, ...)`, `listing_amenities(listing_id, amenity_id)` PK both, `listing_rules(id, listing_id, rule_code, label, is_allowed, notes, unique(listing_id, rule_code))`. Seed amenity codes: wifi, parking, furnished, air_conditioning, common_kitchen, laundry, water_included, electricity_included, attached_bathroom, security.
 
-### 3.4 `listing_photos`
-`id uuid PK`, `listing_id uuid FK NOT NULL`, `storage_path text NOT NULL` (pattern `{listing_id}/{photo_uuid}.{ext}`), `alt_text NULL`, `sort_order int default 0`, `is_primary boolean default false` (max one primary per listing), `is_approved boolean`, `created_at`, `updated_at`. DB stores the object path, never a permanent public URL.
-
-### 3.5 Related reference tables (listing-adjacent; create only if Anoj confirms they are in your group)
-`amenities(id, code unique, name, description, is_active default true, sort_order default 0, created_at, updated_at)`; `listing_amenities(listing_id, amenity_id, created_at)` PK `(listing_id, amenity_id)`; `listing_rules(id, listing_id, rule_code, label, is_allowed, notes, created_at, updated_at)`.
-Seed amenity codes: `wifi, parking, furnished, air_conditioning, common_kitchen, laundry, water_included, electricity_included, attached_bathroom, security`.
-
-### 3.6 Indexes to include with your tables
-`profile(is_owner)`, `profile(is_admin)`, `profile(is_suspended)`, `boarding_listings(owner_id)`, `(status)`, `(city)`, `(gender_policy)`, `(price_amount)`, `(available_slots)`, GIST on `location`, `listing_photos(listing_id, sort_order)`, `listing_amenities(amenity_id)`.
-
-### 3.7 Moderation rules (Admin Panel must reflect these; enforcement logic is Week 2+, reports belong to Member 3)
-Based on count of **valid reports** per listing relative to `total_slots` (max capacity):
-- reaches 50% of capacity → owner gets a warning message
-- equals capacity → listing flagged **"Under review"**, visible to anyone viewing the listing
-- reaches 2× capacity → listing removed
-- owner with 3 removed listings → owner account suspended
-Admin accounts are seeded/invited only. Every admin action must be auditable (actor, action, target, reason, timestamp).
+### Moderation status you must DISPLAY (not enforce — admin is Naviru's)
+Listing statuses and `moderation_note` come from the DB. Rules the team stated: warning at 50% of capacity in valid reports; "Under review" when reports equal capacity (visible to anyone viewing the listing); removed at 2x capacity; owner suspended after 3 removed listings. The owner pages must show listing `status`, `moderation_note`, and a suspended-account state if `is_suspended`.
 
 ---
 
-## 4. Tasks (do in order, one per branch)
+## 4. The 3 commits (do in order; stop after each)
 
-### T0 — Environment check (no code)
-- Run and report: `git --version`, `node -v`, `npm -v`, `ng version`, `java -version`, `mvn -v`, `docker --version`.
-- List the repo tree (2 levels). Report which of `frontend/`, `backend/`, `docs/`, `infra/` already exist and what teammates have already committed to `develop`.
-- Done when: report delivered. No file changes.
+Time budget (7h): C1 ≈ 2.5h, C2 ≈ 2.5h, C3 ≈ 2h.
 
-### T1 — Page contracts + role rules
-File: `docs/page-contracts/m2-owner-identity.md`
-For **each** of the 4 pages (Login/Register, Owner Dashboard, Listing Editor, Admin Panel) document:
-1. Route path and who may access (anonymous / tenant / owner / admin) and redirect when denied.
-2. What the page shows and what actions it has (only those implied by the user stories below).
-3. Data it needs (field names must match section 3).
-4. API calls it will make (reference endpoint names from T2).
-5. UI states: loading, empty, error, success (and page-specific ones: upload progress/error, moderation state, authorization error).
-6. Mock/fixture data it uses in Weeks 1–3.
-7. Acceptance checklist (testable bullets).
+### C1 — Docs only: contracts + DB notes
+Message: `docs(owner): week 1 page contracts, API contract and DB notes`
+Files: `docs/page-contracts/m2-owner-identity.md`, `docs/api-contracts/openapi-owner.yaml`, `docs/m2-db-notes.md`. No code.
 
-Also add a **Role rules** section: a table of role × page/action → allow/deny; guards `authGuard`, `ownerGuard` (needs `is_owner=true`), `adminGuard` (needs `is_admin=true`); post-login redirect (admin → Admin Panel, owner → Owner Dashboard, tenant → public home, which is Member 1's page, so only reference its route as `TODO(ask Anoj)`).
+**Page contracts (3 pages: Login/Register, Owner Dashboard, Listing Editor).** For each page document:
+1. Route and who may access (anonymous / tenant / owner / admin) and redirect when denied.
+2. What it shows and its actions (only what the stories below imply).
+3. Data fields (names must match section 3).
+4. API calls (names from the OpenAPI file).
+5. UI states: loading, empty, error, success, plus page-specific ones (upload progress/error, moderation state, suspended account, authorization error).
+6. Fixture data used in Weeks 1–3.
+7. A testable acceptance checklist.
+Add a **Role rules** table (role × page/action → allow/deny). Guards: `authGuard`, `ownerGuard` (needs `is_owner`). Post-login redirects: admin → existing admin route, owner → Owner Dashboard, tenant → public home (route from `app.routes.ts`; if unclear `TODO(ask Anoj)`).
+Stories to cover (only these): OWN-01..OWN-05, OWN-08; MOWN-01, MOWN-03, MOWN-04, MOWN-07; DUAL-01..DUAL-03; CROSS-01. OWN-06/OWN-07 (messaging, confirming tenants) belong to Member 3: mark cross-slice, not yours. ADM-* stories are not yours.
+Key acceptance points: owner sees only own listings; edit screen shows listing title + location; stale/invalid ID gives a safe error and never updates another listing; self-registration cannot create an admin; photo type/size validation feedback; vacancy never negative or above capacity.
+**Traceability rule:** every field and every action in the contract must carry a source tag: `[DB table.column]`, `[story ID]`, or `[TODO]`. Untagged items are not allowed.
 
-Source stories to cover (use only these): ADM-01..ADM-05; OWN-01..OWN-05, OWN-07 (confirm tenant belongs to Member 3's booking flow — mark as cross-slice, not yours), OWN-08; MOWN-01, MOWN-03, MOWN-04, MOWN-07; DUAL-01..DUAL-03.
-Key acceptance points to carry in: owner sees only own listings; edit screen shows listing identity and location; stale/invalid ID gives a safe error and never updates another listing; non-admin gets an authorization error (no partial data); self-registered users can't become admin; photo type/size validation feedback; vacancy never negative or above capacity.
-- Done when: all 4 pages complete, no invented fields, open questions listed at the bottom.
-
-### T2 — API contract (OpenAPI)
-File: `docs/api-contracts/openapi-owner.yaml` (OpenAPI 3.x). Design only, no implementation. Propose exactly these operations (rename only if Anoj approves):
+**OpenAPI (design only).** Exactly these operations, nothing more:
 
 | Operation | Method + path | Access |
 |---|---|---|
-| Register | POST `/api/owner/auth/register` | anonymous; body must NOT accept `is_admin`/`is_owner=admin` tricks |
-| Login | POST `/api/owner/auth/login` | anonymous; returns JWT with `is_owner`, `is_admin` claims |
-| Refresh | POST `/api/owner/auth/refresh` | valid refresh token |
-| Current user | GET `/api/owner/auth/me` | authenticated |
-| Owner profile get/update | GET, PUT `/api/owner/profile` | owner |
+| Current user | GET `/api/owner/auth/me` | authenticated; returns profile + `is_owner`/`is_admin`/`is_suspended` |
+| Owner profile get/update | GET, PUT `/api/owner/profile` | authenticated; cannot change role flags |
+| Become owner | `TODO(ask Anoj)` — depends on the is_owner decision above | |
 | List my listings | GET `/api/owner/listings` | owner (own only) |
 | Create listing | POST `/api/owner/listings` | owner; `owner_id` from token |
-| Get/Update my listing | GET, PUT `/api/owner/listings/{id}` | owning owner (or admin) |
-| Submit/publish listing | POST `/api/owner/listings/{id}/publish` | owning owner |
-| Upload photo | POST `/api/owner/listings/{id}/photos` | owning owner; multipart; validate MIME/size |
+| Get/Update my listing | GET, PUT `/api/owner/listings/{id}` | owning owner |
+| Submit for publication | POST `/api/owner/listings/{id}/publish` | owning owner |
+| Upload photo | POST `/api/owner/listings/{id}/photos` | owning owner; multipart, validate MIME/size |
 | Delete photo | DELETE `/api/owner/listings/{id}/photos/{photoId}` | owning owner |
-| Admin list listings | GET `/api/owner/admin/listings` | admin only |
-| Admin moderate listing | POST `/api/owner/admin/listings/{id}/moderation` | admin only; reason required |
+| List amenities | GET `/api/owner/amenities` | authenticated |
 
-For each: request schema, response schema, status codes (200/201/400/401/403/404/409/422), and the shared error shape. Define the JWT claim set (`sub`, `is_owner`, `is_admin`, `exp`). Mark anything uncertain `x-todo`. Do not add operations beyond this table.
-Also define the one event Member 2 *may* emit later as `listing.published`/`listing.removed` (names only, payload `TODO`).
-- Done when: file validates (run an OpenAPI linter if installable; otherwise report that you could not validate).
+Register and login are done by **Supabase Auth** (client or Supabase API), not by Spring: do not define `/auth/register` or `/auth/login`. Document in the contract how the Angular app registers/logs in with Supabase and then calls Spring with the Supabase JWT (`TODO(ask Anoj)` for the exact client library choice).
+For each operation: request/response schema, status codes (200/201/400/401/403/404/409/422), shared error shape. Mark uncertain items `x-todo`.
 
-### T3 — Database design + migrations
-- Resolve D1 first (ask Anoj). Then create migration SQL files under `backend/src/main/resources/db/migration/` named `V<n>__<description>.sql` in this order: extensions (pgcrypto, postgis) → enums → identity/profile table → owner profile (only after approval) → amenities (if confirmed) → boarding_listings → listing_photos → listing_amenities/rules (if confirmed) → indexes.
-- Include CHECK constraints from section 3 (price >= 0, total_slots > 0, available_slots between 0 and total_slots, rating-free). Partial unique index: one `is_primary=true` photo per listing.
-- Add a short `docs/` or comment note of the table relationships (text/mermaid ER) for your tables only.
-- Verify: run migrations against a clean local Postgres+PostGIS (e.g. via Docker) and report the result. If Docker is unavailable, say so; do not claim it was tested.
+**DB notes (`docs/m2-db-notes.md`).** Only: (a) which existing tables/columns/policies/functions the owner slice uses, mapped to each operation; (b) a gap table (item, where in SQL, impact) including the 3 known issues above, publish-time mandatory-field checks (photos, amenities), photo approval flow, storage path convention; (c) differences between the live-schema snapshot and the migration file; (d) overlap between `db/migration/V3__engagement_tables.sql` and the initial migration. Do not edit migrations. Do not run SQL.
 
-### T4 — Spring Boot setup (owner slice)
-- The scaffold already exists (root package `com.haystax`). Add code only inside `backend/src/main/java/com/haystax/owner/**` and tests in `backend/src/test/java/com/haystax/owner/**`. Do not edit `pom.xml`, `application*.yml`, `HaystaxApplication`, or `config/` without asking Anoj first; if a dependency is missing, list it and ask. Check `pom.xml` for what is already declared (Security, JPA, Flyway, JWT, Testcontainers) before proposing anything.
-- Dependencies allowed: Spring Web, Spring Security, Spring Data JPA, Validation, PostgreSQL driver, Flyway, springdoc-openapi, a JWT library (name it and ask Anoj to approve), test deps: Spring Boot Test, Testcontainers (PostgreSQL). Nothing else.
-- Create the package skeleton from the folder spec: `owner/{controller,service,repository,dto,mapper}` and empty classes/stubs named as in the spec (`AuthController`, `ListingWriteController`, `OwnerProfileController`, `AdminController`, `AuthService`, `ListingWriteService`, `PhotoUploadService`, `ModerationService`, `ProfileRepository`, `ListingWriteRepository`, `ListingPhotoRepository`). Stubs only, no business logic.
-- `application.yml` + `application-dev.yml` reading DB URL/user/password from env vars (`HAYSTAX_DB_URL`, etc.). Provide `.env.example`.
-- Add one health endpoint and one smoke test proving the app boots and connects to the DB.
-- Done when: `./mvnw verify` (or `mvn verify`) output is reported honestly.
+### C2 — Backend skeleton
+Message: `feat(owner): backend owner slice skeleton with health check`
+Scope (nothing else):
+- Check `backend/pom.xml` for existing dependencies first. If a needed one is missing, **list it and ask** before adding. Do not add hibernate-spatial/PostGIS libraries without asking: do not map the `location` column in Week 1 (`TODO`).
+- Package `com.haystax.owner` with `controller`, `service`, `repository`, `dto`, `mapper`. Stub classes only: `OwnerAuthController` (`/me`), `OwnerProfileController`, `ListingWriteController`, `AuthService`, `ListingWriteService`, `PhotoUploadService`, `ProfileRepository`, `ListingWriteRepository`, `ListingPhotoRepository`.
+- DTO records matching the C1 OpenAPI file exactly (field names from section 3).
+- JPA entities mapped to the EXISTING tables `profiles`, `boarding_listings` (without `location`), `listing_photos`, `amenities`. No schema generation: never `ddl-auto=update/create`.
+- One public endpoint `GET /api/owner/health` returning `{"status":"ok","slice":"owner"}`.
+- Stub endpoints (`/me`, listings, photos) return `501 Not Implemented` with the shared error shape. No business logic.
+- One smoke test that boots the context. If it needs the live DB, it must use read-only operations only and skip cleanly when `HAYSTAX_DB_URL` is not set.
+- Do not edit `pom.xml`, `application*.yml`, `SecurityConfig` or `config/**` without showing the diff and asking.
 
-### T5 — Seed fixtures
-- Three users: one **tenant-only**, one **owner-only**, one **admin** (optionally also a dual-role user). Dev-only credentials documented in `docs/` marked "DEV ONLY, never production". Passwords must be stored hashed.
-- 3–5 sample listings owned by the owner user, covering every `gender_policy`, different prices, one with `available_slots = 0`, statuses mixed (`draft`, `published`, `pending_review`).
-- Local image fixtures: a few small placeholder images in the repo (small files, license-safe or generated), plus matching `listing_photos` rows.
-- Seed runs only under the `dev` profile. A `reset`/reseed script is welcome but must be idempotent.
-- Done when: seeding on a clean DB succeeds and row counts are reported.
+### C3 — Angular skeleton + fixtures (design must match the team's)
+Message: `feat(owner): owner-identity frontend skeleton with mock fixtures`
 
-### T6 — Angular skeleton for `owner-identity` (smallest possible; skip if time is short)
-- Confirm Angular app exists in `frontend/` on `develop`; if not, ask before running `ng new` (shared).
-- Inside `features/owner-identity/` create only: folders `owner-dashboard/`, `listing-editor/`, `auth/`, `admin-panel/`, `services/`, `mocks/`, plus `owner-identity-routing.module.ts`.
-- Each page = a minimal placeholder component showing its title and its UI states driven by a mock flag. No styling polish.
-- `services/mock-auth.service.ts` + `auth-api.service.ts` behind the **same TypeScript interface** (so Week 4 swaps the mock, components never change).
-- `mocks/users.json`, `mocks/listings.json`, `mocks/roles.json` matching section 3 field names.
-- Guards/interceptors/models in `core/` are shared: write them only if Anoj approves, otherwise leave `TODO`.
-- Verify: `ng build` and `ng test --watch=false --browsers=ChromeHeadless` outputs reported.
+**Step 0 — Design audit (before writing any code).** Read and summarise in the CHECKPOINT report: `src/styles.css` (tokens, Tailwind setup), `components.json`, `.postcssrc.json`, `shared/layout/app-shell/*` (navigation, layout), `shared/components/*` (`page-header`, `state-view`, `skeleton-card`, `listing-card`, `rating-stars`), `app.routes.ts`, `features/admin/admin.routes.ts` + one admin page and one discovery page (how they use the shared components, spacing, colours, typography, buttons, forms, tables). Report which Tailwind classes/patterns they use for buttons, inputs, cards, badges and page layout.
+
+**Design rules (strict):**
+- Reuse the shared components: `page-header` for page titles, `state-view` for loading/empty/error, `skeleton-card` for loading placeholders, `listing-card` where a listing card is shown. Do not rebuild equivalents.
+- Use the same styling approach as the existing pages (same Tailwind classes, colours, spacing, radius, fonts). **No new CSS framework, no new fonts, no new colour palette, no component library.** No custom CSS unless the existing pages also use it.
+- Same structure as existing features: standalone components, `.ts` + `.html` pair, lazy-loaded `owner-identity.routes.ts` (copy the pattern of `admin.routes.ts`), a mock-data service + api service behind the same interface (copy the pattern of `discovery-api.service.ts` / `admin-api.service.ts`).
+- Align field names with `features/discovery/models/listing.model.ts` by reading it; **do not import** from another feature. Define your own models in `owner-identity/models/`.
+- Do not edit shared components. If one is missing something, write `TODO(ask Anoj)`.
+- `app.routes.ts` and the app-shell navigation are shared: show the exact diff for adding the owner routes/links and ask before applying.
+
+**Scope:**
+- Folders inside `features/owner-identity/`: `auth/` (login/register page), `owner-dashboard/`, `listing-editor/`, `services/`, `mocks/`, `models/`, `owner-identity.routes.ts`.
+- Each page: a minimal real component showing its title, the layout skeleton from the contract, and its UI states (loading/empty/error/success) switchable via the mock service. No finished forms or full UI.
+- `services/mock-auth.service.ts` and `owner-api.service.ts` behind the **same TypeScript interface**; components depend only on the interface (Week 4 swaps mock → real).
+- Fixtures in `mocks/`: users (one tenant, one owner, one admin, one suspended owner), 3–5 listings owned by the owner covering every `gender_policy` and several statuses (`draft`, `pending_review`, `published`, one with `available_slots=0`), amenities, photo records, plus 3–5 small local placeholder images in `public/` or `src/assets` per the project's existing asset convention (license-safe or generated, small). Field names exactly as section 3.
+- `ownerGuard` / `authGuard` are shared (`core/`): propose them, ask before creating.
 
 ---
 
-## 5. Git workflow rules for the agent
-- All work happens on Anoj's branch **`M2_Anoj`** (already created, already checked out by Anoj). Do not create, switch, or delete branches. Run `git branch --show-current` at the start of every task and STOP if it is not `M2_Anoj`.
-- Make **one commit per task** (or several small commits within a task), so each task can be reviewed or reverted separately. Put the task id in the message, e.g. `docs(owner): T1 page contracts for login and dashboard`.
-- **Repo state as merged from `develop` (verified from the merge output):**
-  - `docs/page-contracts/m2-owner-identity.md` and `docs/api-contracts/openapi-owner.yaml` exist but are **empty (0 bytes)**. Fill them; do not create duplicates.
-  - Backend scaffold exists: root package is **`com.haystax`** (`HaystaxApplication`), NOT `com.haystax.backend`. Existing slices: `engagement/`, `common/exception/`, `config/RabbitMQConfig`. There is no `owner/` package yet. Flyway files present: `V3__engagement_tables.sql`, `V3_1__seed_engagement.sql`. Tests exist in `com/haystax/` and `com/haystax/engagement/`.
-  - `backend/package.json` and `backend/server.js` (Node) exist in the Java backend folder. Do not touch or depend on them; report them in T0.
-  - Frontend is an Angular app with standalone components (`app.routes.ts`, `app.config.ts`, no NgModules). **Follow the existing style** (standalone components, `*.routes.ts`) instead of the `*-routing.module.ts` naming in older docs. Existing features: `admin/`, `discovery/`, `engagement/`, plus `shared/layout/app-shell`, `shared/components/*`.
-  - **`frontend/src/app/features/admin/` already exists** (overview, reports, moderation, users, audit, broadcasts, with mocks and `admin-api.service.ts`). Do NOT modify or duplicate it. Ownership of the Admin Panel is an open question for Anoj to settle with teammates (see section 6).
-  - Two files with a carriage return in their names exist in the repo: `frontend/canvas,\r` and `frontend/svg,\r`. They are hidden on this machine by sparse-checkout. Never touch, add, or recreate them.
-  - Flyway: to avoid version collisions, **ask Anoj which version numbers to use** for your migrations. Do not reuse `V3`/`V3_1`. Also verify that engagement migrations don't already create tables you own.
-- Never overwrite a teammate's content in shared files.
-- Windows warning: never create files whose names contain `? * : " < > |` or trailing commas. Report any such file you see in the repo instead of touching it.
-- Commit small and often. Message format: `type(scope): summary`, e.g. `docs(owner): add page contracts for login and dashboard`.
-- Before finishing a task: run its checks, `git status`, `git diff --stat`, and confirm no file outside section 2 changed. Never commit `node_modules/`, `target/`, `.angular/`, `dist/`, `coverage/`, `.env`.
-- Stop after committing. Anoj opens the PR into `develop`.
+## 5. CHECKPOINT report (print after every commit, then STOP)
 
-## 6. Questions you must ask Anoj when reached (do not guess)
-- Admin Panel ownership: `features/admin/` already exists in the repo. Does Anoj extend it, replace it, or only supply the auth/role/moderation backend for it?
-- Flyway version numbers for owner/identity migrations.
-- D1: Supabase Auth vs Spring-owned users table.
-- Owner profile columns.
-- Whether `amenities`, `listing_amenities`, `listing_rules` belong to your table group.
-- Who commits the shared backend/frontend scaffold first.
-- Where tenant users land after login (Member 1's route).
-- Photo storage in Week 1–3: local disk vs Supabase Storage (spec says Supabase Storage private bucket `listing-photos`; the architecture diagram mentions S3/R2).
-- Migration tool: Flyway files (folder spec) vs Supabase-managed migrations.
+1. `git branch --show-current` (must be `M2_Anoj`) and `git log --oneline -3`.
+2. `git show --stat HEAD` output.
+3. Files created/changed, and confirmation that nothing outside section 2 changed and no secret/`.env` is staged.
+4. Every assumption you made and every `TODO(ask Anoj)`.
+5. **"How to verify this commit"** with the exact commands from section 6 and the expected result.
+6. Commands you ran and their real results. Never claim something was tested if you did not run it; say "not run" and why.
+7. The words: `Waiting for Anoj's approval before the next commit.`
+
+If Anoj finds a problem, fix it by making **one additional commit only if asked** (otherwise amend only when told to). Do not continue to the next checkpoint until Anoj says `approved`.
+
+---
+
+## 6. How Anoj verifies each commit (the agent must put these in every CHECKPOINT)
+
+**General (after every commit), run from the repo root:**
+```bash
+git status --short            # must print nothing (clean)
+git show --stat HEAD          # only files from this commit's scope
+git diff HEAD~1 --name-only | grep -E "env|secret|password" && echo "STOP: sensitive filename" || echo "ok"
+```
+
+**C1 (docs):**
+- Open the three files and check: every field/action has a source tag; nothing from `features/admin/` or admin endpoints appears; the 10 operations in the table are the only ones.
+- Quick traceability scan: `grep -n "TODO" docs/page-contracts/m2-owner-identity.md docs/api-contracts/openapi-owner.yaml docs/m2-db-notes.md` and answer each TODO with the agent or teammates.
+- Validate the OpenAPI file by pasting it into https://editor.swagger.io (no secrets inside).
+
+**C2 (backend):**
+```bash
+cd backend
+./mvnw -q compile                         # must succeed
+./mvnw -q test                            # smoke test passes (or skips cleanly without DB)
+```
+Run the app yourself with your helper script (it loads `.env` safely, disables Flyway and schema generation, and never uses `source`): `node ~/run-backend.js` from `backend/`. RabbitMQ is needed: `docker compose -f ../infra/docker-compose.yml up -d`. Then in a second terminal:
+```bash
+curl -s http://localhost:8080/api/owner/health          # {"status":"ok","slice":"owner"}
+curl -s -i http://localhost:8080/api/owner/listings     # 501 or 401, never 500
+```
+Log must show a successful datasource start (`HikariPool-1 - Start completed`). Stop with Ctrl+C.
+
+**C3 (frontend):**
+```bash
+cd frontend
+npx ng serve                 # open http://localhost:4200
+```
+Click through: the owner routes render, the nav looks like the rest of the app, each page shows its loading/empty/error/success states, tenant/owner/admin mock users land on the correct page, and nothing else in the app changed (open a discovery page and the admin page to confirm). Then:
+```bash
+npx ng test --watch=false --browsers=ChromeHeadless
+```
+`npx ng build` currently fails on a route in Naviru's files (`listings/:id` prerender); that is a known, unrelated error. It is OK only if it is still exactly that one error.
+
+---
+
+## 7. Git rules
+- Work only on branch **`M2_Anoj`**. Run `git branch --show-current` at the start of every task and STOP if it is not `M2_Anoj`. Do not create, switch or delete branches.
+- Exactly three commits (C1, C2, C3) with the messages above. No other commits unless Anoj asks.
+- Never `git add -A` or `git add .`. Add files by explicit path. Never commit `node_modules/`, `target/`, `.angular/`, `dist/`, `coverage/`, `.env`, backups, `package-lock.json` changes, or `angular.json` changes made by tooling.
+- Do not push. Anoj pushes after approval.
+
+## 8. Questions to ask Anoj when reached (do not guess)
+- Paths of `Haystax_Supabase_Initial_Migration.sql` and `~/haystax-live-schema.txt`.
+- How Spring verifies the Supabase JWT (shared secret vs JWKS); claims from token vs `profiles` lookup.
+- How a user becomes an owner (self-service `is_owner` update vs approved workflow).
+- Which Supabase client library the Angular app uses for register/login.
+- Where tenant users land after login (route from Naviru's discovery pages).
+- Who owns the Flyway migrations (V3 engagement exists) and whether Flyway stays enabled against Supabase.
+- Whether photos in Weeks 1–3 use Supabase Storage (`listing-photos` bucket) or local files.

@@ -16,9 +16,21 @@ export const routes: Routes = [
         .then(m => m.ListingDetailsComponent),
   },
   {
+    path: 'auth/login',
+    loadComponent: () =>
+      import('./features/owner-identity/auth/auth.component')
+        .then(m => m.AuthComponent),
+  },
+  {
     path: 'admin',
     loadChildren: () =>
       import('./features/admin/admin.routes').then(m => m.adminRoutes),
+  },
+  {
+    path: 'owner',
+    loadChildren: () =>
+      import('./features/owner-identity/owner-identity.routes')
+        .then(m => m.ownerIdentityRoutes),
   },
   { path: '**', redirectTo: '' },
 ];

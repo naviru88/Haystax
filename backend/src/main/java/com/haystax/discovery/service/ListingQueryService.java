@@ -37,13 +37,17 @@ public class ListingQueryService {
                 .toList();
 
         List<PublishedListingView> sorted = switch (filters.safeSort()) {
-            case "price_asc"  -> filtered.stream()
+            case "price_asc" -> filtered.stream()
                     .sorted(Comparator.comparing(PublishedListingView::getPriceAmount,
                             Comparator.nullsLast(Comparator.naturalOrder())))
                     .toList();
             case "price_desc" -> filtered.stream()
                     .sorted(Comparator.comparing(PublishedListingView::getPriceAmount,
                             Comparator.nullsLast(Comparator.reverseOrder())))
+                    .toList();
+            case "title_asc" -> filtered.stream()
+                    .sorted(Comparator.comparing(PublishedListingView::getTitle,
+                            Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
                     .toList();
             default -> filtered.stream()
                     .sorted(Comparator

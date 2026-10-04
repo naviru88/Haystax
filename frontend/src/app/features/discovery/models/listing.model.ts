@@ -49,6 +49,7 @@ export interface Listing {
   photos: ListingPhoto[];
   preferences: Preference[];
   ratingSummary?: RatingSummary;
+  distanceKm?: number;
 }
 
 export interface SearchFilters {
@@ -56,7 +57,7 @@ export interface SearchFilters {
   minPrice?: number;
   maxPrice?: number;
   genderPolicy?: GenderPolicy;
-  sort?: 'relevance' | 'price_asc' | 'price_desc';
+  sort?: 'relevance' | 'price_asc' | 'price_desc' | 'title_asc';
   page?: number;
   pageSize?: number;
 }

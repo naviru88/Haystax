@@ -23,11 +23,10 @@ public class AdminAnalyticsService {
     }
 
     public AdminStatsDto getStats() {
-        // The summary view has a single row. If it's absent (shouldn't happen),return zeros.
         return summaryRepository.findAll().stream()
                 .findFirst()
                 .map(this::toStats)
-                .orElseGet(() -> new AdminStatsDto(0, 0, 0, 0, 0));
+                .orElseGet(this::emptyStats);
     }
 
     public List<DailyActivityDto> getActivity(int days) {
@@ -49,9 +48,18 @@ public class AdminAnalyticsService {
         return new AdminStatsDto(
                 nz(row.getSubmittedReportCount()),
                 nz(row.getUnderReviewReportCount()),
+                nz(row.getResolvedReportCount()),
+                nz(row.getRejectedReportCount()),
                 nz(row.getPendingListingCount()),
                 nz(row.getRemovedListingCount()),
+                nz(row.getPublishedListingCount()),
+                nz(row.getActiveTenancyCount()),
+                nz(row.getTotalUserCount()),
                 nz(row.getSuspendedUserCount()));
+    }
+
+    private AdminStatsDto emptyStats() {
+        return new AdminStatsDto(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 
     private Integer nz(Integer v) {

@@ -19,54 +19,58 @@ public class AdminModerationSummaryView {
     @Column(name = "under_review_report_count")
     private Integer underReviewReportCount;
 
+    @Column(name = "resolved_report_count")
+    private Integer resolvedReportCount;
+
+    @Column(name = "rejected_report_count")
+    private Integer rejectedReportCount;
+
     @Column(name = "pending_listing_count")
     private Integer pendingListingCount;
 
     @Column(name = "removed_listing_count")
     private Integer removedListingCount;
 
+    @Column(name = "published_listing_count")
+    private Integer publishedListingCount;
+
+    @Column(name = "active_tenancy_count")
+    private Integer activeTenancyCount;
+
+    @Column(name = "total_user_count")
+    private Integer totalUserCount;
+
     @Column(name = "suspended_user_count")
     private Integer suspendedUserCount;
 
-    //getters / setters
+    // getters / setters
+    public Integer getSubmittedReportCount() { return submittedReportCount; }
+    public void setSubmittedReportCount(Integer v) { this.submittedReportCount = v; }
 
-    public Integer getSubmittedReportCount() {
-        return submittedReportCount;
-    }
+    public Integer getUnderReviewReportCount() { return underReviewReportCount; }
+    public void setUnderReviewReportCount(Integer v) { this.underReviewReportCount = v; }
 
-    public void setSubmittedReportCount(Integer submittedReportCount) {
-        this.submittedReportCount = submittedReportCount;
-    }
+    public Integer getResolvedReportCount() { return resolvedReportCount; }
+    public void setResolvedReportCount(Integer v) { this.resolvedReportCount = v; }
 
-    public Integer getUnderReviewReportCount() {
-        return underReviewReportCount;
-    }
+    public Integer getRejectedReportCount() { return rejectedReportCount; }
+    public void setRejectedReportCount(Integer v) { this.rejectedReportCount = v; }
 
-    public void setUnderReviewReportCount(Integer underReviewReportCount) {
-        this.underReviewReportCount = underReviewReportCount;
-    }
+    public Integer getPendingListingCount() { return pendingListingCount; }
+    public void setPendingListingCount(Integer v) { this.pendingListingCount = v; }
 
-    public Integer getPendingListingCount() {
-        return pendingListingCount;
-    }
+    public Integer getRemovedListingCount() { return removedListingCount; }
+    public void setRemovedListingCount(Integer v) { this.removedListingCount = v; }
 
-    public void setPendingListingCount(Integer pendingListingCount) {
-        this.pendingListingCount = pendingListingCount;
-    }
+    public Integer getPublishedListingCount() { return publishedListingCount; }
+    public void setPublishedListingCount(Integer v) { this.publishedListingCount = v; }
 
-    public Integer getRemovedListingCount() {
-        return removedListingCount;
-    }
+    public Integer getActiveTenancyCount() { return activeTenancyCount; }
+    public void setActiveTenancyCount(Integer v) { this.activeTenancyCount = v; }
 
-    public void setRemovedListingCount(Integer removedListingCount) {
-        this.removedListingCount = removedListingCount;
-    }
+    public Integer getTotalUserCount() { return totalUserCount; }
+    public void setTotalUserCount(Integer v) { this.totalUserCount = v; }
 
-    public Integer getSuspendedUserCount() {
-        return suspendedUserCount;
-    }
-
-    public void setSuspendedUserCount(Integer suspendedUserCount) {
-        this.suspendedUserCount = suspendedUserCount;
-    }
+    public Integer getSuspendedUserCount() { return suspendedUserCount; }
+    public void setSuspendedUserCount(Integer v) { this.suspendedUserCount = v; }
 }

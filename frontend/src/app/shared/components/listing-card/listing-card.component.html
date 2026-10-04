@@ -1,71 +1,70 @@
 <a [routerLink]="['/listings', listing().id]"
-   class="card hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 block group">
+   class="card !p-0 overflow-hidden flex flex-col h-full hover:shadow-md transition-shadow cursor-pointer no-underline text-inherit">
 
-  <!-- Photo with overlays -->
-  <div class="relative aspect-video bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-4 overflow-hidden">
-
+  <!-- Photo / placeholder -->
+  <div class="relative aspect-video bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center overflow-hidden">
     @if (listing().photos.length > 0) {
       <img [src]="listing().photos[0].storagePath"
            [alt]="listing().photos[0].altText || listing().title"
-           class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+           loading="lazy" decoding="async"
+           class="w-full h-full object-cover" />
     } @else {
-      <div class="w-full h-full flex items-center justify-center">
-        <span class="text-gray-400 text-sm">No photo yet</span>
-      </div>
+      <span class="text-gray-400 text-sm">No photo yet</span>
     }
 
     <!-- Availability badge (top-right) -->
-    <div class="absolute top-3 right-3">
+    <span class="absolute top-3 right-3 px-2 py-0.5 rounded-full text-xs font-medium"
+          [class.bg-success-bg]="listing().availableSlots > 0"
+          [class.text-success-text]="listing().availableSlots > 0"
+          [class.bg-destructive-bg]="listing().availableSlots === 0"
+          [class.text-destructive-text]="listing().availableSlots === 0">
       @if (listing().availableSlots > 0) {
-        <span class="bg-success-bg text-success-text rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm">
-          Available
-        </span>
+        Available
       } @else {
-        <span class="bg-destructive-bg text-destructive-text rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm">
-          Full
-        </span>
+        Full
       }
-    </div>
+    </span>
 
     <!-- Gender policy chip (top-left) -->
     @if (listing().genderPolicy !== 'any') {
-      <div class="absolute top-3 left-3">
-        <span class="bg-white/95 text-primary rounded-full px-2 py-0.5 text-xs font-medium shadow-sm">
-          {{ listing().genderPolicy === 'female_only' ? 'Female only' : 'Male only' }}
-        </span>
-      </div>
+      <span class="absolute top-3 left-3 bg-white/95 text-primary rounded-full px-2 py-0.5 text-xs font-medium shadow-sm">
+        {{ listing().genderPolicy === 'female_only' ? 'Female only' : 'Male only' }}
+      </span>
     }
   </div>
 
-  <!-- Title -->
-  <h3 class="font-semibold text-gray-900 mb-1 truncate">{{ listing().title }}</h3>
+  <div class="p-4 flex flex-col gap-2 flex-1">
+    <h3 class="font-semibold text-gray-900 line-clamp-2">{{ listing().title }}</h3>
 
-  <!-- Location -->
-  <p class="text-sm text-gray-500 mb-3 flex items-center gap-1">
-    <span>{{ listing().city }}</span>
-    @if (listing().locationLabel) {
-      <span class="text-gray-300">·</span>
-      <span>{{ listing().locationLabel }}</span>
+    <p class="text-sm text-gray-500">
+      {{ listing().locationLabel || listing().city }}
+      @if (listing().district) {
+        · {{ listing().district }}
+      }
+    </p>
+
+    @if (listing().distanceKm != null) {
+      <p class="text-xs text-primary font-medium">
+        📍 {{ listing().distanceKm!.toFixed(1) }} km away
+      </p>
     }
-  </p>
 
-  <!-- Rating row -->
-  @if (listing().ratingSummary; as rs) {
-    <div class="flex items-center gap-1.5 mb-3 text-xs">
-      <span class="text-warning">★</span>
-      <span class="font-semibold text-gray-800">{{ rs.averageRating.toFixed(1) }}</span>
-      <span class="text-gray-400">({{ rs.reviewCount }})</span>
-    </div>
-  }
+    @if (listing().ratingSummary; as rs) {
+      <div class="flex items-center gap-1 text-xs text-gray-500">
+        ⭐ {{ rs.averageRating.toFixed(1) }}
+        <span>({{ rs.reviewCount }})</span>
+      </div>
+    }
 
-  <!-- Footer: price + slots -->
-  <div class="flex items-end justify-between pt-3 border-t border-gray-100">
-    <div>
-      <span class="text-lg font-bold text-primary">{{ listing().priceAmount | number }}</span>
-      <span class="text-xs text-gray-500 ml-1">{{ listing().currencyCode }}/mo</span>
+    <div class="flex items-baseline gap-1 mt-auto pt-2">
+      <span class="text-lg font-bold text-primary">
+        {{ listing().priceAmount | number }}
+      </span>
+      <span class="text-xs text-gray-500">{{ listing().currencyCode }} / month</span>
     </div>
-    <span class="text-xs text-gray-500">
-      {{ listing().availableSlots }}/{{ listing().totalSlots }} slots
-    </span>
+
+    <div class="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
+      <span>{{ listing().availableSlots }}/{{ listing().totalSlots }} slots</span>
+    </div>
   </div>
 </a>

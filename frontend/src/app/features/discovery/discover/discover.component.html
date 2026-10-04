@@ -1,35 +1,85 @@
 <div class="p-6 max-w-7xl mx-auto">
 
-  <!-- Search filter bar (replaces the old hero) -->
+  <!-- Search filter bar -->
   <app-filter-bar
     [filters]="filters()"
     (filtersChange)="onFiltersChange($event)" />
 
-  <!-- Header + toggle -->
+  <!-- Header + toggle + near me -->
   <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
     <div>
-      <h1 class="text-2xl font-bold text-gray-900">Discover boardings</h1>
+      <h1 class="text-2xl font-bold text-gray-900">
+        @if (nearActive()) { Boardings near you }
+        @else { Discover boardings }
+      </h1>
       <p class="text-gray-500 text-sm mt-1">
-        {{ result().total }} listing{{ result().total === 1 ? '' : 's' }}
-        @if (view() === 'recommended') { recommended for you }
-        @else { sorted A–Z }
+        @if (nearActive()) {
+          Within {{ defaultRadiusKm }} km · {{ result().total }} listing{{ result().total === 1 ? '' : 's' }}
+          <span class="text-xs text-gray-400">· Distance is Approximate (Calculated according to location detected by Browser/ Device)</span>
+        } @else {
+          {{ result().total }} listing{{ result().total === 1 ? '' : 's' }}
+          @if (view() === 'recommended') { recommended for you }
+          @else { sorted A–Z }
+        }
       </p>
     </div>
 
-    <app-listing-toggle
-      [value]="view()"
-      (valueChange)="onViewChange($event)" />
+    <div class="flex items-center gap-2 flex-wrap">
+      <!-- Near me / Clear toggle -->
+      @if (nearActive()) {
+        <button
+          type="button"
+          class="btn-outline inline-flex items-center gap-2"
+          (click)="clearNearMe()">
+          ✕ Clear near me
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="btn-outline inline-flex items-center gap-2"
+          [disabled]="locationState() === 'requesting'"
+          (click)="activateNearMe()">
+          @if (locationState() === 'requesting') {
+            📍 Locating...
+          } @else {
+            📍 Near me
+          }
+        </button>
+      }
+
+      <app-listing-toggle
+        [value]="view()"
+        (valueChange)="onViewChange($event)" />
+    </div>
   </div>
 
+  <!-- Location error banner -->
+  @if (locationError(); as msg) {
+    <div class="card mb-4 !border-warning/40 !bg-warning-bg/40">
+      <p class="text-sm text-warning-text">{{ msg }}</p>
+    </div>
+  }
+
+  <!-- Error state -->
+  @if (error(); as err) {
+    <div class="card mb-4 !border-destructive/40 !bg-destructive-bg/40">
+      <p class="text-sm text-destructive-text">{{ err }}</p>
+    </div>
+  }
+
   <!-- Grid -->
-  @if (result().items.length > 0) {
+  @if (loading()) {
+    <div class="card text-center py-12">
+      <p class="text-gray-500">Loading listings...</p>
+    </div>
+  } @else if (result().items.length > 0) {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       @for (l of result().items; track l.id) {
         <app-listing-card [listing]="l" />
       }
     </div>
 
-    @if (totalPages() > 1) {
+    @if (!nearActive() && totalPages() > 1) {
       <div class="flex items-center justify-center gap-2 mt-8">
         <button class="btn-outline" [disabled]="page() === 1" (click)="goToPage(page() - 1)">
           Previous
@@ -45,7 +95,9 @@
   } @else {
     <app-state-view
       kind="empty"
-      title="No listings match your filters"
-      message="Try removing some filters or searching a different city." />
+      [title]="nearActive() ? 'No listings near you' : 'No listings match your filters'"
+      [message]="nearActive()
+        ? 'Try expanding your search radius or browsing all listings.'
+        : 'Try removing some filters or searching a different city.'" />
   }
 </div>

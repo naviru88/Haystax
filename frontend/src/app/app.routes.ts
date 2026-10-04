@@ -20,5 +20,16 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/admin/admin.routes').then(m => m.adminRoutes),
   },
+  // M3: Engagement feature (messaging, reviews, analytics, booking)
+  {
+    path: 'messages',
+    loadChildren: () =>
+      import('./features/engagement/engagement.module').then(m => m.EngagementModule),
+  },
+  {
+    path: 'analytics',
+    loadChildren: () =>
+      import('./features/engagement/engagement.module').then(m => m.EngagementModule),
+  },
   { path: '**', redirectTo: '' },
 ];

@@ -1,8 +1,17 @@
 <div class="p-6 max-w-6xl mx-auto">
 
   <!-- Back -->
-  <a routerLink="/" class="text-sm text-primary hover:underline inline-flex items-center gap-1 mb-4">
-    ← Back to discover
+  <a
+    routerLink="/"
+    class="inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-lg
+           text-sm font-medium text-gray-600
+           bg-white border border-gray-200
+           hover:bg-gray-50 hover:text-primary hover:border-primary/40
+           transition-all shadow-sm hover:shadow
+           group"
+  >
+    <span class="inline-block transition-transform group-hover:-translate-x-0.5">←</span>
+    <span>Back to discover</span>
   </a>
 
   @if (loading()) {
@@ -31,6 +40,7 @@
           <div class="aspect-video bg-gray-100 flex items-center justify-center">
             @if (primaryPhoto(); as p) {
               <img [src]="p.storagePath" [alt]="p.altText || l.title"
+                   loading="lazy" decoding="async"
                    class="w-full h-full object-cover" />
             } @else {
               <span class="text-gray-400">No photo available</span>
@@ -45,6 +55,7 @@
                         [class.border-primary]="i === activePhotoIndex()"
                         [class.border-transparent]="i !== activePhotoIndex()">
                   <img [src]="p.storagePath" [alt]="p.altText || ''"
+                       loading="lazy" decoding="async"
                        class="w-full h-full object-cover" />
                 </button>
               }
@@ -157,17 +168,14 @@
           </div>
         }
 
-        <!-- Location (compact, right rail) -->
+        <!-- Location (compact, right rail, real Leaflet map) -->
         <div class="card">
           <h2 class="text-lg font-semibold text-gray-900 mb-3">Location</h2>
           <p class="text-sm text-gray-700 mb-3">
             {{ l.locationLabel || l.city }}
             @if (l.district) { , {{ l.district }} }
           </p>
-          <div class="rounded-lg overflow-hidden border border-gray-200 bg-gray-100 flex items-center justify-center"
-               style="height: 180px;">
-            <span class="text-xs text-gray-400">Map placeholder (Leaflet integration coming)</span>
-          </div>
+          <app-location-map [lat]="l.lat" [lng]="l.lng" [height]="180" />
         </div>
       </div>
     </div>
@@ -176,7 +184,6 @@
     <div class="card mt-6">
       <h2 class="text-lg font-semibold text-gray-900 mb-4">Reviews &amp; ratings</h2>
 
-      <!-- Form (always visible) -->
       <div class="border border-gray-200 rounded-lg p-4 mb-6 bg-gray-50">
         <p class="text-sm font-medium text-gray-900 mb-2">Leave a review</p>
 
@@ -213,7 +220,6 @@
         </div>
       </div>
 
-      <!-- List -->
       @if (reviews().length > 0) {
         <div class="space-y-4">
           @for (r of reviews(); track r.id) {

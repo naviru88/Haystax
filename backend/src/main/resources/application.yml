@@ -61,3 +61,5 @@ haystax:
   jwt:
     issuer: ${HAYSTAX_JWT_ISSUER:haystax}
     secret: ${HAYSTAX_JWT_SECRET:dev-only-secret-change-in-production}
+  storage:
+    public-base-url: ${HAYSTAX_STORAGE_PUBLIC_URL:}

@@ -1,16 +1,19 @@
-<div class="card !p-0 overflow-hidden flex flex-col h-full">
+<a
+  [routerLink]="['/listings', listing().id]"
+  class="card !p-0 overflow-hidden flex flex-col h-full hover:shadow-md transition-shadow cursor-pointer no-underline text-inherit"
+>
 
   <!-- Photo / placeholder -->
   <div class="aspect-video bg-gray-100 flex items-center justify-center relative">
     @if (listing().photos.length > 0) {
       <img [src]="listing().photos[0].storagePath"
            [alt]="listing().photos[0].altText || listing().title"
+           loading="lazy" decoding="async"
            class="w-full h-full object-cover" />
     } @else {
       <span class="text-gray-400 text-sm">No photo yet</span>
     }
 
-    <!-- Availability badge -->
     <span class="absolute top-3 right-3 px-2 py-0.5 rounded-full text-xs font-medium"
           [class.bg-success-bg]="listing().availableSlots > 0"
           [class.text-success-text]="listing().availableSlots > 0"
@@ -24,7 +27,6 @@
     </span>
   </div>
 
-  <!-- Body -->
   <div class="p-4 flex flex-col gap-2 flex-1">
     <h3 class="font-semibold text-gray-900 line-clamp-2">{{ listing().title }}</h3>
 
@@ -35,7 +37,6 @@
       }
     </p>
 
-    <!-- Distance (only when near-me results) -->
     @if (listing().distanceKm != null) {
       <p class="text-xs text-primary font-medium">
         📍 {{ listing().distanceKm!.toFixed(1) }} km away
@@ -56,4 +57,4 @@
       </div>
     }
   </div>
-</div>
+</a>

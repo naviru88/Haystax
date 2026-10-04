@@ -8,10 +8,18 @@ import { Review } from '../models/review.model';
 import { environment } from '../../../../environments/environment';
 import { RatingStarsComponent } from '../../../shared/components/rating-stars/rating-stars.component';
 import { StateViewComponent } from '../../../shared/components/state-view/state-view.component';
+import { LocationMapComponent } from '../../../shared/components/location-map/location-map.component';
 
 @Component({
   selector: 'app-listing-details',
-  imports: [RouterLink, DecimalPipe, DatePipe, RatingStarsComponent, StateViewComponent],
+  imports: [
+    RouterLink,
+    DecimalPipe,
+    DatePipe,
+    RatingStarsComponent,
+    StateViewComponent,
+    LocationMapComponent,
+  ],
   templateUrl: './listing-details.component.html',
 })
 export class ListingDetailsComponent {
@@ -27,10 +35,10 @@ export class ListingDetailsComponent {
   readonly error = signal<string | null>(null);
   readonly activePhotoIndex = signal(0);
 
-  /** Reviews for the current listing. Still mock-only (M3 owns the real API). */
+  // Reviews for the current listing. Still mock-only (M3 owns the real API).
   readonly reviews = signal<Review[]>([]);
 
-  /** New-review form state. */
+  // New-review form state.
   readonly formRating = signal<number>(0);
   readonly formBody = signal<string>('');
   readonly formError = signal<string | null>(null);

@@ -29,12 +29,12 @@ public class ListingMapper {
     }
 
     public ListingDto toDto(PublishedListingView entity, Double distanceKm) {
-        List<AmenityDto> amenities = parseList(entity.getAmenities(), new TypeReference<>() {});
-        List<ListingPhotoDto> photos = parseList(entity.getPhotos(), new TypeReference<>() {})
+        List<AmenityDto> amenities = parseList(entity.getAmenities(), new TypeReference<List<AmenityDto>>() {});
+        List<ListingPhotoDto> photos = parseList(entity.getPhotos(), new TypeReference<List<ListingPhotoDto>>() {})
                 .stream()
                 .map(this::resolvePhotoUrl)
                 .toList();
-        List<PreferenceDto> preferences = parseList(entity.getPreferences(), new TypeReference<>() {});
+        List<PreferenceDto> preferences = parseList(entity.getPreferences(), new TypeReference<List<PreferenceDto>>() {});
 
         return new ListingDto(
                 entity.getId(),

@@ -1,0 +1,12 @@
+[
+  { "id": "a1", "code": "wifi", "name": "Wi-Fi", "description": "High-speed internet", "isActive": true, "sortOrder": 1 },
+  { "id": "a2", "code": "parking", "name": "Parking", "description": "Vehicle parking available", "isActive": true, "sortOrder": 2 },
+  { "id": "a3", "code": "furnished", "name": "Furnished", "description": "Room comes furnished", "isActive": true, "sortOrder": 3 },
+  { "id": "a4", "code": "air_conditioning", "name": "Air conditioning", "description": "AC available", "isActive": true, "sortOrder": 4 },
+  { "id": "a5", "code": "common_kitchen", "name": "Common kitchen", "description": "Shared kitchen", "isActive": true, "sortOrder": 5 },
+  { "id": "a6", "code": "laundry", "name": "Laundry", "description": "Washing facilities", "isActive": true, "sortOrder": 6 },
+  { "id": "a7", "code": "water_included", "name": "Water included", "description": "Water bill covered", "isActive": true, "sortOrder": 7 },
+  { "id": "a8", "code": "electricity_included", "name": "Electricity included", "description": "Electricity bill covered", "isActive": true, "sortOrder": 8 },
+  { "id": "a9", "code": "attached_bathroom", "name": "Attached bathroom", "description": "Private bathroom", "isActive": true, "sortOrder": 9 },
+  { "id": "a10", "code": "security", "name": "Security", "description": "24/7 security", "isActive": true, "sortOrder": 10 }
+]

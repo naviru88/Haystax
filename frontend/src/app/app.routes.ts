@@ -4,16 +4,16 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./features/discovery/discover/discover.component')
-        .then(m => m.DiscoverComponent),
+      import('./features/discovery/discover/discover.component').then(
+        m => m.DiscoverComponent
+      ),
   },
-  { path: 'search',          redirectTo: '/', pathMatch: 'full' },
-  { path: 'recommendations', redirectTo: '/', pathMatch: 'full' },
   {
     path: 'listings/:id',
     loadComponent: () =>
-      import('./features/discovery/listing-details/listing-details.component')
-        .then(m => m.ListingDetailsComponent),
+      import('./features/discovery/listing-details/listing-details.component').then(
+        m => m.ListingDetailsComponent
+      ),
   },
   {
     path: 'admin',
@@ -23,13 +23,31 @@ export const routes: Routes = [
   // M3: Engagement feature (messaging, reviews, analytics, booking)
   {
     path: 'messages',
-    loadChildren: () =>
-      import('./features/engagement/engagement.module').then(m => m.EngagementModule),
+    loadComponent: () =>
+      import('./features/engagement/messaging/messaging.component').then(
+        m => m.MessagingComponent
+      ),
   },
   {
     path: 'analytics',
-    loadChildren: () =>
-      import('./features/engagement/engagement.module').then(m => m.EngagementModule),
+    loadComponent: () =>
+      import('./features/engagement/analytics/analytics.component').then(
+        m => m.AnalyticsComponent
+      ),
+  },
+  {
+    path: 'booking',
+    loadComponent: () =>
+      import('./features/engagement/booking/booking.component').then(
+        m => m.BookingComponent
+      ),
+  },
+  {
+    path: 'reviews',
+    loadComponent: () =>
+      import('./features/engagement/reviews/reviews.component').then(
+        m => m.ReviewsComponent
+      ),
   },
   { path: '**', redirectTo: '' },
 ];

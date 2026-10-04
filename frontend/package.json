@@ -38,7 +38,7 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@angular/build": "^21.0.0",
+    "@angular/build": "~21.2.24",
     "@angular/cli": "^21.2.24",
     "@angular/compiler-cli": "^21.2.0",
     "@spartan-ng/cli": "^1.4.1",
@@ -49,5 +49,8 @@
     "prettier": "^3.8.1",
     "typescript": "~5.9.2",
     "vitest": "^4.0.8"
+  },
+  "overrides": {
+    "@angular/build": "~21.2.24"
   }
 }

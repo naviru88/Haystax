@@ -175,7 +175,13 @@
             {{ l.locationLabel || l.city }}
             @if (l.district) { , {{ l.district }} }
           </p>
-          <app-location-map [lat]="l.lat" [lng]="l.lng" [height]="180" />
+          <app-location-map
+            [lat]="l.lat"
+            [lng]="l.lng"
+            [height]="180"
+            [title]="l.title"
+            [city]="l.locationLabel || l.city"
+            [priceLabel]="(l.priceAmount | number) + ' ' + l.currencyCode + ' / month'" />
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { DiscoveryApiService } from '../services/discovery-api.service';
 import { HttpDiscoveryApiService } from '../services/http-discovery-api.service';
 import { DiscoveryView, Listing, SearchFilters } from '../models/listing.model';
 import { environment } from '../../../../environments/environment';
+import { LocationService, ResolvedLocation } from '../../../shared/services/location.service';
 import { ListingCardComponent } from '../../../shared/components/listing-card/listing-card.component';
 import { StateViewComponent } from '../../../shared/components/state-view/state-view.component';
 import { FilterBarComponent } from './filter-bar/filter-bar.component';
@@ -24,11 +25,20 @@ type LocationState = 'idle' | 'requesting' | 'active' | 'denied' | 'error';
 export class DiscoverComponent {
   private readonly mockApi = inject(DiscoveryApiService);
   private readonly httpApi = inject(HttpDiscoveryApiService);
+  private readonly locationService = inject(LocationService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
   private readonly pageSize = 12;
-  readonly defaultRadiusKm = 15;
+  readonly defaultRadiusKm = 5;
+
+  readonly radiusOptions: { value: number; label: string }[] = [
+    { value: 2,  label: '2 km' },
+    { value: 5,  label: '5 km' },
+    { value: 10, label: '10 km' },
+    { value: 25, label: '25 km' },
+    { value: 50, label: '50 km' },
+  ];
 
   readonly filters = signal<SearchFilters>({});
   readonly view = signal<DiscoveryView>('recommended');
@@ -39,12 +49,17 @@ export class DiscoverComponent {
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
 
-  //Geolocation state
+  // Location state
   readonly locationState = signal<LocationState>('idle');
   readonly locationError = signal<string | null>(null);
-
-  //When set, the grid shows nearby listings instead of a paged search.
   readonly nearActive = signal(false);
+  readonly radiusKm = signal<number>(this.defaultRadiusKm);
+  readonly detectedCity = signal<string | null>(null);
+  readonly locationSource = signal<'gps' | 'ip' | 'none'>('none');
+  readonly locationAccuracy = signal<'high' | 'city' | 'none'>('none');
+
+  private lastLat: number | null = null;
+  private lastLng: number | null = null;
 
   readonly result = computed(() => ({
     items: this.items(),
@@ -57,8 +72,6 @@ export class DiscoverComponent {
 
   constructor() {
     this.route.queryParams.subscribe((params) => {
-      // If we're in "near" mode, keep it — don't let filter params
-      // silently swap back to a normal search.
       if (this.nearActive()) return;
 
       this.view.set(params['view'] === 'all' ? 'all' : 'recommended');
@@ -73,7 +86,6 @@ export class DiscoverComponent {
     });
 
     effect(() => {
-      // Skip auto-reload while near mode is active.
       if (this.nearActive()) return;
 
       const filters = this.filters();
@@ -83,8 +95,7 @@ export class DiscoverComponent {
     });
   }
 
-  // standard search
-
+  // Standard search
   private load(filters: SearchFilters, view: DiscoveryView, page: number): void {
     if (environment.useMockApi) {
       const result = this.mockApi.listByView(view, {
@@ -125,28 +136,42 @@ export class DiscoverComponent {
       });
   }
 
-  // near me
-
-  activateNearMe(): void {
-    if (!navigator.geolocation) {
-      this.locationState.set('error');
-      this.locationError.set('Your browser does not support location access.');
-      return;
-    }
-
+  // Near Me — GPS first, IP fallback
+  async activateNearMe(): Promise<void> {
     this.locationState.set('requesting');
     this.locationError.set(null);
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => this.onLocationSuccess(pos.coords.latitude, pos.coords.longitude),
-      (err) => this.onLocationError(err),
-      { enableHighAccuracy: false, timeout: 8000, maximumAge: 60_000 },
-    );
+    try {
+      const loc: ResolvedLocation = await this.locationService.resolve();
+      this.applyLocation(loc);
+    } catch (err) {
+      console.error('Location resolution failed', err);
+      this.locationState.set('error');
+      this.locationError.set(
+        'Could not determine your location. Please select a city manually.'
+      );
+    }
   }
 
-  private onLocationSuccess(lat: number, lng: number): void {
+  private applyLocation(loc: ResolvedLocation): void {
+    this.lastLat = loc.lat;
+    this.lastLng = loc.lng;
+    this.detectedCity.set(loc.city ?? null);
+    this.locationSource.set(loc.source);
+    this.locationAccuracy.set(loc.accuracy);
     this.locationState.set('active');
     this.nearActive.set(true);
+
+    // If we fell back to IP, use the detected city as a filter so results are actually where the user is — IP coordinates can be ~20km off.
+    if (loc.source === 'ip' && loc.city) {
+      this.filters.update(f => ({ ...f, city: loc.city }));
+    }
+
+    this.refreshNear();
+  }
+
+  private refreshNear(): void {
+    if (this.lastLat == null || this.lastLng == null) return;
 
     if (environment.useMockApi) {
       const result = this.mockApi.listByView('all', {});
@@ -159,7 +184,7 @@ export class DiscoverComponent {
     this.error.set(null);
 
     this.httpApi
-      .fetchNearby(lat, lng, this.defaultRadiusKm, this.filters())
+      .fetchNearby(this.lastLat, this.lastLng, this.radiusKm(), this.filters())
       .subscribe({
         next: (listings) => {
           this.items.set(listings);
@@ -174,45 +199,47 @@ export class DiscoverComponent {
       });
   }
 
-  private onLocationError(err: GeolocationPositionError): void {
-    let message = 'Location access failed.';
-    if (err.code === err.PERMISSION_DENIED) {
-      message = 'Location permission was denied. You can search by city instead.';
-      this.locationState.set('denied');
-    } else if (err.code === err.POSITION_UNAVAILABLE) {
-      message = 'Your location could not be determined.';
-      this.locationState.set('error');
-    } else if (err.code === err.TIMEOUT) {
-      message = 'Location request timed out.';
-      this.locationState.set('error');
+  setRadius(km: number): void {
+    this.radiusKm.set(km);
+    if (this.nearActive()) {
+      this.refreshNear();
     }
-    this.locationError.set(message);
   }
 
   clearNearMe(): void {
     this.nearActive.set(false);
     this.locationState.set('idle');
     this.locationError.set(null);
+    this.detectedCity.set(null);
+    this.locationSource.set('none');
+    this.locationAccuracy.set('none');
+    this.lastLat = null;
+    this.lastLng = null;
     this.load(this.filters(), this.view(), this.page());
   }
 
-  // filter/view/page handlers
-
+  // Filter / view / page handlers
   onFiltersChange(next: SearchFilters): void {
-    if (this.nearActive()) {
-      this.nearActive.set(false);
-      this.locationState.set('idle');
-    }
+    this.filters.set(next);
     this.page.set(1);
+
+    if (this.nearActive()) {
+      this.refreshNear();
+      return;
+    }
+
     this.applyToUrl(next, this.view(), 1);
   }
 
   onViewChange(next: DiscoveryView): void {
+    this.view.set(next);
+    this.page.set(1);
+
     if (this.nearActive()) {
       this.nearActive.set(false);
       this.locationState.set('idle');
     }
-    this.page.set(1);
+
     this.applyToUrl(this.filters(), next, 1);
   }
 

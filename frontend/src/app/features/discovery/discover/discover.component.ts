@@ -30,7 +30,7 @@ export class DiscoverComponent {
   private readonly router = inject(Router);
 
   private readonly pageSize = 12;
-  readonly defaultRadiusKm = 5;
+  readonly defaultRadiusKm = 2;
 
   readonly radiusOptions: { value: number; label: string }[] = [
     { value: 2,  label: '2 km' },

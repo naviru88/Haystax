@@ -9,6 +9,8 @@ export const serverRoutes: ServerRoute[] = [
   // Prerender static routes (discovery, admin, engagement pages, etc.)
   {
     path: '**',
-    renderMode: RenderMode.Prerender
+    renderMode: RenderMode.Server
   }
+  { path: 'listings/:id', renderMode: RenderMode.Server },
+  { path: '**', renderMode: RenderMode.Server },
 ];

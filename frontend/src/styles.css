@@ -35,6 +35,12 @@
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
+/* Leaflet-rendered content sits outside Angular's view encapsulation,
+   so custom-property access needs a root-level fallback. */
+:root {
+  --color-primary: #1E6B7A;
+}
+
 @layer base {
   html, body {
     height: 100%;
@@ -134,4 +140,26 @@
       @apply fixed inset-y-0 left-0 z-40 shadow-xl;
     }
   }
+}
+
+/* Leaflet popup + custom marker (Haystax) */
+
+.haystax-popup .leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  padding: 4px 6px;
+}
+
+.haystax-popup .leaflet-popup-content {
+  margin: 6px 8px;
+}
+
+.haystax-popup .leaflet-popup-tip {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Custom SVG divIcon — strip Leaflet's default background/border */
+.haystax-marker {
+  background: transparent;
+  border: none;
 }

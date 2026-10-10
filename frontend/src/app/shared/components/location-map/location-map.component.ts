@@ -41,6 +41,11 @@ export class LocationMapComponent implements AfterViewInit, OnDestroy {
   readonly height = input<number>(180);
   readonly zoom = input<number>(14);
 
+  // Optional popup content. If omitted, no popup is bound.
+  readonly title = input<string | null>(null);
+  readonly city = input<string | null>(null);
+  readonly priceLabel = input<string | null>(null);
+
   private readonly mapContainer = viewChild.required<ElementRef<HTMLDivElement>>('mapContainer');
 
   readonly osmUrl = computed(() =>
@@ -82,17 +87,86 @@ export class LocationMapComponent implements AfterViewInit, OnDestroy {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(this.map);
 
-    const icon = L.icon({
-      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-      iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41],
-    });
+    this.marker = L.marker([lat, lng], { icon: this.buildIcon() }).addTo(this.map);
 
-    this.marker = L.marker([lat, lng], { icon }).addTo(this.map);
+    const popupHtml = this.buildPopupHtml();
+    if (popupHtml) {
+      this.marker.bindPopup(popupHtml, {
+        closeButton: false,
+        offset: L.point(0, -8),
+        className: 'haystax-popup',
+      });
+    }
+
     setTimeout(() => this.map?.invalidateSize(), 0);
+  }
+
+  // Custom primary-colored pin (inline SVG — no external image)
+  private buildIcon(): L.DivIcon {
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 32 42">
+        <defs>
+          <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="1.5"/>
+            <feOffset dx="0" dy="1" result="off"/>
+            <feComponentTransfer><feFuncA type="linear" slope="0.35"/></feComponentTransfer>
+            <feMerge>
+              <feMergeNode/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        <path
+          filter="url(#shadow)"
+          fill="var(--color-primary, #0d9488)"
+          stroke="#ffffff"
+          stroke-width="1.5"
+          d="M16 1 C 8 1 2 7 2 15 C 2 25 16 41 16 41 C 16 41 30 25 30 15 C 30 7 24 1 16 1 Z"
+        />
+        <circle cx="16" cy="15" r="5" fill="#ffffff"/>
+      </svg>
+    `;
+
+    return L.divIcon({
+      html: svg,
+      className: 'haystax-marker',
+      iconSize: [32, 42],
+      iconAnchor: [16, 42],
+      popupAnchor: [0, -36],
+    });
+  }
+
+  // Popup content (title + city + price)
+  private buildPopupHtml(): string | null {
+    const title = this.title();
+    const city = this.city();
+    const price = this.priceLabel();
+
+    if (!title && !city && !price) return null;
+
+    const escape = (s: string) =>
+      s.replace(/[&<>"']/g, (c) =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string
+      );
+
+    const parts: string[] = [];
+
+    if (title) {
+      parts.push(
+        `<div style="font-weight:600;font-size:13px;color:#111827;margin-bottom:2px;">${escape(title)}</div>`
+      );
+    }
+    if (city) {
+      parts.push(
+        `<div style="font-size:12px;color:#6b7280;">${escape(city)}</div>`
+      );
+    }
+    if (price) {
+      parts.push(
+        `<div style="font-size:13px;font-weight:700;color:var(--color-primary, #0d9488);margin-top:4px;">${escape(price)}</div>`
+      );
+    }
+
+    return `<div style="min-width:140px;max-width:220px;line-height:1.3;">${parts.join('')}</div>`;
   }
 }

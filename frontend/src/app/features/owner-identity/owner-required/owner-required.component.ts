@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 
 import { OWNER_API } from '../services/owner-api.interface';
 import { toApiError } from '../services/api-error';
-import { StateViewComponent } from '../../../shared/components/state-view/state-view.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 /**
@@ -15,7 +14,7 @@ export type OwnerRequiredState = 'idle' | 'submitting' | 'error' | 'network';
 
 @Component({
   selector: 'app-owner-required',
-  imports: [StateViewComponent, PageHeaderComponent],
+  imports: [PageHeaderComponent],
   templateUrl: './owner-required.component.html',
 })
 export class OwnerRequiredComponent {

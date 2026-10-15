@@ -5,6 +5,11 @@ spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 12MB
+
   datasource:
     url: ${HAYSTAX_DB_URL}
     username: ${HAYSTAX_DB_USER}

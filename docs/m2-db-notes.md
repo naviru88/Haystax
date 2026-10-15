@@ -89,8 +89,9 @@ not owned by the owner slice; listed for awareness only.
 | `POST /api/owner/listings` | `public.boarding_listings` | `owner_id` from token, never from body; insert requires `is_owner=true`. |
 | `GET/PUT /api/owner/listings/{id}` | `public.boarding_listings` (+ photos, amenities, rules) | Ownership enforced by Spring (DB owner role bypasses RLS — issue #2). |
 | `POST /api/owner/listings/{id}/publish` | `public.boarding_listings.status` → `pending_review` | Publish-time mandatory checks gap (section 4). |
-| `POST /api/owner/listings/{id}/photos` | `public.listing_photos` + storage bucket `listing-photos` | Multipart; MIME/size validated before insert. |
-| `DELETE /api/owner/listings/{id}/photos/{photoId}` | `public.listing_photos` | Own photo only; cascade is on listing delete. |
+| `POST /api/owner/listings/{id}/photos` | `public.listing_photos` + local disk (D-PHOTO) | Multipart; D-PHOTOLIMITS: MIME jpeg/png/webp + magic bytes, max 5 MB, max 10 per listing; `storage_path` = `{listing_id}/{uuid}.{ext}`; `is_approved=false`; one primary per listing (clear first); file removed if the DB insert fails. |
+| `DELETE /api/owner/listings/{id}/photos/{photoId}` | `public.listing_photos` + local disk (D-PHOTO) | Own photo only (404 otherwise); row deleted, then file (missing file ignored); cascade is on listing delete. |
+| `GET /api/owner/listings/{id}/photos/{photoId}/content` (CC-2) | local disk (D-PHOTO) | Owner + owns listing + photo belongs to listing (else 404); content type from stored extension. Approved CC-2 change. |
 | `GET /api/owner/amenities` | `public.amenities` | `is_active` filter. |
 
 ---

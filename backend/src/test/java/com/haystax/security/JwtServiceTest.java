@@ -43,9 +43,12 @@ class JwtServiceTest {
     void tamperedSignatureRejected() {
         UUID sub = UUID.randomUUID();
         String token = JwtTestUtils.validToken(sub);
-        // Flip the last char of the signature (url-safe base64) to corrupt it.
-        String bad = token.substring(0, token.length() - 1)
-                + (token.endsWith("A") ? "B" : "A");
+        // Deterministic corruption: replace the signature with a same-length
+        // url-safe base64 string of a different 32-byte value. (Flipping the last
+        // char can hit base64 padding bits and decode to the same bytes.)
+        int sigStart = token.lastIndexOf('.') + 1;
+        String badSig = "A".repeat(token.length() - sigStart);
+        String bad = token.substring(0, sigStart) + badSig;
         assertTrue(jwtService.extractClaims(bad).isEmpty());
     }
 

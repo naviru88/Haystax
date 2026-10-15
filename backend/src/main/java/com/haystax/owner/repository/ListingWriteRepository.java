@@ -321,6 +321,73 @@ public class ListingWriteRepository {
     }
 
     // ------------------------------------------------------------------
+    // photos (W2-C3)
+    // ------------------------------------------------------------------
+
+    public void clearPrimary(UUID listingId) {
+        jdbc.update("""
+                UPDATE public.listing_photos
+                SET is_primary = false
+                WHERE listing_id = :id AND is_primary = true
+                """,
+                new MapSqlParameterSource().addValue("id", listingId));
+    }
+
+    public ListingPhotoDto insertPhoto(UUID listingId, String storagePath, String altText,
+                                       int sortOrder, boolean isPrimary) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbc.update("""
+                INSERT INTO public.listing_photos
+                  (listing_id, storage_path, alt_text, sort_order, is_primary, is_approved)
+                VALUES
+                  (:listing_id, :storage_path, :alt_text, :sort_order, :is_primary, false)
+                RETURNING id
+                """,
+                new MapSqlParameterSource()
+                        .addValue("listing_id", listingId)
+                        .addValue("storage_path", storagePath)
+                        .addValue("alt_text", altText)
+                        .addValue("sort_order", sortOrder)
+                        .addValue("is_primary", isPrimary),
+                keyHolder, new String[]{"id"});
+        UUID id = (UUID) keyHolder.getKeys().get("id");
+        return findPhoto(id, listingId)
+                .orElseThrow(() -> new IllegalStateException("Inserted photo not found"));
+    }
+
+    public Optional<ListingPhotoDto> findPhoto(UUID photoId, UUID listingId) {
+        List<ListingPhotoDto> rows = jdbc.query("""
+                SELECT id, listing_id, storage_path, alt_text, sort_order,
+                       is_primary, is_approved, created_at
+                FROM public.listing_photos
+                WHERE id = :photo_id AND listing_id = :listing_id
+                """,
+                new MapSqlParameterSource()
+                        .addValue("photo_id", photoId)
+                        .addValue("listing_id", listingId),
+                (rs, i) -> new ListingPhotoDto(
+                        UUID.fromString(rs.getString("id")),
+                        UUID.fromString(rs.getString("listing_id")),
+                        rs.getString("storage_path"),
+                        rs.getString("alt_text"),
+                        rs.getInt("sort_order"),
+                        rs.getBoolean("is_primary"),
+                        rs.getBoolean("is_approved"),
+                        toOffsetDateTime(rs.getObject("created_at"))));
+        return rows.stream().findFirst();
+    }
+
+    public boolean deletePhoto(UUID photoId, UUID listingId) {
+        return jdbc.update("""
+                DELETE FROM public.listing_photos
+                WHERE id = :photo_id AND listing_id = :listing_id
+                """,
+                new MapSqlParameterSource()
+                        .addValue("photo_id", photoId)
+                        .addValue("listing_id", listingId)) > 0;
+    }
+
+    // ------------------------------------------------------------------
     // value holder + helpers
     // ------------------------------------------------------------------
 

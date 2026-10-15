@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#F0F7F9"/><stop offset="1" stop-color="#2C7A8C"/>
+  </linearGradient></defs>
+  <rect width="640" height="360" fill="url(#g)"/>
+  <rect x="250" y="120" width="140" height="100" rx="8" fill="#FFFFFF" opacity="0.85"/>
+  <circle cx="320" cy="142" r="18" fill="#1E6B7A"/>
+  <text x="320" y="252" text-anchor="middle" font-family="Inter, sans-serif" font-size="22" font-weight="600" fill="#155263">Male-Only — Moratuwa</text>
+  <text x="320" y="280" text-anchor="middle" font-family="Inter, sans-serif" font-size="13" fill="#155263" opacity="0.8">Week-1 fixture placeholder</text>
+</svg>

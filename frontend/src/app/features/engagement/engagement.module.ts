@@ -1,24 +1,25 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { RouterModule, Routes } from '@angular/router';
 
-import { EngagementRoutingModule } from './engagement-routing.module';
+import { AnalyticsComponent } from './analytics/analytics.component';
 import { BookingComponent } from './booking/booking.component';
 import { MessagingComponent } from './messaging/messaging.component';
 import { ReviewsComponent } from './reviews/reviews.component';
-import { AnalyticsComponent } from './analytics/analytics.component';
+
+const routes: Routes = [
+  { path: '', component: MessagingComponent },
+  // If the components below are routed individually, move them to their own entries
+];
 
 @NgModule({
-  declarations: [
+  imports: [
+    CommonModule,
+    RouterModule.forChild(routes),
+    AnalyticsComponent,
     BookingComponent,
     MessagingComponent,
     ReviewsComponent,
-    AnalyticsComponent
   ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    EngagementRoutingModule
-  ]
 })
-export class EngagementModule { }
+export class EngagementModule {}

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "displayName": "Rashmi Perera",
+    "email": "rashmi@student.lk",
+    "phoneNumber": "+94 71 234 5678",
+    "isOwner": false,
+    "isAdmin": false,
+    "isSuspended": false,
+    "lastSeenAt": "2026-10-03T09:15:00Z"
+  },
+  {
+    "id": "00000000-0000-4000-8000-000000000002",
+    "displayName": "Kavinda Silva",
+    "email": "kavinda@haystax.lk",
+    "phoneNumber": "+94 77 890 1234",
+    "isOwner": true,
+    "isAdmin": false,
+    "isSuspended": false,
+    "lastSeenAt": "2026-10-04T08:00:00Z"
+  },
+  {
+    "id": "00000000-0000-4000-8000-000000000003",
+    "displayName": "Nadeesha Perera",
+    "email": "nadeesha@haystax.lk",
+    "isOwner": false,
+    "isAdmin": true,
+    "isSuspended": false,
+    "lastSeenAt": "2026-10-03T18:30:00Z"
+  },
+  {
+    "id": "00000000-0000-4000-8000-000000000004",
+    "displayName": "Chandana Rajapaksa",
+    "email": "chandana@haystax.lk",
+    "phoneNumber": "+94 75 456 7890",
+    "isOwner": true,
+    "isAdmin": false,
+    "isSuspended": true,
+    "suspensionReason": "Ownership removed after 3 listings were removed by moderation.",
+    "lastSeenAt": "2026-09-28T11:45:00Z"
+  }
+]

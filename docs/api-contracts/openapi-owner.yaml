@@ -1,0 +1,761 @@
+openapi: 3.0.3
+info:
+  title: Haystax Owner & Identity API (Member 2 slice)
+  description: |
+    Owner & identity API for the Haystax boarding marketplace.
+    Week 1 (C1) contract — design only. Register and login are handled by Supabase Auth,
+    NOT by Spring: the Angular app signs the user in via the Supabase client and then calls
+    these endpoints with the Supabase-issued JWT in the Authorization header.
+    x-todo: which Supabase client library the Angular app uses for register/login (ask Anoj).
+  version: 0.1.0-wip
+  x-owner: Anoj (Member 2)
+
+servers:
+  - url: http://localhost:8080
+    description: Local Spring Boot API
+
+tags:
+  - name: Owner & Identity
+    description: Member 2 slice — auth/me, profile, listings, photos, amenities.
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/owner/auth/me:
+    get:
+      tags: [Owner & Identity]
+      summary: Current user — profile plus role flags resolved server-side
+      description: |
+        Resolves roles from public.profiles (via the Supabase JWT subject), NEVER from
+        client claims. Drives post-login redirect (admin -> /admin, owner -> owner dashboard,
+        tenant -> public home). x-todo: how Spring verifies the Supabase JWT (shared secret
+        vs JWKS) — ask Anoj; claims from token vs profiles lookup.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile with role flags
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source: AGENTS C1 table row 1
+
+  /api/owner/profile:
+    get:
+      tags: [Owner & Identity]
+      summary: Get own owner profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Owner profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OwnerProfileResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source: AGENTS C1 table row 2
+    put:
+      tags: [Owner & Identity]
+      summary: Update own owner profile
+      description: Role flags (is_owner, is_admin, is_suspended) can never be changed here.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdateRequest'
+      responses:
+        '200':
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OwnerProfileResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      x-source: AGENTS C1 table row 2
+      x-todo: become-owner flow — see is_owner self-service question vs approved workflow (ask Anoj)
+
+  /api/owner/listings:
+    get:
+      tags: [Owner & Identity]
+      summary: List the calling owner's listings (own only)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Owned listings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ListingResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      x-source: AGENTS C1 table row 4
+    post:
+      tags: [Owner & Identity]
+      summary: Create a listing
+      description: owner_id is taken from the token/server, never from the request body.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListingWriteRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      x-source: AGENTS C1 table row 5
+
+  /api/owner/listings/{id}:
+    parameters:
+      - $ref: '#/components/parameters/ListingId'
+    get:
+      tags: [Owner & Identity]
+      summary: Get one of the calling owner's listings (owning owner only)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-source: AGENTS C1 table row 6
+    put:
+      tags: [Owner & Identity]
+      summary: Update one of the calling owner's listings (owning owner only)
+      description: Stale/invalid/foreign ids -> 404/403; never updates another listing.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListingWriteRequest'
+      responses:
+        '200':
+          description: Updated listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      x-source: AGENTS C1 table row 6
+
+  /api/owner/listings/{id}/publish:
+    parameters:
+      - $ref: '#/components/parameters/ListingId'
+    post:
+      tags: [Owner & Identity]
+      summary: Submit listing for publication (owning owner only)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Listing moved to pending_review
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      x-source: AGENTS C1 table row 7
+      x-todo: exact publish-time mandatory-field checks (photos, amenities) — gap in DB notes
+
+  /api/owner/listings/{id}/photos:
+    parameters:
+      - $ref: '#/components/parameters/ListingId'
+    post:
+      tags: [Owner & Identity]
+      summary: Upload a photo for one of the calling owner's listings
+      description: multipart; MIME and size validated; storage_path is {listing_id}/{file} in the private listing-photos bucket; DB stores object path only.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                is_primary:
+                  type: boolean
+                  default: false
+                alt_text:
+                  type: string
+                  maxLength: 500
+                sort_order:
+                  type: integer
+                  default: 0
+              required: [file]
+      responses:
+        '201':
+          description: Photo record created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingPhotoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      x-source: AGENTS C1 table row 8
+      x-todo: which storage backend in Weeks 1-3 (Supabase Storage bucket listing-photos vs local files) — ask Anoj
+
+  /api/owner/listings/{id}/photos/{photoId}:
+    parameters:
+      - $ref: '#/components/parameters/ListingId'
+      - $ref: '#/components/parameters/PhotoId'
+    delete:
+      tags: [Owner & Identity]
+      summary: Delete one of the calling owner's listing photos (owning owner only)
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-source: AGENTS C1 table row 9
+
+  /api/owner/amenities:
+    get:
+      tags: [Owner & Identity]
+      summary: List amenity codes/names for the listing editor
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Active amenities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AmenityResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source: AGENTS C1 table row 10
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase-issued JWT.
+
+  parameters:
+    ListingId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Listing id (uuid)
+    PhotoId:
+      name: photoId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Listing photo id (uuid)
+
+  responses:
+    BadRequest:
+      description: Malformed request (validation before processing)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Missing or invalid JWT
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Authenticated but not allowed (not the owning owner / not an owner / suspended)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: State conflict (e.g. duplicate primary photo, invalid status transition)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ValidationError:
+      description: Field-level validation failure
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    ErrorResponse:
+      type: object
+      description: Shared error shape (same across all owner endpoints).
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          description: HTTP status code
+        error:
+          type: string
+          description: HTTP status reason phrase
+        message:
+          type: string
+          description: Human-readable error
+        path:
+          type: string
+          description: Request path
+        fieldErrors:
+          type: array
+          description: Present only for 422 validation errors
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+      required: [timestamp, status, error, message, path]
+
+    MeResponse:
+      type: object
+      description: Resolved server-side from public.profiles. [DB profiles.*]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: profiles.id (FK auth.users) [DB profiles.id]
+        email:
+          type: string
+          format: email
+          description: From Supabase auth.users (read-only here) [AGENTS §3 auth]
+        display_name:
+          type: string
+          minLength: 2
+          maxLength: 120
+          description: [DB profiles.display_name]
+        phone_number:
+          type: string
+          nullable: true
+          description: [DB profiles.phone_number]
+        avatar_path:
+          type: string
+          nullable: true
+          description: Object path, never a public URL [DB profiles.avatar_path]
+        is_owner:
+          type: boolean
+          default: false
+          description: Role flags come from server/DB/JWT, never from clients [DB profiles.is_owner]
+        is_admin:
+          type: boolean
+          default: false
+          description: [DB profiles.is_admin]
+        is_suspended:
+          type: boolean
+          default: false
+          description: [DB profiles.is_suspended]
+        suspension_reason:
+          type: string
+          nullable: true
+          description: Shown read-only to a suspended owner [DB profiles.suspension_reason]
+      required: [id, display_name, is_owner, is_admin, is_suspended]
+
+    OwnerProfileResponse:
+      type: object
+      description: Owner slice profile view (role flags not editable through it).
+      properties:
+        id:
+          type: string
+          format: uuid
+        display_name:
+          type: string
+          minLength: 2
+          maxLength: 120
+        phone_number:
+          type: string
+          nullable: true
+        avatar_path:
+          type: string
+          nullable: true
+        last_seen_at:
+          type: string
+          format: date-time
+          nullable: true
+        is_owner:
+          type: boolean
+        is_admin:
+          type: boolean
+        is_suspended:
+          type: boolean
+      required: [id, display_name, is_owner, is_admin, is_suspended]
+
+    ProfileUpdateRequest:
+      type: object
+      description: Only display_name / phone_number / avatar_path may be edited; role flags are ignored.
+      properties:
+        display_name:
+          type: string
+          minLength: 2
+          maxLength: 120
+        phone_number:
+          type: string
+          nullable: true
+        avatar_path:
+          type: string
+          nullable: true
+      minProperties: 1
+
+    ListingResponse:
+      type: object
+      description: Full listing as owned by the caller. Field names match DB columns in snake_case.
+      properties:
+        id:
+          type: string
+          format: uuid
+        owner_id:
+          type: string
+          format: uuid
+          description: Set by the server/token, never by clients [DB boarding_listings.owner_id]
+        title:
+          type: string
+          minLength: 5
+          maxLength: 160
+          description: [DB boarding_listings.title]
+        description:
+          type: string
+          description: [DB boarding_listings.description]
+        address_line_1:
+          type: string
+          description: [DB boarding_listings.address_line_1]
+        address_line_2:
+          type: string
+          nullable: true
+          description: [DB boarding_listings.address_line_2]
+        city:
+          type: string
+          description: [DB boarding_listings.city]
+        district:
+          type: string
+          nullable: true
+          description: [DB boarding_listings.district]
+        location_label:
+          type: string
+          nullable: true
+          description: [DB boarding_listings.location_label]
+        location:
+          type: object
+          nullable: true
+          description: 'PostGIS point, geography(Point,4326). Not mapped in Week 1 [DB boarding_listings.location][TODO: C2]'
+          properties:
+            lat:
+              type: number
+              format: double
+            lng:
+              type: number
+              format: double
+        price_amount:
+          type: number
+          format: double
+          minimum: 0
+          description: numeric(12,2) >= 0 [DB boarding_listings.price_amount]
+        currency_code:
+          type: string
+          default: LKR
+          description: char(3) [DB boarding_listings.currency_code]
+        gender_policy:
+          $ref: '#/components/schemas/GenderPolicy'
+        total_slots:
+          type: integer
+          exclusiveMinimum: 0
+          description: [DB boarding_listings.total_slots]
+        available_slots:
+          type: integer
+          minimum: 0
+          description: 0..total_slots [DB boarding_listings.available_slots]
+        status:
+          $ref: '#/components/schemas/ListingStatus'
+        moderation_note:
+          type: string
+          nullable: true
+          description: Display-only for owner pages [DB boarding_listings.moderation_note]
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        removed_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListingPhotoResponse'
+        amenities:
+          type: array
+          items:
+            $ref: '#/components/schemas/AmenityResponse'
+          description: From listing_amenities join [DB listing_amenities]
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListingRuleResponse'
+          description: [DB listing_rules]
+      required: [id, owner_id, title, description, address_line_1, city, price_amount, currency_code, gender_policy, total_slots, available_slots, status, created_at, updated_at]
+
+    ListingWriteRequest:
+      type: object
+      description: |
+        All fields mandatory except gender_policy (team business answer) and address_line_2 / district /
+        location_label (nullable). owner_id is ignored/stripped server-side.
+      properties:
+        title:
+          type: string
+          minLength: 5
+          maxLength: 160
+        description:
+          type: string
+        address_line_1:
+          type: string
+        address_line_2:
+          type: string
+          nullable: true
+        city:
+          type: string
+        district:
+          type: string
+          nullable: true
+        location_label:
+          type: string
+          nullable: true
+        location:
+          type: object
+          nullable: true
+          description: lat/lng. Required for publish; not mapped in Week 1.
+          properties:
+            lat:
+              type: number
+              format: double
+            lng:
+              type: number
+              format: double
+        price_amount:
+          type: number
+          format: double
+          minimum: 0
+        currency_code:
+          type: string
+          default: LKR
+        gender_policy:
+          $ref: '#/components/schemas/GenderPolicy'
+        total_slots:
+          type: integer
+          exclusiveMinimum: 0
+        available_slots:
+          type: integer
+          minimum: 0
+        amenity_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListingRuleWrite'
+      required: [title, description, address_line_1, city, price_amount, total_slots, available_slots]
+
+    ListingRuleWrite:
+      type: object
+      properties:
+        rule_code:
+          type: string
+        label:
+          type: string
+        is_allowed:
+          type: boolean
+        notes:
+          type: string
+          nullable: true
+      required: [rule_code, label, is_allowed]
+
+    ListingRuleResponse:
+      type: object
+      description: [DB listing_rules.*]
+      properties:
+        id:
+          type: string
+          format: uuid
+        rule_code:
+          type: string
+        label:
+          type: string
+        is_allowed:
+          type: boolean
+        notes:
+          type: string
+          nullable: true
+      required: [id, rule_code, label, is_allowed]
+
+    ListingPhotoResponse:
+      type: object
+      description: DB stores the object path, never a public URL [DB listing_photos.*].
+      properties:
+        id:
+          type: string
+          format: uuid
+        listing_id:
+          type: string
+          format: uuid
+        storage_path:
+          type: string
+          description: '{listing_id}/{file} in the private listing-photos bucket'
+        alt_text:
+          type: string
+          nullable: true
+        sort_order:
+          type: integer
+          default: 0
+        is_primary:
+          type: boolean
+          default: false
+          description: One primary per listing (partial unique index) [DB listing_photos.is_primary]
+        is_approved:
+          type: boolean
+          default: false
+          description: Moderation flag; display-only for the owner [DB listing_photos.is_approved]
+        created_at:
+          type: string
+          format: date-time
+      required: [id, listing_id, storage_path, sort_order, is_primary, is_approved]
+
+    AmenityResponse:
+      type: object
+      description: [DB amenities.*]
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+          description: Unique seed codes, e.g. wifi, parking, furnished, air_conditioning, common_kitchen, laundry, water_included, electricity_included, attached_bathroom, security
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+        sort_order:
+          type: integer
+      required: [id, code, name]
+
+    GenderPolicy:
+      type: string
+      enum: [any, female_only, male_only]
+      default: any
+      description: Optional per team business answer [DB boarding_listings.gender_policy]
+
+    ListingStatus:
+      type: string
+      enum: [draft, pending_review, published, paused, removed]
+      default: draft
+      description: Display-only moderation status (enforcement is the admin slice) [DB boarding_listings.status]

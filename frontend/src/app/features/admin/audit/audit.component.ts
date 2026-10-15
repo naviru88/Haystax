@@ -1,6 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { AdminApiService } from '../services/admin-api.service';
+import { HttpAdminApiService } from '../services/http-admin-api.service';
+import { environment } from '../../../../environments/environment';
+import { AuditLog } from '../models/audit-log.model';
 
 @Component({
   selector: 'app-admin-audit',
@@ -8,13 +11,19 @@ import { AdminApiService } from '../services/admin-api.service';
   templateUrl: './audit.component.html',
 })
 export class AuditComponent {
-  private readonly api = inject(AdminApiService);
+  private readonly mockApi = inject(AdminApiService);
+  private readonly httpApi = inject(HttpAdminApiService);
 
+  readonly useMock = environment.useMockApi;
+
+  private readonly _logs = signal<AuditLog[]>([]);
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
   readonly query = signal('');
 
   readonly filtered = computed(() => {
     const q = this.query().toLowerCase().trim();
-    const all = this.api.auditLogs();
+    const all = this._logs();
     if (!q) return all;
     return all.filter(l =>
       l.action.toLowerCase().includes(q) ||
@@ -24,7 +33,17 @@ export class AuditComponent {
     );
   });
 
-  setQuery(v: string): void {
-    this.query.set(v);
+  constructor() {
+    if (this.useMock) {
+      this._logs.set(this.mockApi.auditLogs());
+      return;
+    }
+    this.loading.set(true);
+    this.httpApi.fetchAuditLogs().subscribe({
+      next: (l) => { this._logs.set(l); this.loading.set(false); },
+      error: (err) => { this.error.set('Failed to load audit logs'); this.loading.set(false); console.error(err); },
+    });
   }
+
+  setQuery(v: string): void { this.query.set(v); }
 }

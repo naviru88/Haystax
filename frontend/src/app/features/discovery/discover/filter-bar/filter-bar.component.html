@@ -1,37 +1,88 @@
 <div class="card mb-6">
-  <div class="flex flex-wrap gap-4 items-end">
+  <div class="flex flex-wrap gap-3 items-end">
 
-    <!-- City -->
-    <div class="flex flex-col gap-1 min-w-[160px]">
+    <div class="flex flex-col gap-1 w-[180px] relative">
       <label class="text-xs font-medium text-gray-500">City</label>
-      <select class="form-input"
-              [value]="filters().city || ''"
-              (change)="update('city', $any($event.target).value)">
-        <option value="">All cities</option>
-        @for (c of cities; track c) {
-          <option [value]="c">{{ c }}</option>
-        }
-      </select>
+
+      <button
+        type="button"
+        class="form-input text-left flex items-center justify-between gap-2"
+        (click)="toggleCity()"
+        [attr.aria-expanded]="cityOpen()"
+        aria-haspopup="listbox">
+        <span class="truncate" [class.text-gray-400]="!filters().city">
+          {{ cityLabel() }}
+        </span>
+        <svg class="w-4 h-4 flex-shrink-0 text-gray-400 transition-transform"
+             [class.rotate-180]="cityOpen()"
+             xmlns="http://www.w3.org/2000/svg" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      @if (cityOpen()) {
+        <div class="fixed inset-0 z-40" (click)="cityOpen.set(false)"></div>
+
+        <div class="absolute top-full left-0 z-50 mt-1 w-full min-w-[240px]
+                    bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden"
+             role="listbox">
+          <div class="p-2 border-b border-gray-100">
+            <input
+              id="city-search-input"
+              type="text"
+              class="form-input w-full text-sm"
+              placeholder="Search city..."
+              [value]="citySearch()"
+              (input)="onCitySearchInput($event)"
+              (keydown)="onCityKeydown($event)" />
+          </div>
+
+          <ul class="max-h-64 overflow-y-auto py-1">
+            <li
+              role="option"
+              class="px-3 py-2 text-sm cursor-pointer hover:bg-gray-50"
+              [class.bg-primary-50]="cityHighlight() === 0"
+              (click)="clearCity()">
+              All cities
+            </li>
+
+            @for (c of filteredCities(); track c; let i = $index) {
+              <li
+                role="option"
+                class="px-3 py-2 text-sm cursor-pointer hover:bg-gray-50"
+                [class.bg-primary-50]="cityHighlight() === i + 1"
+                (click)="pickCity(c)">
+                {{ c }}
+              </li>
+            }
+
+            @if (filteredCities().length === 0) {
+              <li class="px-3 py-2 text-sm text-gray-400 italic">
+                No matching cities
+              </li>
+            }
+          </ul>
+        </div>
+      }
     </div>
 
-    <!-- Min price -->
-    <div class="flex flex-col gap-1 w-32">
+    <div class="flex flex-col gap-1 w-[110px]">
       <label class="text-xs font-medium text-gray-500">Min price</label>
       <input type="number" class="form-input" placeholder="0"
              [value]="filters().minPrice ?? ''"
              (change)="update('minPrice', $any($event.target).value ? +$any($event.target).value : undefined)" />
     </div>
 
-    <!-- Max price -->
-    <div class="flex flex-col gap-1 w-32">
+    <div class="flex flex-col gap-1 w-[110px]">
       <label class="text-xs font-medium text-gray-500">Max price</label>
       <input type="number" class="form-input" placeholder="Any"
              [value]="filters().maxPrice ?? ''"
              (change)="update('maxPrice', $any($event.target).value ? +$any($event.target).value : undefined)" />
     </div>
 
-    <!-- Gender -->
-    <div class="flex flex-col gap-1 min-w-[160px]">
+    <div class="flex flex-col gap-1 w-[140px]">
       <label class="text-xs font-medium text-gray-500">Gender policy</label>
       <select class="form-input"
               [value]="filters().genderPolicy || ''"
@@ -42,8 +93,7 @@
       </select>
     </div>
 
-    <!-- Sort -->
-    <div class="flex flex-col gap-1 min-w-[180px]">
+    <div class="flex flex-col gap-1 w-[140px]">
       <label class="text-xs font-medium text-gray-500">Sort by</label>
       <select class="form-input"
               [value]="filters().sort || 'relevance'"
@@ -54,9 +104,11 @@
       </select>
     </div>
 
-    <!-- Clear -->
-    <button class="btn-outline ml-auto" (click)="clear()">
-      Clear filters
-    </button>
+    <div class="flex-1 flex justify-end self-end">
+      <button class="btn-outline whitespace-nowrap" (click)="clear()">
+        Clear filters
+      </button>
+    </div>
+
   </div>
 </div>

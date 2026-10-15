@@ -84,7 +84,7 @@ not owned by the owner slice; listed for awareness only.
 | `GET /api/owner/auth/me` | `auth.users` (subject), `public.profiles` | Resolve `is_owner`/`is_admin`/`is_suspended` via token subject → profiles lookup `[AGENTS §3 auth]`. |
 | `GET /api/owner/profile` | `public.profiles` | Own row only. |
 | `PUT /api/owner/profile` | `public.profiles` | `display_name`, `phone_number`, `avatar_path` only; role flags never editable here. |
-| Become owner (undecided) | `public.profiles.is_owner` | `TODO(ask Anoj)` — depends on the self-service vs approved decision (issue #1 in section 4). |
+| Become owner (CC-1, Week 2) | `public.profiles.is_owner` | `POST /api/owner/profile/become-owner` — authenticated, not suspended, idempotent (already owner → 200 unchanged). Only endpoint that changes roles; `PUT /profile` never does. |
 | `GET /api/owner/listings` | `public.boarding_listings` (+ photos via `listing_photos`, amenities via `listing_amenities`) | Scoped `WHERE owner_id = :tokenSubject`. |
 | `POST /api/owner/listings` | `public.boarding_listings` | `owner_id` from token, never from body; insert requires `is_owner=true`. |
 | `GET/PUT /api/owner/listings/{id}` | `public.boarding_listings` (+ photos, amenities, rules) | Ownership enforced by Spring (DB owner role bypasses RLS — issue #2). |
@@ -120,9 +120,9 @@ What the repo does contain, for the record:
 
 | # | Item | Where in SQL | Impact |
 |---|---|---|---|
-| 1 | Any authenticated user can set their own `is_owner=true` through the profiles update policy | `public.profiles` RLS update policy (live DB; per AGENTS.md §3 known issues) | Is this the intended "become an owner" flow? Blocks the `Become owner` API (currently `TODO(ask Anoj)`); affects Login/Register and dashboard role assumptions. **Reported, not fixed.** |
+| 1 | Any authenticated user can set their own `is_owner=true` through the profiles update policy | `public.profiles` RLS update policy (live DB; per AGENTS.md §3 known issues) | Resolved by CC-1 (Week 2): the owner slice exposes `POST /api/owner/profile/become-owner`; role flags are never editable via `PUT /profile`. The raw RLS self-set path remains in the live DB (not fixed here). |
 | 2 | Direct JDBC has no `auth.uid()`; escalation trigger and RLS helpers behave differently from Supabase-client calls; DB owner role bypasses RLS | `public.profiles` triggers, RLS helper functions, Spring datasource role | Spring must enforce ownership itself (check `owner_id` per request). Listing endpoints must never rely on RLS alone. **Reported, not fixed.** |
-| 3 | `.env.example` has `HAYSTAX_JWT_SECRET` as a stub until M2 ships the real JwtService; how Supabase JWTs are verified is undecided (shared secret vs JWKS) | Spring Security config / JwtService (not yet written) | `GET /me` role resolution depends on this. Marked `TODO(ask Anoj)` in OpenAPI (`x-todo`). |
+| 3 | How Supabase JWTs are verified | `JwtService` (HS256, Week 2) | Resolved by D-JWT (Week 2): HS256 shared secret from `HAYSTAX_JWT_SECRET`, required claims = valid signature, not expired, `aud=authenticated`, `sub` = user UUID. No extra pom dependency (JDK `Mac`). |
 | 4 | Publish-time mandatory-field checks (photos, amenities) are not defined in SQL | `boarding_listings` status column; no SQL check exists | `POST /{id}/publish` must validate at the application layer (Weeks 2–3): at least one approved?/any photo, amenity requirements per team rules. OpenAPI marks it `x-todo`. |
 | 5 | Photo approval flow (`is_approved`) has no owner-facing definition | `listing_photos.is_approved` | Display-only for the owner in Week 1; whether admin approval gates visibility is Naviru's moderation slice — confirm cross-slice at integration. |
 | 6 | Storage path convention enforced only by application, not DB | `listing_photos.storage_path` UNIQUE but no path-shape constraint | Spring must write `{listing_id}/{file}` and never a public URL; DB stores object paths only. |

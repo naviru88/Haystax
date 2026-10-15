@@ -88,6 +88,30 @@ paths:
       x-source: AGENTS C1 table row 2
       x-todo: become-owner flow — see is_owner self-service question vs approved workflow (ask Anoj)
 
+  /api/owner/profile/become-owner:
+    post:
+      tags: [Owner & Identity]
+      summary: Become an owner (CC-1)
+      description: |
+        Sets profiles.is_owner=true for the caller. Authenticated, not suspended.
+        Idempotent — an already-owner caller gets 200 with the profile unchanged.
+        This is the ONLY way roles change here; PUT /profile never changes roles.
+        Roles are resolved from public.profiles, never from token claims (D-ROLES).
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile with role flags (is_owner now true)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      x-source: CC-1 (approved contract change)
+
   /api/owner/listings:
     get:
       tags: [Owner & Identity]

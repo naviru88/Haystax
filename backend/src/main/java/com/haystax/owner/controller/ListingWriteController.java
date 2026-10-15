@@ -1,6 +1,8 @@
 package com.haystax.owner.controller;
 
+import com.haystax.owner.dto.AmenityDto;
 import com.haystax.owner.dto.ErrorResponseDto;
+import com.haystax.owner.service.AmenityService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/owner")
 public class ListingWriteController {
+
+    private final AmenityService amenityService;
+
+    public ListingWriteController(AmenityService amenityService) {
+        this.amenityService = amenityService;
+    }
+
+    @GetMapping("/amenities")
+    public java.util.List<AmenityDto> listAmenities() {
+        return amenityService.listActive();
+    }
 
     private ResponseEntity<ErrorResponseDto> stub(HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)

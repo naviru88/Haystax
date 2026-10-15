@@ -1,6 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { AdminApiService } from '../services/admin-api.service';
+import { HttpAdminApiService } from '../services/http-admin-api.service';
+import { environment } from '../../../../environments/environment';
 import { Report, ReportStatus } from '../models/report.model';
 import { ModerationActionType } from '../models/moderation-action.model';
 import { ReportDrawerComponent } from './report-drawer/report-drawer.component';
@@ -14,16 +16,26 @@ type StatusFilter = ReportStatus | 'all';
   templateUrl: './reports.component.html',
 })
 export class ReportsComponent {
-  private readonly api = inject(AdminApiService);
+  private readonly mockApi = inject(AdminApiService);
+  private readonly httpApi = inject(HttpAdminApiService);
+
+  readonly useMock = environment.useMockApi;
+
+  // Pre-wire: state populated from either source.
+  private readonly _reports = signal<Report[]>([]);
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
 
   readonly statusFilter = signal<StatusFilter>('submitted');
   readonly selectedReport = signal<Report | null>(null);
   readonly modalOpen = signal(false);
   readonly modalTarget = signal<Report | null>(null);
 
-  readonly filtered = computed(() =>
-    this.api.getReportsByStatus(this.statusFilter())
-  );
+  readonly filtered = computed(() => {
+    const all = this._reports();
+    const status = this.statusFilter();
+    return status === 'all' ? all : all.filter(r => r.status === status);
+  });
 
   readonly statusOptions: { value: StatusFilter; label: string }[] = [
     { value: 'submitted',    label: 'Submitted' },
@@ -33,17 +45,33 @@ export class ReportsComponent {
     { value: 'all',          label: 'All' },
   ];
 
-  setStatus(s: StatusFilter): void {
-    this.statusFilter.set(s);
+  constructor() {
+    if (this.useMock) {
+      this._reports.set(this.mockApi.reports());
+      return;
+    }
+    this.reload();
   }
 
-  openReport(r: Report): void {
-    this.selectedReport.set(r);
+  private reload(): void {
+    this.loading.set(true);
+    this.error.set(null);
+    this.httpApi.fetchReports('all').subscribe({
+      next: (reports) => {
+        this._reports.set(reports);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        this.error.set('Failed to load reports');
+        this.loading.set(false);
+        console.error(err);
+      },
+    });
   }
 
-  closeDrawer(): void {
-    this.selectedReport.set(null);
-  }
+  setStatus(s: StatusFilter): void { this.statusFilter.set(s); }
+  openReport(r: Report): void { this.selectedReport.set(r); }
+  closeDrawer(): void { this.selectedReport.set(null); }
 
   openModeration(r: Report): void {
     this.modalTarget.set(r);
@@ -59,13 +87,23 @@ export class ReportsComponent {
     const target = this.modalTarget();
     if (!target) return;
 
-    this.api.applyModeration({
-      reportId: target.id,
-      actionType: payload.actionType,
-      reason: payload.reason,
-    });
+    if (this.useMock) {
+      this.mockApi.applyModeration({
+        reportId: target.id,
+        actionType: payload.actionType,
+        reason: payload.reason,
+      });
+      this._reports.set(this.mockApi.reports());
+    } else {
+      this.httpApi
+        .applyModeration({
+          reportId: target.id,
+          actionType: payload.actionType,
+          reason: payload.reason,
+        })
+        .subscribe(() => this.reload());
+    }
 
-    // Close modal, then close drawer (report now has a new status).
     this.modalOpen.set(false);
     this.modalTarget.set(null);
     this.selectedReport.set(null);

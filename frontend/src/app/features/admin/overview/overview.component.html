@@ -1,23 +1,29 @@
+@if (error(); as e) {
+  <div class="card text-center py-8 mb-6">
+    <p class="text-destructive-text">{{ e }}</p>
+  </div>
+}
+
 <!-- Top row: primary moderation stats -->
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
   <app-stat-card
     label="Submitted reports"
-    [value]="stats.submittedReportCount"
+    [value]="stats().submittedReportCount"
     tone="warning"
     hint="Awaiting first review" />
   <app-stat-card
     label="Under review"
-    [value]="stats.underReviewReportCount"
+    [value]="stats().underReviewReportCount"
     tone="primary"
     hint="Assigned to an admin" />
   <app-stat-card
     label="Pending listings"
-    [value]="stats.pendingListingCount"
+    [value]="stats().pendingListingCount"
     tone="warning"
     hint="Awaiting publication" />
   <app-stat-card
     label="Removed listings"
-    [value]="stats.removedListingCount"
+    [value]="stats().removedListingCount"
     tone="danger"
     hint="Currently hidden from public" />
 </div>
@@ -26,16 +32,16 @@
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
   <app-stat-card
     label="Published listings"
-    [value]="stats.publishedListingCount" />
+    [value]="stats().publishedListingCount" />
   <app-stat-card
     label="Active tenancies"
-    [value]="stats.activeTenancyCount" />
+    [value]="stats().activeTenancyCount" />
   <app-stat-card
     label="Registered users"
-    [value]="stats.totalUserCount" />
+    [value]="stats().totalUserCount" />
   <app-stat-card
     label="Suspended users"
-    [value]="stats.suspendedUserCount"
+    [value]="stats().suspendedUserCount"
     tone="danger" />
 </div>
 
@@ -67,19 +73,19 @@
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
     <div>
       <p class="text-xs text-gray-500 uppercase tracking-wide">Submitted</p>
-      <p class="text-2xl font-bold text-warning-text mt-1">{{ stats.submittedReportCount }}</p>
+      <p class="text-2xl font-bold text-warning-text mt-1">{{ stats().submittedReportCount }}</p>
     </div>
     <div>
       <p class="text-xs text-gray-500 uppercase tracking-wide">Under review</p>
-      <p class="text-2xl font-bold text-primary mt-1">{{ stats.underReviewReportCount }}</p>
+      <p class="text-2xl font-bold text-primary mt-1">{{ stats().underReviewReportCount }}</p>
     </div>
     <div>
       <p class="text-xs text-gray-500 uppercase tracking-wide">Resolved</p>
-      <p class="text-2xl font-bold text-success-text mt-1">{{ stats.resolvedReportCount }}</p>
+      <p class="text-2xl font-bold text-success-text mt-1">{{ stats().resolvedReportCount }}</p>
     </div>
     <div>
       <p class="text-xs text-gray-500 uppercase tracking-wide">Rejected</p>
-      <p class="text-2xl font-bold text-gray-500 mt-1">{{ stats.rejectedReportCount }}</p>
+      <p class="text-2xl font-bold text-gray-500 mt-1">{{ stats().rejectedReportCount }}</p>
     </div>
   </div>
 </div>

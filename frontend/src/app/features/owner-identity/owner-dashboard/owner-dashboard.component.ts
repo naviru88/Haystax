@@ -1,33 +1,44 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+
 import { OWNER_API } from '../services/owner-api.interface';
 import { OwnerListing, UiState } from '../models/owner-listing.model';
 import { OwnerUser } from '../models/owner-user.model';
+import { toApiError } from '../services/api-error';
 import { StateViewComponent } from '../../../shared/components/state-view/state-view.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { SkeletonCardComponent } from '../../../shared/components/skeleton-card/skeleton-card.component';
 
 /**
- * Owner Dashboard — Week 1 skeleton.
- * Shows: profile banner, pending tenancy requests (MOWN-07, read-only in Week 1),
- * the owner's own listings table (MOWN-01) with moderation & vacancy state, and a
- * suspended-account state. Loading/empty/error/success are switchable via the mock
- * service's uiState. [AGENTS C3 scope]
+ * Owner Dashboard — W3 skeleton (full interactive build is W3-C2).
+ * Loads the owner's own listings via the OwnerApi (mock fixtures in mock mode, real API
+ * otherwise). Pending tenancy requests are a read-only placeholder (Member 3's contract).
+ * [AGENTS C3 scope][page contract §6]
  */
 @Component({
   selector: 'app-owner-dashboard',
   imports: [RouterLink, DatePipe, StateViewComponent, PageHeaderComponent, SkeletonCardComponent],
   templateUrl: './owner-dashboard.component.html',
 })
-export class OwnerDashboardComponent {
+export class OwnerDashboardComponent implements OnInit {
   readonly api = inject(OWNER_API);
 
   readonly uiState = this.api.uiState;
 
   readonly user = computed<OwnerUser | undefined>(() => this.api.getCurrentUser());
-  readonly listings = computed<OwnerListing[]>(() => this.api.getMyListings());
+  readonly listings = signal<OwnerListing[]>([]);
   readonly pendingRequests = computed(() => this.api.getPendingRequests());
+  readonly loadFailed = signal(false);
+
+  async ngOnInit(): Promise<void> {
+    try {
+      this.listings.set(await this.api.listListings());
+    } catch (e) {
+      this.loadFailed.set(true);
+      console.warn('Dashboard failed to load listings', toApiError(e).message);
+    }
+  }
 
   /** Switch the skeleton between UI states via the mock service. [AGENTS C3] */
   setUiState(state: UiState): void {
@@ -42,5 +53,9 @@ export class OwnerDashboardComponent {
       case 'paused': return 'Paused';
       case 'removed': return 'Removed';
     }
+  }
+
+  formatPrice(a: number): string {
+    return a.toLocaleString('en-LK');
   }
 }

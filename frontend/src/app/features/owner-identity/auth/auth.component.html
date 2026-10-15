@@ -1,68 +1,149 @@
 <div class="p-6 max-w-md mx-auto pt-12">
 
-  <div class="card">
-    <h1 class="text-2xl font-bold text-gray-900 mb-1">
-      {{ mode() === 'login' ? 'Welcome back' : 'Create your account' }}
-    </h1>
-    <p class="text-sm text-gray-500 mb-6">
-      {{ mode() === 'login'
-          ? 'Log in to Haystax to manage your boardings.'
-          : 'Register as a tenant or owner. Admins cannot self-register.' }}
-    </p>
+  @if (state() === 'suspended') {
+    <div class="card">
+      <h1 class="text-2xl font-bold text-gray-900 mb-1">Account suspended</h1>
+      <p class="text-sm text-gray-500 mb-4">
+        Your account has been suspended. You can still sign out.
+      </p>
+      <div class="rounded-lg bg-destructive-bg text-destructive-text p-4 text-sm mb-6">
+        {{ suspendedReason() }}
+      </div>
+      <button class="btn-outline w-full" (click)="signOutAndStay()">Sign out</button>
+    </div>
+  } @else if (state() === 'check-email') {
+    <div class="card">
+      <h1 class="text-2xl font-bold text-gray-900 mb-1">Check your email</h1>
+      <p class="text-sm text-gray-500">
+        We sent you a confirmation link. Confirm your email, then log in to Haystax.
+      </p>
+      <button class="btn-primary w-full mt-6" (click)="toggleModeToLogin()">Back to log in</button>
+    </div>
+  } @else {
+    <div class="card">
+      <h1 class="text-2xl font-bold text-gray-900 mb-1">
+        {{ mode() === 'login' ? 'Welcome back' : 'Create your account' }}
+      </h1>
+      <p class="text-sm text-gray-500 mb-6">
+        {{ mode() === 'login'
+            ? 'Log in to Haystax to manage your boardings.'
+            : 'Register as a tenant or owner. Admins cannot self-register.' }}
+      </p>
 
-    <!-- Week-1 skeleton fields [AGENTS §0 rule 8] -->
-    <div class="space-y-4">
-      @if (mode() === 'register') {
-        <div>
-          <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Display name</label>
-          <input disabled class="form-input w-full mt-1" placeholder="2–120 characters (Week 3)" />
+      <!-- Server-level message (errors from Supabase / the API) -->
+      @if (serverMessage() && (state() === 'invalid-credentials' || state() === 'email-taken'
+                             || state() === 'weak-password' || state() === 'network')) {
+        <div role="alert" aria-live="assertive"
+             class="rounded-lg bg-destructive-bg text-destructive-text px-4 py-3 text-sm mb-5">
+          {{ serverMessage() }}
         </div>
       }
-      <div>
-        <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Email</label>
-        <input disabled class="form-input w-full mt-1" placeholder="you@example.com (Week 3)" />
-      </div>
-      <div>
-        <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Password</label>
-        <input disabled type="password" class="form-input w-full mt-1" placeholder="•••••••• (Week 3)" />
-      </div>
-    </div>
 
-    <div class="flex justify-end gap-2 mt-6">
-      <button class="btn-outline" (click)="toggleMode()">
-        Switch to {{ mode() === 'login' ? 'register' : 'login' }}
-      </button>
-      <button class="btn-primary" disabled>{{ mode() === 'login' ? 'Log in' : 'Register' }}</button>
-    </div>
-
-    <p class="text-xs text-gray-400 mt-4">
-      Week 1 skeleton — real auth is handled by Supabase Auth in Week 3.
-    </p>
-  </div>
-
-  <!-- Week-1 mock: pick a fixture user to preview the role-based redirect [AGENTS C3] -->
-  <div class="card mt-6">
-    <h2 class="font-semibold text-gray-900 mb-2">Preview mock login (Week 1 fixture)</h2>
-    <p class="text-xs text-gray-500 mb-3">Roles come from the server. Here is what each lands on:</p>
-    <label class="flex items-center gap-2 text-sm text-gray-600 mb-3">
-      <input type="checkbox" class="accent-primary"
-             [checked]="showRoles()" (change)="setShowRoles($any($event.target).checked)" />
-      Show fixture roles
-    </label>
-    @if (showRoles()) {
-      <div class="space-y-2">
-        @for (u of api.getMockUsers(); track u.id) {
-          <button class="btn-outline w-full justify-between flex items-center gap-2 text-left"
-                  (click)="mockLogin(u)">
-            <span>{{ u.displayName }}</span>
-            <span class="text-xs text-gray-400">
-              @if (u.isAdmin) { Admin }
-              @else if (u.isOwner) { Owner @if (u.isSuspended) { · suspended} }
-              @else { Tenant }
-            </span>
-          </button>
+      <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4" novalidate>
+        @if (mode() === 'register') {
+          <div>
+            <label for="display_name" class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              Display name <span class="text-destructive-text">*</span>
+            </label>
+            <input id="display_name" formControlName="display_name"
+                   class="form-input w-full mt-1" placeholder="2–120 characters" />
+            @if (control('display_name')?.touched && control('display_name')?.invalid) {
+              <p class="text-xs text-destructive-text mt-1" role="alert">
+                Display name must be 2–120 characters.
+              </p>
+            }
+          </div>
         }
+
+        <div>
+          <label for="email" class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+            Email <span class="text-destructive-text">*</span>
+          </label>
+          <input id="email" formControlName="email" type="email"
+                 class="form-input w-full mt-1" placeholder="you@example.com" />
+          @if (control('email')?.touched && control('email')?.invalid) {
+            <p class="text-xs text-destructive-text mt-1" role="alert">
+              Enter a valid email address.
+            </p>
+          }
+        </div>
+
+        <div>
+          <label for="password" class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+            Password <span class="text-destructive-text">*</span>
+          </label>
+          <input id="password" formControlName="password" type="password"
+                 class="form-input w-full mt-1" placeholder="At least 6 characters" />
+          @if (control('password')?.touched && control('password')?.invalid) {
+            <p class="text-xs text-destructive-text mt-1" role="alert">
+              Password must be at least 6 characters.
+            </p>
+          }
+        </div>
+
+        @if (mode() === 'register') {
+          <div>
+            <label for="confirm_password" class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              Confirm password <span class="text-destructive-text">*</span>
+            </label>
+            <input id="confirm_password" formControlName="confirm_password" type="password"
+                   class="form-input w-full mt-1" placeholder="Repeat your password" />
+            @if (control('confirm_password')?.touched && form.hasError('passwordMismatch')) {
+              <p class="text-xs text-destructive-text mt-1" role="alert">
+                Passwords do not match.
+              </p>
+            }
+          </div>
+
+          <div>
+            <label for="phone_number" class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              Phone number (optional)
+            </label>
+            <input id="phone_number" formControlName="phone_number"
+                   class="form-input w-full mt-1" placeholder="+94 7X XXX XXXX" />
+          </div>
+        }
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" class="btn-outline" (click)="toggleMode()">
+            {{ mode() === 'login' ? 'Switch to register' : 'Switch to login' }}
+          </button>
+          <button type="submit" class="btn-primary" [disabled]="state() === 'submitting'">
+            @if (state() === 'submitting') {
+              <span class="inline-flex items-center gap-2">
+                <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+                {{ mode() === 'login' ? 'Logging in…' : 'Registering…' }}
+              </span>
+            } @else {
+              {{ mode() === 'login' ? 'Log in' : 'Register' }}
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Mock-mode demo: the four fixture users, no backend needed [D-MOCK] -->
+    @if (isMock) {
+      <div class="card mt-6">
+        <h2 class="font-semibold text-gray-900 mb-2">Mock mode — demo users</h2>
+        <p class="text-xs text-gray-500 mb-3">Roles come from the server. Here is where each lands:</p>
+        <div class="space-y-2">
+          @for (u of api.getMockUsers(); track u.id) {
+            <button class="btn-outline w-full flex items-center justify-between gap-2 text-left"
+                    (click)="mockSignIn(u.email)">
+              <span>{{ u.display_name }}</span>
+              <span class="text-xs text-gray-400">
+                @if (u.is_admin) { Admin }
+                @else if (u.is_owner) { Owner @if (u.is_suspended) { · suspended} }
+                @else { Tenant }
+              </span>
+            </button>
+          }
+        </div>
       </div>
     }
-  </div>
+  }
 </div>

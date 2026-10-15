@@ -4,7 +4,7 @@
     title="Owner Dashboard"
     subtitle="Manage your listings, tenants, and account." />
 
-  <!-- Week-1 state switcher (mock service) [AGENTS C3] -->
+  <!-- Week-1/3 state switcher (mock service) [AGENTS C3] -->
   <div class="mb-4 flex flex-wrap items-center gap-2 text-xs">
     <span class="text-gray-500 font-medium">Preview UI state:</span>
     @for (s of ['success','loading','empty','error']; track s) {
@@ -40,11 +40,11 @@
       <ng-container>
         <!-- Suspended account banner [DB profiles.is_suspended][AGENTS §3] -->
         @if (user(); as u) {
-          @if (u.isSuspended) {
+          @if (u.is_suspended) {
             <div class="card !bg-destructive-bg !border-destructive/40 mb-6">
               <p class="font-semibold text-destructive-text">Account suspended</p>
               <p class="text-sm text-destructive-text/80 mt-1">
-                {{ u.suspensionReason || 'Contact support for details.' }}
+                {{ u.suspension_reason || 'Contact support for details.' }}
               </p>
             </div>
           }
@@ -54,34 +54,23 @@
         @if (user(); as u) {
           <div class="card flex items-center gap-4 mb-6">
             <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold shrink-0">
-              {{ u.displayName.charAt(0) }}
+              {{ u.display_name.charAt(0) }}
             </div>
             <div class="min-w-0">
-              <p class="font-semibold text-gray-900">{{ u.displayName }}</p>
+              <p class="font-semibold text-gray-900">{{ u.display_name }}</p>
               <p class="text-sm text-gray-500 truncate">{{ u.email }}</p>
             </div>
             <span class="badge-available ml-auto shrink-0">Owner</span>
           </div>
         }
 
-        <!-- Pending requests (MOWN-07, read-only in Week 1) -->
+        <!-- Pending requests (MOWN-07, placeholder until Member 3's contract) -->
         <div class="card mb-6">
           <h2 class="font-semibold text-gray-900 mb-3">Pending tenancy requests</h2>
-          @if (pendingRequests().length === 0) {
-            <p class="text-sm text-gray-500">No pending requests.</p>
-          } @else {
-            <div class="space-y-2">
-              @for (r of pendingRequests(); track r.id) {
-                <div class="flex items-center justify-between gap-3 border-b border-gray-100 pb-2 last:border-0">
-                  <div class="min-w-0">
-                    <p class="text-sm font-medium text-gray-800">{{ r.tenantDisplayName }}</p>
-                    <p class="text-xs text-gray-500">{{ r.listingTitle }} · {{ r.requestedAt | date:'mediumDate' }}</p>
-                  </div>
-                  <span class="badge-muted shrink-0">Pending</span>
-                </div>
-              }
-            </div>
-          }
+          <p class="text-sm text-gray-500">
+            Tenant requests will appear here.
+            <span class="text-gray-400">TODO(Member 3 contract)</span>
+          </p>
         </div>
 
         <!-- Owned listings table [MOWN-01][DB boarding_listings.*] -->
@@ -112,7 +101,7 @@
                       <div class="flex items-center gap-3 min-w-0">
                         <div class="w-14 h-10 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden shrink-0">
                           @if (l.photos.length > 0) {
-                            <img [src]="l.photos[0].storagePath" [alt]="l.title"
+                            <img [src]="l.photos[0].storage_path" [alt]="l.title"
                                  class="w-full h-full object-cover" />
                           }
                         </div>
@@ -124,26 +113,26 @@
                     </td>
                     <td class="px-4 py-3">
                       <span class="badge-muted">{{ statusLabel(l.status) }}</span>
-                      @if (l.moderationNote) {
-                        <p class="text-xs text-warning-text mt-1 max-w-[16rem]">{{ l.moderationNote }}</p>
+                      @if (l.moderation_note) {
+                        <p class="text-xs text-warning-text mt-1 max-w-[16rem]">{{ l.moderation_note }}</p>
                       }
                     </td>
                     <td class="px-4 py-3 text-gray-700">
-                      @if (l.availableSlots > 0) {
+                      @if (l.available_slots > 0) {
                         <span class="text-success-text">Available</span>
                       } @else {
                         <span class="text-destructive-text">Full</span>
                       }
-                      <span class="text-gray-400 text-xs"> {{ l.availableSlots }}/{{ l.totalSlots }}</span>
+                      <span class="text-gray-400 text-xs"> {{ l.available_slots }}/{{ l.total_slots }}</span>
                     </td>
                     <td class="px-4 py-3 text-gray-700">
-                      <span class="font-semibold">{{ l.priceAmount }}</span>
-                      <span class="text-xs text-gray-500">{{ l.currencyCode }}/mo</span>
+                      <span class="font-semibold">{{ formatPrice(l.price_amount) }}</span>
+                      <span class="text-xs text-gray-500">{{ l.currency_code }}/mo</span>
                     </td>
                     <td class="px-4 py-3 text-right whitespace-nowrap">
                       <div class="inline-flex gap-2">
                         @if (l.status === 'draft' || l.status === 'paused') {
-                          <button class="btn-outline !px-3 !py-1 text-xs" (click)="api.submitForPublication(l.id)">
+                          <button class="btn-outline !px-3 !py-1 text-xs" (click)="api.publishListing(l.id)">
                             Publish
                           </button>
                         }
@@ -160,6 +149,13 @@
                 }
               </tbody>
             </table>
+          </div>
+        }
+
+        @if (loadFailed()) {
+          <div role="alert" aria-live="polite"
+               class="mt-4 rounded-lg bg-destructive-bg text-destructive-text px-4 py-3 text-sm">
+            Could not load your listings — the backend may be offline in real mode.
           </div>
         }
       </ng-container>

@@ -1,11 +1,13 @@
 import { InjectionToken, Signal } from '@angular/core';
-import { Amenity, OwnerListing, UiState } from '../models/owner-listing.model';
-import { OwnerUser } from '../models/owner-user.model';
+import { Observable } from 'rxjs';
+import {
+  Amenity, ListingRuleWrite, ListingWrite, OwnerListing, PhotoUploadEvent, UiState,
+} from '../models/owner-listing.model';
+import { OwnerProfile, OwnerUser, ProfileUpdate, SignUpResult } from '../models/owner-user.model';
 
 /**
- * Week-4 request from Owner-identity -> Spring owner slice.
- * Cross-slice note (MOWN-07): tenancy requests come from Member 3's engagement API;
- * we only surface them read-only in the Week-1 skeleton. [AGENTS §1 rule between members]
+ * Week-3 pending-requests note (MOWN-07): tenancy requests come from Member 3's engagement
+ * API; we only surface a placeholder in the dashboard. Nothing here calls engagement. [AGENTS §1]
  */
 export interface PendingRequest {
   id: string;
@@ -17,28 +19,41 @@ export interface PendingRequest {
 }
 
 /**
- * Single contract the owner-identity pages depend on.
- * Week 1: provided by MockAuthService (fixtures). Week 4: swapped for the real OwnerApiService
- * without touching the pages. [AGENTS C3: mock + api behind the same interface]
+ * Contract the owner-identity pages depend on. Provided by MockAuthService (useMock=true)
+ * or OwnerApiService (real API). Pages depend only on this interface — the provider swap
+ * happens in the routes file. [AGENTS C3]
  */
 export interface OwnerApi {
-  /** Switchable UI state (loading/empty/error/success) for the Week-1 skeleton. [AGENTS C3] */
+  /** Switchable UI state for mock mode (and pre-C2 skeletons). [AGENTS C3] */
   readonly uiState: Signal<UiState>;
   setUiState(state: UiState): void;
 
-  /** Identity — server-decided roles, never client-declared. [AGENTS §0 rule 5] */
+  // Identity — roles come from the server, never from the client. [AGENTS §0 rule 5]
   getCurrentUser(): OwnerUser | undefined;
-  switchUser(userId: string): void;
   getMockUsers(): OwnerUser[];
+  switchUser(userId: string): void;      // mock-mode only; real API: no-op
+  /** Mock-mode only: the fixture user currently "signed in"; undefined in real mode. [D-MOCK] */
+  getMockSessionUser(): OwnerUser | undefined;
 
-  /** Listings (owner's own only). [MOWN-01] */
-  getMyListings(): OwnerListing[];
-  getListingById(id: string): OwnerListing | undefined;
-  getAmenities(): Amenity[];
-  getPendingRequests(): PendingRequest[];
+  // Real API surface (1:1 with openapi-owner.yaml). Mock implements the same shape.
+  getMe(): Promise<OwnerUser>;
+  getProfile(): Promise<OwnerProfile>;
+  updateProfile(body: ProfileUpdate): Promise<OwnerProfile>;
+  becomeOwner(): Promise<OwnerUser>;
+  listListings(): Promise<OwnerListing[]>;
+  getListing(id: string): Promise<OwnerListing>;
+  createListing(body: ListingWrite): Promise<OwnerListing>;
+  updateListing(id: string, body: ListingWrite): Promise<OwnerListing>;
+  publishListing(id: string): Promise<OwnerListing>;
+  uploadPhoto(listingId: string, file: File, meta: { is_primary?: boolean; alt_text?: string; sort_order?: number }): Observable<PhotoUploadEvent>;
+  deletePhoto(listingId: string, photoId: string): Promise<void>;
+  getPhotoBlob(listingId: string, photoId: string): Promise<Blob>;
+  listAmenities(): Promise<Amenity[]>;
 
-  /** Submit for publication — stub in Week 1. [MOWN-03] */
-  submitForPublication(id: string): void;
+  // Mock-only helpers (fixtures).
+  signInMock(email: string): Promise<OwnerUser | undefined>;
+  signUpMock(dto: { display_name: string; email: string; password: string; phone_number?: string }): Promise<OwnerUser>;
+  getPendingRequests(): PendingRequest[];  // placeholder list, read-only
 }
 
 export const OWNER_API = new InjectionToken<OwnerApi>('haystax.owner-api');

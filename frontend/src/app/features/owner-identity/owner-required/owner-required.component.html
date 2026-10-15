@@ -1,0 +1,28 @@
+<div class="p-6 max-w-4xl mx-auto">
+  <app-page-header
+    title="Owner access required"
+    subtitle="Some features are only available to property owners." />
+
+  <div class="card">
+    <h2 class="text-lg font-semibold text-gray-900 mb-2">Become an owner</h2>
+    <p class="text-sm text-gray-500 mb-6">
+      Create and manage boarding listings, upload photos and submit them for publication.
+      No role information is stored on this device — ownership is granted by the server.
+    </p>
+
+    @if (state === 'error' || state === 'network') {
+      <div role="alert" aria-live="assertive"
+           class="rounded-lg bg-destructive-bg text-destructive-text px-4 py-3 text-sm mb-5">
+        {{ errorMessage }}
+      </div>
+    }
+
+    <button class="btn-primary" [disabled]="state === 'submitting'" (click)="becomeOwner()">
+      @if (state === 'submitting') {
+        {{ 'Requesting…' }}
+      } @else {
+        {{ 'Become an owner' }}
+      }
+    </button>
+  </div>
+</div>

@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
-import { OWNER_API } from './features/owner-identity/services/owner-api.interface';
-import { MockAuthService } from './features/owner-identity/services/mock-auth.service';
+import { provideOwnerApi } from './features/owner-identity/services/provide-owner-api';
 
 export const routes: Routes = [
   {
@@ -19,10 +18,7 @@ export const routes: Routes = [
   },
   {
     path: 'auth/login',
-    providers: [
-      // Week 1: mock provider. Week 4: replace with OwnerApiService (real API).
-      { provide: OWNER_API, useClass: MockAuthService },
-    ],
+    providers: [provideOwnerApi()],
     loadComponent: () =>
       import('./features/owner-identity/auth/auth.component')
         .then(m => m.AuthComponent),
@@ -37,6 +33,7 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/owner-identity/owner-identity.routes')
         .then(m => m.ownerIdentityRoutes),
+  },
   // M3: Engagement feature (messaging, reviews, analytics, booking)
   {
     path: 'messages',

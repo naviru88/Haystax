@@ -1,15 +1,18 @@
-import { Component, computed, inject, signal, OnInit } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+
 import { OWNER_API } from '../services/owner-api.interface';
-import { ListingStatus, UiState } from '../models/owner-listing.model';
+import { ListingStatus, OwnerListing, UiState } from '../models/owner-listing.model';
+import { toApiError } from '../services/api-error';
 import { StateViewComponent } from '../../../shared/components/state-view/state-view.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { SkeletonCardComponent } from '../../../shared/components/skeleton-card/skeleton-card.component';
 
 /**
- * Listing Editor — Week 1 skeleton. Create (/owner/listings/new) and edit (/owner/listings/:id).
- * Always shows the listing title + location (C1 acceptance). Stale/invalid IDs show a safe
- * error state and never touch another listing. No finished forms this week. [AGENTS §0 rule 8]
+ * Listing Editor — W3 skeleton (full form build is W3-C3).
+ * Create (/owner/listings/new) and edit (/owner/listings/:id). Always shows the listing
+ * title + location (C1 acceptance). Stale/invalid IDs show a safe error state and never
+ * touch another listing. [AGENTS C3]
  */
 @Component({
   selector: 'app-listing-editor',
@@ -25,21 +28,28 @@ export class ListingEditorComponent implements OnInit {
   readonly listingId = signal<string | null>(null);
   readonly uiState = this.api.uiState;
 
-  readonly listing = computed(() => {
-    const id = this.listingId();
-    if (!id) return undefined;
-    return this.api.getListingById(id);
-  });
+  readonly listing = signal<OwnerListing | undefined>(undefined);
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     const raw = this.route.snapshot.paramMap.get('id');
     if (raw === 'new') {
       this.isNew.set(true);
       return;
     }
-    if (raw) {
-      this.listingId.set(raw);
-      this.notFound.set(!this.api.getListingById(raw));
+    if (!raw) {
+      this.notFound.set(true);
+      return;
+    }
+    this.listingId.set(raw);
+
+    try {
+      const l = await this.api.getListing(raw);
+      this.listing.set(l);
+    } catch (e) {
+      const err = toApiError(e);
+      // 404 (or mock "not found") → safe state; anything else shows the generic error state.
+      this.notFound.set(err.status === 404 || err.message.includes('not found'));
+      console.warn('Editor failed to load listing', err.message);
     }
   }
 

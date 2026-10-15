@@ -1,0 +1,168 @@
+<div class="p-6 max-w-7xl mx-auto">
+
+  <app-page-header
+    title="Owner Dashboard"
+    subtitle="Manage your listings, tenants, and account." />
+
+  <!-- Week-1 state switcher (mock service) [AGENTS C3] -->
+  <div class="mb-4 flex flex-wrap items-center gap-2 text-xs">
+    <span class="text-gray-500 font-medium">Preview UI state:</span>
+    @for (s of ['success','loading','empty','error']; track s) {
+      <button
+        class="btn-outline !px-3 !py-1"
+        [class.!bg-primary]="s === uiState()"
+        [class.!text-white]="s === uiState()"
+        (click)="setUiState($any(s))">
+        {{ s }}
+      </button>
+    }
+  </div>
+
+  @switch (uiState()) {
+    @case ('loading') {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <app-skeleton-card /> <app-skeleton-card /> <app-skeleton-card />
+      </div>
+    }
+    @case ('empty') {
+      <app-state-view
+        kind="empty"
+        title="No listings yet"
+        message="Create your first listing to start renting out rooms." />
+    }
+    @case ('error') {
+      <app-state-view
+        kind="error"
+        title="Something went wrong"
+        message="We could not load your dashboard. Please try again." />
+    }
+    @case ('success') {
+      <ng-container>
+        <!-- Suspended account banner [DB profiles.is_suspended][AGENTS §3] -->
+        @if (user(); as u) {
+          @if (u.isSuspended) {
+            <div class="card !bg-destructive-bg !border-destructive/40 mb-6">
+              <p class="font-semibold text-destructive-text">Account suspended</p>
+              <p class="text-sm text-destructive-text/80 mt-1">
+                {{ u.suspensionReason || 'Contact support for details.' }}
+              </p>
+            </div>
+          }
+        }
+
+        <!-- Profile strip -->
+        @if (user(); as u) {
+          <div class="card flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold shrink-0">
+              {{ u.displayName.charAt(0) }}
+            </div>
+            <div class="min-w-0">
+              <p class="font-semibold text-gray-900">{{ u.displayName }}</p>
+              <p class="text-sm text-gray-500 truncate">{{ u.email }}</p>
+            </div>
+            <span class="badge-available ml-auto shrink-0">Owner</span>
+          </div>
+        }
+
+        <!-- Pending requests (MOWN-07, read-only in Week 1) -->
+        <div class="card mb-6">
+          <h2 class="font-semibold text-gray-900 mb-3">Pending tenancy requests</h2>
+          @if (pendingRequests().length === 0) {
+            <p class="text-sm text-gray-500">No pending requests.</p>
+          } @else {
+            <div class="space-y-2">
+              @for (r of pendingRequests(); track r.id) {
+                <div class="flex items-center justify-between gap-3 border-b border-gray-100 pb-2 last:border-0">
+                  <div class="min-w-0">
+                    <p class="text-sm font-medium text-gray-800">{{ r.tenantDisplayName }}</p>
+                    <p class="text-xs text-gray-500">{{ r.listingTitle }} · {{ r.requestedAt | date:'mediumDate' }}</p>
+                  </div>
+                  <span class="badge-muted shrink-0">Pending</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Owned listings table [MOWN-01][DB boarding_listings.*] -->
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-gray-900">My listings</h2>
+          <a routerLink="/owner/listings/new" class="btn-primary">Add listing</a>
+        </div>
+
+        @if (listings().length === 0) {
+          <app-state-view kind="empty" title="No listings yet"
+                          message="Create your first listing to start renting out rooms." />
+        } @else {
+          <div class="card !p-0 overflow-hidden">
+            <table class="w-full text-sm">
+              <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Listing</th>
+                  <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Status</th>
+                  <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Vacancy</th>
+                  <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Price</th>
+                  <th class="px-4 py-3"></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (l of listings(); track l.id) {
+                  <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="px-4 py-3">
+                      <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-14 h-10 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden shrink-0">
+                          @if (l.photos.length > 0) {
+                            <img [src]="l.photos[0].storagePath" [alt]="l.title"
+                                 class="w-full h-full object-cover" />
+                          }
+                        </div>
+                        <div class="min-w-0">
+                          <p class="font-medium text-gray-900 truncate">{{ l.title }}</p>
+                          <p class="text-xs text-gray-500">{{ l.city }}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-4 py-3">
+                      <span class="badge-muted">{{ statusLabel(l.status) }}</span>
+                      @if (l.moderationNote) {
+                        <p class="text-xs text-warning-text mt-1 max-w-[16rem]">{{ l.moderationNote }}</p>
+                      }
+                    </td>
+                    <td class="px-4 py-3 text-gray-700">
+                      @if (l.availableSlots > 0) {
+                        <span class="text-success-text">Available</span>
+                      } @else {
+                        <span class="text-destructive-text">Full</span>
+                      }
+                      <span class="text-gray-400 text-xs"> {{ l.availableSlots }}/{{ l.totalSlots }}</span>
+                    </td>
+                    <td class="px-4 py-3 text-gray-700">
+                      <span class="font-semibold">{{ l.priceAmount }}</span>
+                      <span class="text-xs text-gray-500">{{ l.currencyCode }}/mo</span>
+                    </td>
+                    <td class="px-4 py-3 text-right whitespace-nowrap">
+                      <div class="inline-flex gap-2">
+                        @if (l.status === 'draft' || l.status === 'paused') {
+                          <button class="btn-outline !px-3 !py-1 text-xs" (click)="api.submitForPublication(l.id)">
+                            Publish
+                          </button>
+                        }
+                        <a routerLink="/owner/listings/{{ l.id }}" class="btn-outline !px-3 !py-1 text-xs">
+                          Edit
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="5" class="text-center py-12 text-gray-500">No listings yet.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </ng-container>
+    }
+  }
+</div>

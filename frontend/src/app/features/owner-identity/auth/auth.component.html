@@ -1,0 +1,68 @@
+<div class="p-6 max-w-md mx-auto pt-12">
+
+  <div class="card">
+    <h1 class="text-2xl font-bold text-gray-900 mb-1">
+      {{ mode() === 'login' ? 'Welcome back' : 'Create your account' }}
+    </h1>
+    <p class="text-sm text-gray-500 mb-6">
+      {{ mode() === 'login'
+          ? 'Log in to Haystax to manage your boardings.'
+          : 'Register as a tenant or owner. Admins cannot self-register.' }}
+    </p>
+
+    <!-- Week-1 skeleton fields [AGENTS §0 rule 8] -->
+    <div class="space-y-4">
+      @if (mode() === 'register') {
+        <div>
+          <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Display name</label>
+          <input disabled class="form-input w-full mt-1" placeholder="2–120 characters (Week 3)" />
+        </div>
+      }
+      <div>
+        <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Email</label>
+        <input disabled class="form-input w-full mt-1" placeholder="you@example.com (Week 3)" />
+      </div>
+      <div>
+        <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Password</label>
+        <input disabled type="password" class="form-input w-full mt-1" placeholder="•••••••• (Week 3)" />
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-2 mt-6">
+      <button class="btn-outline" (click)="toggleMode()">
+        Switch to {{ mode() === 'login' ? 'register' : 'login' }}
+      </button>
+      <button class="btn-primary" disabled>{{ mode() === 'login' ? 'Log in' : 'Register' }}</button>
+    </div>
+
+    <p class="text-xs text-gray-400 mt-4">
+      Week 1 skeleton — real auth is handled by Supabase Auth in Week 3.
+    </p>
+  </div>
+
+  <!-- Week-1 mock: pick a fixture user to preview the role-based redirect [AGENTS C3] -->
+  <div class="card mt-6">
+    <h2 class="font-semibold text-gray-900 mb-2">Preview mock login (Week 1 fixture)</h2>
+    <p class="text-xs text-gray-500 mb-3">Roles come from the server. Here is what each lands on:</p>
+    <label class="flex items-center gap-2 text-sm text-gray-600 mb-3">
+      <input type="checkbox" class="accent-primary"
+             [checked]="showRoles()" (change)="setShowRoles($any($event.target).checked)" />
+      Show fixture roles
+    </label>
+    @if (showRoles()) {
+      <div class="space-y-2">
+        @for (u of api.getMockUsers(); track u.id) {
+          <button class="btn-outline w-full justify-between flex items-center gap-2 text-left"
+                  (click)="mockLogin(u)">
+            <span>{{ u.displayName }}</span>
+            <span class="text-xs text-gray-400">
+              @if (u.isAdmin) { Admin }
+              @else if (u.isOwner) { Owner @if (u.isSuspended) { · suspended} }
+              @else { Tenant }
+            </span>
+          </button>
+        }
+      </div>
+    }
+  </div>
+</div>

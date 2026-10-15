@@ -1,0 +1,18 @@
+[
+  {
+    "id": "req-0001",
+    "listingId": "10000000-0000-4000-8000-000000001003",
+    "listingTitle": "Modern Student Room – Moratuwa Campus",
+    "tenantDisplayName": "Rashmi Perera",
+    "requestedAt": "2026-10-03T09:15:00Z",
+    "status": "pending"
+  },
+  {
+    "id": "req-0002",
+    "listingId": "10000000-0000-4000-8000-000000001003",
+    "listingTitle": "Modern Student Room – Moratuwa Campus",
+    "tenantDisplayName": "Ishan Fernando",
+    "requestedAt": "2026-10-02T17:40:00Z",
+    "status": "pending"
+  }
+]

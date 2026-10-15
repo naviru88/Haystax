@@ -16,10 +16,21 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'auth/login',
+    loadComponent: () =>
+      import('./features/owner-identity/auth/auth.component')
+        .then(m => m.AuthComponent),
+  },
+  {
     path: 'admin',
     loadChildren: () =>
       import('./features/admin/admin.routes').then(m => m.adminRoutes),
   },
+  {
+    path: 'owner',
+    loadChildren: () =>
+      import('./features/owner-identity/owner-identity.routes')
+        .then(m => m.ownerIdentityRoutes),
   // M3: Engagement feature (messaging, reviews, analytics, booking)
   {
     path: 'messages',

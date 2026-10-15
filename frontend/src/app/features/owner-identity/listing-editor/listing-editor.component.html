@@ -1,0 +1,90 @@
+<div class="p-6 max-w-5xl mx-auto">
+
+  <app-page-header
+    [title]="isNew() ? 'New listing' : (listing()?.title ?? 'Listing editor')"
+    [subtitle]="isNew() ? 'Create a room to rent out.' : (listing() ? listing()!.city : '')" />
+
+  <!-- Week-1 state switcher (mock service) [AGENTS C3] -->
+  <div class="mb-4 flex flex-wrap items-center gap-2 text-xs">
+    <span class="text-gray-500 font-medium">Preview UI state:</span>
+    @for (s of ['success','loading','error']; track s) {
+      <button class="btn-outline !px-3 !py-1" (click)="setUiState($any(s))">{{ s }}</button>
+    }
+  </div>
+
+  @if (notFound()) {
+    <!-- Safe error for stale/invalid IDs [C1 key acceptance] -->
+    <app-state-view
+      kind="error"
+      title="Listing not found"
+      message="This listing does not exist, or you do not have permission to edit it." />
+  } @else {
+    @switch (uiState()) {
+      @case ('loading') {
+        <app-skeleton-card />
+      }
+      @case ('error') {
+        <app-state-view
+          kind="error"
+          title="Could not load this listing"
+          message="Something went wrong. Please try again." />
+      }
+      @case ('success') {
+        <div class="card">
+          @if (!isNew()) {
+            @if (listing(); as l) {
+              <!-- Header: title + location always visible [C1 key acceptance] -->
+              <div class="mb-4">
+                <h2 class="text-xl font-semibold text-gray-900">{{ l.title }}</h2>
+                <p class="text-sm text-gray-500">
+                  {{ l.city }}@if (l.district) {, {{ l.district }} }@if (l.locationLabel) { · {{ l.locationLabel }} }
+                </p>
+                <div class="mt-2">
+                  <span class="badge-muted">{{ statusLabel(l.status) }}</span>
+                  @if (l.moderationNote) {
+                    <span class="badge-muted !bg-warning-bg !text-warning-text ml-2">{{ l.moderationNote }}</span>
+                  }
+                </div>
+              </div>
+            }
+          }
+
+          <!-- Week-1 skeleton: labelled fields, no finished forms [AGENTS §0 rule 8] -->
+          <p class="text-sm text-gray-500 mb-6">
+            The full editor form lands in Week 3. Field list per the contract:
+            title, description, address, city, location, price, gender policy, slots, amenities, rules, photos.
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Title</label>
+              <input disabled class="form-input w-full mt-1" placeholder="5–160 characters (Week 3)" />
+            </div>
+            <div>
+              <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Monthly price (LKR)</label>
+              <input disabled class="form-input w-full mt-1" placeholder="≥ 0 (Week 3)" />
+            </div>
+            <div>
+              <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">City</label>
+              <input disabled class="form-input w-full mt-1" placeholder="(Week 3)" />
+            </div>
+            <div>
+              <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Gender policy</label>
+              <input disabled class="form-input w-full mt-1" placeholder="any / female_only / male_only (Week 3)" />
+            </div>
+          </div>
+
+          <!-- Moderation state, read-only [AGENTS §3] -->
+          <div class="rounded-lg bg-muted-bg p-4 text-sm text-gray-600 mb-6">
+            Moderation state and photo upload progress appear here in Week 3.
+          </div>
+
+          <div class="flex justify-end gap-2">
+            <button class="btn-outline" disabled>Save draft (Week 3)</button>
+            <button class="btn-primary" disabled>Submit for publication (Week 3)</button>
+          </div>
+        </div>
+      }
+    }
+  }
+</div>

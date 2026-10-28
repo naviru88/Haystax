@@ -1,0 +1,30 @@
+[
+  {
+    "id": "a1111111-0000-0000-0000-000000000001",
+    "listingId": "b1111111-0000-0000-0000-000000000101",
+    "ownerId": "u1111111-0000-0000-0000-000000000002",
+    "from": "2026-10-01",
+    "to": "2026-10-31",
+    "totalInquiries": 4,
+    "totalBookings": 2,
+    "occupancyRate": 66.67,
+    "estimatedRevenue": 45000,
+    "averageRating": 4.5,
+    "reviewCount": 2,
+    "computedAt": "2026-10-29T00:06:00Z"
+  },
+  {
+    "id": "a1111111-0000-0000-0000-000000000002",
+    "listingId": "b1111111-0000-0000-0000-000000000103",
+    "ownerId": "u1111111-0000-0000-0000-000000000002",
+    "from": "2025-01-01",
+    "to": "2025-01-31",
+    "totalInquiries": 0,
+    "totalBookings": 0,
+    "occupancyRate": 0,
+    "estimatedRevenue": 0,
+    "averageRating": null,
+    "reviewCount": 0,
+    "computedAt": "2026-10-29T00:06:00Z"
+  }
+]

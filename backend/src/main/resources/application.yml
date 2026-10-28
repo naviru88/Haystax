@@ -66,4 +66,4 @@ haystax:
 
 engagement:
   event-bus: ${HAYSTAX_ENGAGEMENT_EVENT_BUS:memory}
-  mock-auth: ${HAYSTAX_ENGAGEMENT_MOCK_AUTH:true}
+  mock-auth: ${HAYSTAX_ENGAGEMENT_MOCK_AUTH:false}

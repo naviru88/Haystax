@@ -10,3 +10,6 @@ logging:
     com.haystax: DEBUG
     org.hibernate.SQL: DEBUG
     org.springframework.security: INFO
+
+engagement:
+  mock-auth: true

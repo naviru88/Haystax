@@ -31,6 +31,7 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/owner-identity/owner-identity.routes')
         .then(m => m.ownerIdentityRoutes),
+  },
   // M3: Engagement feature (messaging, reviews, analytics, booking)
   {
     path: 'messages',

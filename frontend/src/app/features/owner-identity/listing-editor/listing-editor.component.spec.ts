@@ -301,6 +301,8 @@ describe('ListingEditorComponent', () => {
   describe('photo upload', () => {
     it('client pre-check rejects a wrong file type with a visible error', async () => {
       const api = makeApi();
+      const uploadSpy = vi.fn();
+      api.uploadPhoto = uploadSpy;
       const { component } = await mount(api);
 
       const file = new File(['x'], 'evil.png', { type: 'text/plain' });
@@ -309,10 +311,14 @@ describe('ListingEditorComponent', () => {
       const uploads = component.uploadsList();
       expect(uploads.length).toBe(1);
       expect(uploads[0].error).toContain('Only JPEG, PNG or WebP');
+      // W4-C3: rejected locally — no HTTP request is ever dispatched.
+      expect(uploadSpy).not.toHaveBeenCalled();
     });
 
     it('client pre-check rejects an oversized file with a visible error', async () => {
       const api = makeApi();
+      const uploadSpy = vi.fn();
+      api.uploadPhoto = uploadSpy;
       const { component } = await mount(api);
 
       const file = new File([new ArrayBuffer(MAX_PHOTO_BYTES + 1)], 'big.png', { type: 'image/png' });
@@ -320,6 +326,8 @@ describe('ListingEditorComponent', () => {
 
       const uploads = component.uploadsList();
       expect(uploads[0].error).toContain('5 MB');
+      // W4-C3: rejected locally — no HTTP request is ever dispatched.
+      expect(uploadSpy).not.toHaveBeenCalled();
     });
 
     it('upload emits progress then done and adds the photo to the listing', async () => {

@@ -45,7 +45,7 @@ describe('authGuard', () => {
       providers: [
         provideRouter([]),
         provideHttpClient(),
-        { provide: SupabaseAuthService, useValue: { restoreSession: () => Promise.resolve(null) } },
+        { provide: SupabaseAuthService, useValue: { restoreSession: () => Promise.resolve(null), isEmailConfirmed: () => false } },
       ],
     });
 
@@ -61,7 +61,14 @@ describe('authGuard', () => {
       providers: [
         provideRouter([]),
         provideHttpClient(),
-        { provide: SupabaseAuthService, useValue: { restoreSession: () => Promise.resolve({}) } },
+        {
+          provide: SupabaseAuthService,
+          useValue: {
+            restoreSession: () => Promise.resolve({ user: { email_confirmed_at: '2026-10-01T00:00:00Z' } }),
+            isEmailConfirmed: (s: { user?: { email_confirmed_at?: string } } | null) =>
+              !!s?.user?.email_confirmed_at,
+          },
+        },
       ],
     });
 
@@ -69,6 +76,31 @@ describe('authGuard', () => {
     const result = await runGuard(authGuard);
 
     expect(result).toBe(true);
+  });
+
+  it('redirects an unconfirmed session to /auth/login with the confirm-email notice (D-AUTH-FLOW)', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        {
+          provide: SupabaseAuthService,
+          useValue: {
+            restoreSession: () => Promise.resolve({ user: { email_confirmed_at: null } }),
+            isEmailConfirmed: (s: { user?: { email_confirmed_at?: string | null } } | null) =>
+              !!s?.user?.email_confirmed_at,
+          },
+        },
+      ],
+    });
+
+    (environment as { useMockApi: boolean }).useMockApi = false;
+    const result = await runGuard(authGuard);
+
+    expect(result).toBeInstanceOf(UrlTree);
+    const tree = result as UrlTree;
+    expect(tree.toString()).toBe('/auth/login?notice=confirm-email');
+    expect(tree.queryParams['notice']).toBe('confirm-email');
   });
 
   it('blocks anonymous users in mock mode when no fixture is signed in', async () => {

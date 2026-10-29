@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
+import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 
 import { AuthComponent } from './auth.component';
@@ -35,6 +35,8 @@ function makeSupabaseStub(overrides: Partial<Record<'signIn' | 'signUp' | 'resto
     signUp: overrides.signUp ?? (() => Promise.resolve({ requiresEmailConfirmation: false })),
     restoreSession: overrides.restoreSession ?? (() => Promise.resolve(null)),
     signOut: overrides.signOut ?? (() => Promise.resolve()),
+    resendConfirmation: () => Promise.resolve(),
+    isEmailConfirmed: () => false,
     getAccessToken: () => Promise.resolve('token'),
   } as unknown as SupabaseAuthService;
 }
@@ -68,7 +70,7 @@ function makeApiStub(me: OwnerUser | (() => Promise<OwnerUser>)) {
 }
 
 describe('AuthComponent', () => {
-  async function setup(opts: { supabase?: SupabaseAuthService; api?: unknown } = {}) {
+  async function setup(opts: { supabase?: SupabaseAuthService; api?: unknown; notice?: string } = {}) {
     await TestBed.configureTestingModule({
       imports: [AuthComponent],
       providers: [
@@ -76,6 +78,16 @@ describe('AuthComponent', () => {
         provideHttpClient(),
         { provide: OWNER_API, useValue: opts.api ?? makeApiStub(TENANT) },
         { provide: SupabaseAuthService, useValue: opts.supabase ?? makeSupabaseStub() },
+        ...(opts.notice
+          ? [{
+              provide: ActivatedRoute,
+              useValue: {
+                snapshot: {
+                  queryParamMap: { get: (k: string) => (k === 'notice' ? opts.notice : null) },
+                },
+              },
+            }]
+          : []),
       ],
     }).compileComponents();
 
@@ -282,6 +294,49 @@ describe('AuthComponent', () => {
 
     expect(component.state()).toBe('check-email');
     expect(fixture.nativeElement.textContent).toContain('Check your email');
+  });
+
+  it('shows the confirm-your-email state when Supabase reports an unconfirmed address (D-AUTH-FLOW)', async () => {
+    const supabase = makeSupabaseStub({
+      signIn: () => Promise.reject(new ApiError(403, 'unconfirmed', 'Please confirm your email before logging in.')),
+    });
+    const { fixture, component } = await setup({ supabase });
+
+    component.loginForm.setValue({ email: 'new@student.lk', password: 'secret1' });
+    await component.submit();
+    await settle(fixture);
+
+    expect(component.state()).toBe('unconfirmed');
+    expect(component.pendingEmail()).toBe('new@student.lk');
+    expect(fixture.nativeElement.textContent).toContain('Confirm your email');
+  });
+
+  it('shows the confirm-email notice when the guard redirects with ?notice=confirm-email', async () => {
+    const { fixture, component } = await setup({ notice: 'confirm-email' });
+
+    expect(component.state()).toBe('unconfirmed');
+    expect(component.notice()).toContain('Please confirm your email');
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Please confirm your email');
+    expect(text).toContain('Back to log in');
+  });
+
+  it('re-sends the Supabase confirmation email from the unconfirmed state', async () => {
+    const supabase = makeSupabaseStub({
+      signIn: () => Promise.reject(new ApiError(403, 'unconfirmed', 'Please confirm your email before logging in.')),
+    });
+    const resend = vi.spyOn(supabase, 'resendConfirmation').mockResolvedValue(undefined);
+    const { fixture, component } = await setup({ supabase });
+
+    component.loginForm.setValue({ email: 'new@student.lk', password: 'secret1' });
+    await component.submit();
+
+    await component.resendConfirmation();
+    await settle(fixture);
+
+    expect(resend).toHaveBeenCalledWith('new@student.lk');
+    expect(component.resendMessage()).toContain('Confirmation email sent');
   });
 
   it('shows a network error state when the backend is unreachable', async () => {

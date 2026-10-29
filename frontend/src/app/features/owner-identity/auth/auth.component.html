@@ -15,9 +15,45 @@
     <div class="card">
       <h1 class="text-2xl font-bold text-gray-900 mb-1">Check your email</h1>
       <p class="text-sm text-gray-500">
-        We sent you a confirmation link. Confirm your email, then log in to Haystax.
+        We sent you a confirmation link@if (pendingEmail()) { to <span class="font-medium text-gray-700">{{ pendingEmail() }}</span> }.
+        Confirm your email, then log in to Haystax. No admin approval is needed.
       </p>
-      <button class="btn-primary w-full mt-6" (click)="toggleModeToLogin()">Back to log in</button>
+
+      @if (resendMessage()) {
+        <p role="status" class="mt-4 text-sm text-success-text">{{ resendMessage() }}</p>
+      }
+      @if (resendError()) {
+        <p role="alert" class="mt-4 text-sm text-destructive-text">{{ resendError() }}</p>
+      }
+
+      @if (pendingEmail()) {
+        <button class="btn-outline w-full mt-6" [disabled]="resending()" (click)="resendConfirmation()">
+          {{ resending() ? 'Sending…' : 'Resend confirmation email' }}
+        </button>
+      }
+      <button class="btn-primary w-full mt-3" (click)="toggleModeToLogin()">Back to log in</button>
+    </div>
+  } @else if (state() === 'unconfirmed') {
+    <div class="card">
+      <h1 class="text-2xl font-bold text-gray-900 mb-1">Confirm your email</h1>
+      <p class="text-sm text-gray-500">
+        {{ notice() || 'Please confirm your email before logging in.' }}
+        The link in your inbox activates your account — there is no admin approval step.
+      </p>
+
+      @if (resendMessage()) {
+        <p role="status" class="mt-4 text-sm text-success-text">{{ resendMessage() }}</p>
+      }
+      @if (resendError()) {
+        <p role="alert" class="mt-4 text-sm text-destructive-text">{{ resendError() }}</p>
+      }
+
+      @if (pendingEmail()) {
+        <button class="btn-outline w-full mt-6" [disabled]="resending()" (click)="resendConfirmation()">
+          {{ resending() ? 'Sending…' : 'Resend confirmation email' }}
+        </button>
+      }
+      <button class="btn-primary w-full mt-3" (click)="toggleModeToLogin()">Back to log in</button>
     </div>
   } @else {
     <div class="card">

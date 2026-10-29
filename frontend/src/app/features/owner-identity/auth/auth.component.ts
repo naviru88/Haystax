@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import {
   FormBuilder, FormGroup, ReactiveFormsModule, Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { environment } from '../../../../environments/environment';
 import { OWNER_API } from '../services/owner-api.interface';
@@ -26,6 +26,7 @@ export type AuthState =
   | 'weak-password'
   | 'suspended'
   | 'check-email'
+  | 'unconfirmed'
   | 'network'
   | 'success';
 
@@ -38,6 +39,7 @@ export class AuthComponent implements OnInit {
   readonly api = inject(OWNER_API);
   private readonly supabase = inject(SupabaseAuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
 
   readonly isMock = environment.useMockApi;
@@ -46,6 +48,14 @@ export class AuthComponent implements OnInit {
   readonly mode = signal<'login' | 'register'>('login');
   readonly serverMessage = signal('');
   readonly suspendedReason = signal('');
+
+  /** "Please confirm your email" banner (guard redirect ?notice=confirm-email). [D-AUTH-FLOW] */
+  readonly notice = signal('');
+  /** Last email we asked Supabase to (re)send a confirmation link to. */
+  readonly pendingEmail = signal('');
+  readonly resending = signal(false);
+  readonly resendMessage = signal('');
+  readonly resendError = signal('');
 
   /** Login form (also the base controls for register). */
   readonly loginForm: FormGroup = this.fb.group({
@@ -70,8 +80,31 @@ export class AuthComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Guard redirects land here with ?notice=confirm-email (D-AUTH-FLOW).
+    if (this.route.snapshot.queryParamMap.get('notice') === 'confirm-email') {
+      this.notice.set('Please confirm your email before continuing.');
+      this.mode.set('login');
+      this.state.set('unconfirmed');
+    }
     // Already-signed-in visitors are redirected by role (page contract §4).
     void this.redirectIfSignedIn();
+  }
+
+  /** Re-send the Supabase confirmation link from the check-email / unconfirmed states. */
+  async resendConfirmation(): Promise<void> {
+    const email = this.pendingEmail() || this.loginForm.value.email || this.registerForm.value.email;
+    if (this.resending() || !email) return;
+    this.resending.set(true);
+    this.resendMessage.set('');
+    this.resendError.set('');
+    try {
+      await this.supabase.resendConfirmation(email);
+      this.resendMessage.set('Confirmation email sent. Check your inbox.');
+    } catch (err) {
+      this.resendError.set(toApiError(err).message || 'Could not send the confirmation email.');
+    } finally {
+      this.resending.set(false);
+    }
   }
 
   toggleMode(): void {
@@ -156,6 +189,8 @@ export class AuthComponent implements OnInit {
     });
 
     if (requiresEmailConfirmation) {
+      // Supabase is the whole gate now — no admin approval step. [D-AUTH-FLOW]
+      this.pendingEmail.set(v.email);
       this.state.set('check-email');
       return;
     }
@@ -214,6 +249,13 @@ export class AuthComponent implements OnInit {
       case 'auth':
         this.state.set('invalid-credentials');
         this.serverMessage.set('Invalid login credentials. Check your email and password.');
+        break;
+      case 'unconfirmed':
+        // Supabase "Email not confirmed" → send the user to the confirmation state.
+        this.pendingEmail.set(this.loginForm.value.email || '');
+        this.notice.set('Please confirm your email before logging in.');
+        this.serverMessage.set(e.message || 'Please confirm your email before logging in.');
+        this.state.set('unconfirmed');
         break;
       case 'conflict':
         this.state.set('email-taken');

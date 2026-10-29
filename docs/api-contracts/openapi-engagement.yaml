@@ -1,0 +1,763 @@
+openapi: 3.0.3
+info:
+  title: Haystax Engagement & Insights API
+  version: 1.0.0
+  description: |
+    Contract for Member 3 engagement features. Existing operations reflect the
+    current Spring controllers. New operations are the target contract and
+    still require backend implementation.
+servers:
+  - url: http://localhost:8080
+    description: Local API
+tags:
+  - name: Bookings
+  - name: Conversations
+  - name: Messages
+  - name: Notifications
+  - name: Reviews
+  - name: Analytics
+paths:
+  /api/engagement/tenancies:
+    get:
+      tags: [Bookings]
+      summary: List the current user's booking requests and tenancies
+      description: Existing controller operation. The authenticated identity must be derived from the auth header; userId is retained only for current compatibility.
+      operationId: listTenancies
+      x-implementation-status: existing
+      security: [{ mockAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/MockUserId'
+        - in: query
+          name: userId
+          description: Existing compatibility parameter; must match the authenticated mock user when supplied.
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Paginated booking records
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedTenancies' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [Bookings]
+      summary: Create a booking inquiry
+      description: Existing controller operation with target idempotency and server-derived identity behavior.
+      operationId: createTenancy
+      x-implementation-status: existing
+      security: [{ mockAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/MockUserId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BookingCreateRequest' }
+      responses:
+        '201':
+          description: Created inquiry
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Tenancy' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '409':
+          description: Booking conflict or idempotency-key payload mismatch
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /api/engagement/tenancies/{tenancyId}:
+    parameters:
+      - $ref: '#/components/parameters/TenancyId'
+    get:
+      tags: [Bookings]
+      summary: Get a booking or tenancy
+      operationId: getTenancy
+      x-implementation-status: new
+      security: [{ mockAuth: [] }]
+      responses:
+        '200':
+          description: Booking record
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Tenancy' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Bookings]
+      summary: Confirm or cancel a booking
+      operationId: updateTenancyStatus
+      x-implementation-status: new
+      security: [{ mockAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TenancyStatusRequest' }
+      responses:
+        '200':
+          description: Updated booking
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Tenancy' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/engagement/conversations:
+    get:
+      tags: [Conversations]
+      summary: List conversations for the authenticated user
+      operationId: listConversations
+      x-implementation-status: new
+      security: [{ mockAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/MockUserId'
+      responses:
+        '200':
+          description: Paginated conversations
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedConversations' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [Conversations]
+      summary: Create a conversation
+      operationId: createConversation
+      x-implementation-status: new
+      security: [{ mockAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/MockUserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConversationCreateRequest' }
+      responses:
+        '201':
+          description: Created conversation
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Conversation' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/engagement/messages:
+    get:
+      tags: [Messages]
+      summary: List messages in a conversation
+      description: Existing controller operation. Access requires conversation membership.
+      operationId: listMessages
+      x-implementation-status: existing
+      security: [{ mockAuth: [] }]
+      parameters:
+        - name: conversationId
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/MockUserId'
+      responses:
+        '200':
+          description: Paginated messages
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedMessages' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Messages]
+      summary: Send a message
+      description: Existing controller operation. Sender identity is derived from authentication.
+      operationId: sendMessage
+      x-implementation-status: existing
+      security: [{ mockAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/MockUserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MessageCreateRequest' }
+      responses:
+        '201':
+          description: Created message
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/engagement/notifications:
+    get:
+      tags: [Notifications]
+      summary: List notifications for the authenticated user
+      operationId: listNotifications
+      x-implementation-status: new
+      security: [{ mockAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/MockUserId'
+        - in: query
+          name: unreadOnly
+          schema: { type: boolean, default: false }
+      responses:
+        '200':
+          description: Paginated notifications
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedNotifications' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/engagement/notifications/unread-count:
+    get:
+      tags: [Notifications]
+      summary: Get the authenticated user's unread notification count
+      operationId: getUnreadNotificationCount
+      x-implementation-status: new
+      security: [{ mockAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/MockUserId'
+      responses:
+        '200':
+          description: Unread count
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [unreadCount]
+                properties:
+                  unreadCount: { type: integer, format: int32, minimum: 0 }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/engagement/notifications/{notificationId}/read:
+    parameters:
+      - $ref: '#/components/parameters/NotificationId'
+    post:
+      tags: [Notifications]
+      summary: Mark a notification as read
+      operationId: markNotificationRead
+      x-implementation-status: new
+      security: [{ mockAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/MockUserId'
+      responses:
+        '200':
+          description: Updated notification
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Notification' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/engagement/reviews:
+    get:
+      tags: [Reviews]
+      summary: List published reviews for a listing
+      description: Existing controller operation.
+      operationId: listReviews
+      x-implementation-status: existing
+      parameters:
+        - name: listingId
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Paginated published reviews
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedReviews' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+    post:
+      tags: [Reviews]
+      summary: Create a review
+      description: Existing controller operation with target tenancy permission and server-derived author identity.
+      operationId: createReview
+      x-implementation-status: existing
+      security: [{ mockAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/MockUserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReviewCreateRequest' }
+      responses:
+        '201':
+          description: Created review
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Review' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /api/engagement/reviews/{reviewId}:
+    parameters:
+      - $ref: '#/components/parameters/ReviewId'
+    put:
+      tags: [Reviews]
+      summary: Update an own review
+      operationId: updateReview
+      x-implementation-status: new
+      security: [{ mockAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/MockUserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReviewUpdateRequest' }
+      responses:
+        '200':
+          description: Updated review
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Review' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Reviews]
+      summary: Delete an own review
+      operationId: deleteReview
+      x-implementation-status: new
+      security: [{ mockAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/MockUserId'
+      responses:
+        '204':
+          description: Review deleted
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/engagement/reviews/{reviewId}/response:
+    parameters:
+      - $ref: '#/components/parameters/ReviewId'
+    post:
+      tags: [Reviews]
+      summary: Add or replace an owner response
+      operationId: respondToReview
+      x-implementation-status: new
+      security: [{ mockAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/MockUserId'
+        - $ref: '#/components/parameters/MockRole'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OwnerResponseRequest' }
+      responses:
+        '200':
+          description: Review with owner response
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Review' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/engagement/analytics/summary:
+    get:
+      tags: [Analytics]
+      summary: Get an engagement analytics summary
+      operationId: getAnalyticsSummary
+      x-implementation-status: existing
+      security: [{ mockAuth: [] }]
+      parameters:
+        - name: listingId
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+        - name: from
+          in: query
+          schema: { type: string, format: date }
+        - name: to
+          in: query
+          schema: { type: string, format: date }
+        - $ref: '#/components/parameters/MockUserId'
+      responses:
+        '200':
+          description: Analytics summary
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AnalyticsSummary' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+components:
+  securitySchemes:
+    mockAuth:
+      type: apiKey
+      in: header
+      name: X-Mock-User-Id
+      description: Local user UUID. Production replaces this adapter with Member 2's JWT.
+    mockRole:
+      type: apiKey
+      in: header
+      name: X-Mock-Role
+      description: Local role (`TENANT`, `OWNER`, or `ADMIN`).
+  parameters:
+    MockUserId:
+      name: X-Mock-User-Id
+      in: header
+      required: true
+      schema: { type: string, format: uuid }
+    MockRole:
+      name: X-Mock-Role
+      in: header
+      required: true
+      schema:
+        $ref: '#/components/schemas/Role'
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Stable client-generated key for safe booking retries. Replaying the same key with the same payload returns the original response; reusing it with a different payload returns 409.
+      schema: { type: string, minLength: 1, maxLength: 255 }
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 0, default: 0 }
+    Size:
+      name: size
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+    TenancyId:
+      name: tenancyId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    NotificationId:
+      name: notificationId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ReviewId:
+      name: reviewId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+  responses:
+    BadRequest:
+      description: Malformed or invalid request
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthorized:
+      description: Missing or invalid authentication
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Forbidden:
+      description: Authenticated user lacks permission
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Conflict:
+      description: Resource state conflict
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ValidationError:
+      description: Validation failed
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+  schemas:
+    Role:
+      type: string
+      enum: [TENANT, OWNER, ADMIN]
+    BookingStatus:
+      type: string
+      enum: [submitted, approved, rejected, cancelled, active, ended]
+    ReviewStatus:
+      type: string
+      enum: [draft, published, hidden, removed]
+    NotificationType:
+      type: string
+      enum: [MESSAGE, BOOKING_CREATED, BOOKING_CONFIRMED, BOOKING_CANCELLED, REVIEW_CREATED, SYSTEM]
+    Tenancy:
+      type: object
+      required: [id, listingId, tenantId, status, moveInDate, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        listingId: { type: string, format: uuid }
+        tenantId: { type: string, format: uuid }
+        ownerId: { type: string, format: uuid, readOnly: true }
+        moveInDate: { type: string, format: date }
+        endDate: { type: string, format: date, nullable: true }
+        status: { $ref: '#/components/schemas/BookingStatus' }
+        message: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    BookingCreateRequest:
+      type: object
+      required: [listingId, moveInDate]
+      additionalProperties: false
+      properties:
+        listingId: { type: string, format: uuid }
+        moveInDate: { type: string, format: date }
+        notes: { type: string, maxLength: 5000 }
+    TenancyStatusRequest:
+      type: object
+      required: [status]
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          enum: [approved, cancelled]
+        responseNote: { type: string, maxLength: 5000 }
+    Conversation:
+      type: object
+      required: [id, status, createdBy, participantIds, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        listingId: { type: string, format: uuid, nullable: true }
+        tenancyRequestId: { type: string, format: uuid, nullable: true }
+        status: { type: string, enum: [open, closed] }
+        createdBy: { type: string, format: uuid, readOnly: true }
+        participantIds:
+          type: array
+          items: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        lastMessageAt: { type: string, format: date-time, nullable: true }
+    ConversationCreateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        listingId: { type: string, format: uuid }
+        tenancyRequestId: { type: string, format: uuid }
+        participantIds:
+          type: array
+          minItems: 1
+          items: { type: string, format: uuid }
+    Message:
+      type: object
+      required: [id, conversationId, senderId, content, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        conversationId: { type: string, format: uuid }
+        senderId: { type: string, format: uuid, readOnly: true }
+        recipientId: { type: string, format: uuid, readOnly: true }
+        content: { type: string }
+        type: { type: string, enum: [MESSAGE, NOTIFICATION] }
+        isRead: { type: boolean }
+        createdAt: { type: string, format: date-time }
+    MessageCreateRequest:
+      type: object
+      required: [conversationId, content]
+      additionalProperties: false
+      properties:
+        conversationId: { type: string, format: uuid }
+        content: { type: string, minLength: 1, maxLength: 5000 }
+    Notification:
+      type: object
+      required: [id, recipientId, type, title, body, isRead, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        recipientId: { type: string, format: uuid, readOnly: true }
+        type: { $ref: '#/components/schemas/NotificationType' }
+        title: { type: string }
+        body: { type: string }
+        listingId: { type: string, format: uuid, nullable: true }
+        conversationId: { type: string, format: uuid, nullable: true }
+        tenancyId: { type: string, format: uuid, nullable: true }
+        isRead: { type: boolean }
+        readAt: { type: string, format: date-time, nullable: true }
+        createdAt: { type: string, format: date-time }
+    Review:
+      type: object
+      required: [id, listingId, authorId, rating, body, status, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        listingId: { type: string, format: uuid }
+        authorId: { type: string, format: uuid, readOnly: true }
+        tenancyId: { type: string, format: uuid }
+        rating: { type: integer, minimum: 1, maximum: 5 }
+        title: { type: string }
+        body: { type: string }
+        status: { $ref: '#/components/schemas/ReviewStatus' }
+        ownerResponse: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    ReviewCreateRequest:
+      type: object
+      required: [listingId, tenancyId, rating, body]
+      additionalProperties: false
+      properties:
+        listingId: { type: string, format: uuid }
+        tenancyId: { type: string, format: uuid }
+        rating: { type: integer, minimum: 1, maximum: 5 }
+        title: { type: string, maxLength: 200 }
+        body: { type: string, minLength: 1, maxLength: 5000 }
+    ReviewUpdateRequest:
+      type: object
+      required: [rating, body]
+      additionalProperties: false
+      properties:
+        rating: { type: integer, minimum: 1, maximum: 5 }
+        title: { type: string, maxLength: 200 }
+        body: { type: string, minLength: 1, maxLength: 5000 }
+    OwnerResponseRequest:
+      type: object
+      required: [body]
+      additionalProperties: false
+      properties:
+        body: { type: string, minLength: 1, maxLength: 5000 }
+    AnalyticsSummary:
+      type: object
+      required: [listingId, totalInquiries, totalBookings, occupancyRate, estimatedRevenue, averageRating]
+      properties:
+        id: { type: string, format: uuid, readOnly: true }
+        listingId: { type: string, format: uuid }
+        from: { type: string, format: date, nullable: true }
+        to: { type: string, format: date, nullable: true }
+        totalInquiries: { type: integer, format: int64, minimum: 0 }
+        totalBookings: { type: integer, format: int64, minimum: 0 }
+        occupancyRate: { type: number, format: double, minimum: 0, maximum: 100 }
+        estimatedRevenue: { type: number, format: double, minimum: 0 }
+        averageRating: { type: number, format: double, minimum: 0, maximum: 5, nullable: true }
+    PageMetadata:
+      type: object
+      required: [page, size, totalElements, totalPages]
+      properties:
+        page: { type: integer, minimum: 0 }
+        size: { type: integer, minimum: 1 }
+        totalElements: { type: integer, format: int64, minimum: 0 }
+        totalPages: { type: integer, minimum: 0 }
+    PaginatedTenancies:
+      type: object
+      required: [content, page]
+      properties:
+        content: { type: array, items: { $ref: '#/components/schemas/Tenancy' } }
+        page: { $ref: '#/components/schemas/PageMetadata' }
+    PaginatedConversations:
+      type: object
+      required: [content, page]
+      properties:
+        content: { type: array, items: { $ref: '#/components/schemas/Conversation' } }
+        page: { $ref: '#/components/schemas/PageMetadata' }
+    PaginatedMessages:
+      type: object
+      required: [content, page]
+      properties:
+        content: { type: array, items: { $ref: '#/components/schemas/Message' } }
+        page: { $ref: '#/components/schemas/PageMetadata' }
+    PaginatedNotifications:
+      type: object
+      required: [content, page]
+      properties:
+        content: { type: array, items: { $ref: '#/components/schemas/Notification' } }
+        page: { $ref: '#/components/schemas/PageMetadata' }
+    PaginatedReviews:
+      type: object
+      required: [content, page]
+      properties:
+        content: { type: array, items: { $ref: '#/components/schemas/Review' } }
+        page: { $ref: '#/components/schemas/PageMetadata' }
+    Error:
+      type: object
+      required: [timestamp, status, code, message, path]
+      properties:
+        timestamp: { type: string, format: date-time }
+        status: { type: integer, format: int32 }
+        code: { type: string, example: BOOKING_CONFLICT }
+        message: { type: string }
+        path: { type: string }
+        fieldErrors:
+          type: array
+          items:
+            type: object
+            required: [field, message]
+            properties:
+              field: { type: string }
+              message: { type: string }
+    EventEnvelope:
+      type: object
+      required: [eventId, eventType, version, occurredAt, aggregateId, actorId, payload]
+      properties:
+        eventId: { type: string, format: uuid }
+        eventType: { type: string }
+        version: { type: integer, minimum: 1 }
+        occurredAt: { type: string, format: date-time }
+        aggregateId: { type: string, format: uuid }
+        actorId: { type: string, format: uuid }
+        payload: { type: object, additionalProperties: true }
+    BookingCreatedEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventEnvelope'
+        - type: object
+          properties:
+            eventType: { type: string, enum: [booking.created] }
+            payload: { $ref: '#/components/schemas/Tenancy' }
+    BookingConfirmedEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventEnvelope'
+        - type: object
+          properties:
+            eventType: { type: string, enum: [booking.confirmed] }
+            payload: { $ref: '#/components/schemas/Tenancy' }
+    BookingCancelledEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventEnvelope'
+        - type: object
+          properties:
+            eventType: { type: string, enum: [booking.cancelled] }
+            payload: { $ref: '#/components/schemas/Tenancy' }
+    MessageCreatedEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventEnvelope'
+        - type: object
+          properties:
+            eventType: { type: string, enum: [message.created] }
+            payload: { $ref: '#/components/schemas/Message' }
+    NotificationCreatedEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventEnvelope'
+        - type: object
+          properties:
+            eventType: { type: string, enum: [notification.created] }
+            payload: { $ref: '#/components/schemas/Notification' }
+    ReviewCreatedEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventEnvelope'
+        - type: object
+          properties:
+            eventType: { type: string, enum: [review.created] }
+            payload: { $ref: '#/components/schemas/Review' }
+    ReviewUpdatedEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventEnvelope'
+        - type: object
+          properties:
+            eventType: { type: string, enum: [review.updated] }
+            payload: { $ref: '#/components/schemas/Review' }
+    ReviewDeletedEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventEnvelope'
+        - type: object
+          properties:
+            eventType: { type: string, enum: [review.deleted] }
+            payload: { type: object, additionalProperties: false }

@@ -1,0 +1,25 @@
+[
+  {
+    "id": "n1111111-0000-0000-0000-000000000001",
+    "recipientId": "u1111111-0000-0000-0000-000000000001",
+    "type": "BOOKING_CREATED",
+    "title": "Booking inquiry received",
+    "body": "Your inquiry was submitted.",
+    "listingId": "b1111111-0000-0000-0000-000000000101",
+    "isRead": false,
+    "readAt": null,
+    "createdAt": "2026-10-29T00:00:00Z"
+  },
+  {
+    "id": "n1111111-0000-0000-0000-000000000002",
+    "recipientId": "u1111111-0000-0000-0000-000000000001",
+    "type": "MESSAGE",
+    "title": "New message",
+    "body": "The owner replied to your inquiry.",
+    "listingId": "b1111111-0000-0000-0000-000000000101",
+    "conversationId": "c1111111-0000-0000-0000-000000000001",
+    "isRead": true,
+    "readAt": "2026-10-29T00:05:00Z",
+    "createdAt": "2026-10-29T00:01:00Z"
+  }
+]

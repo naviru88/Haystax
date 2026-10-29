@@ -68,3 +68,7 @@ haystax:
     secret: ${HAYSTAX_JWT_SECRET:dev-only-secret-change-in-production}
   storage:
     public-base-url: ${HAYSTAX_STORAGE_PUBLIC_URL:}
+
+engagement:
+  event-bus: ${HAYSTAX_ENGAGEMENT_EVENT_BUS:memory}
+  mock-auth: ${HAYSTAX_ENGAGEMENT_MOCK_AUTH:false}

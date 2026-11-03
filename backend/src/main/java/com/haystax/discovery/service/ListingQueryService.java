@@ -4,7 +4,7 @@ import com.haystax.discovery.dto.ListingDto;
 import com.haystax.discovery.dto.PageResponseDto;
 import com.haystax.discovery.dto.SearchFiltersDto;
 import com.haystax.discovery.entity.PublishedListingView;
-import com.haystax.discovery.mapper.ListingMapper;
+import com.haystax.discovery.mapper.DiscoveryListingMapper;
 import com.haystax.discovery.repository.ListingReadRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,9 +19,9 @@ import java.util.UUID;
 public class ListingQueryService {
 
     private final ListingReadRepository repository;
-    private final ListingMapper mapper;
+    private final DiscoveryListingMapper mapper;
 
-    public ListingQueryService(ListingReadRepository repository, ListingMapper mapper) {
+    public ListingQueryService(ListingReadRepository repository, DiscoveryListingMapper mapper) {
         this.repository = repository;
         this.mapper = mapper;
     }

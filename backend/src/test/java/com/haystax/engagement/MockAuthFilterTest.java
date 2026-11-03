@@ -1,6 +1,6 @@
 package com.haystax.engagement;
 
-import com.haystax.engagement.auth.CurrentUser;
+import com.haystax.engagement.auth.RequestScopedCurrentUser;
 import com.haystax.engagement.auth.MockAuthFilter;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.AfterEach;
@@ -23,7 +23,7 @@ class MockAuthFilterTest {
 
     @Test
     void rejectsEngagementRequestWithoutHeaders() throws Exception {
-        CurrentUser currentUser = new CurrentUser();
+        RequestScopedCurrentUser currentUser = new RequestScopedCurrentUser();
         MockAuthFilter filter = new MockAuthFilter(currentUser);
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/engagement/messages");
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -37,7 +37,7 @@ class MockAuthFilterTest {
 
     @Test
     void authenticatesEngagementRequestWithHeaders() throws Exception {
-        CurrentUser currentUser = new CurrentUser();
+        RequestScopedCurrentUser currentUser = new RequestScopedCurrentUser();
         MockAuthFilter filter = new MockAuthFilter(currentUser);
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/engagement/messages");
         request.addHeader("X-Mock-User-Id", userId.toString());

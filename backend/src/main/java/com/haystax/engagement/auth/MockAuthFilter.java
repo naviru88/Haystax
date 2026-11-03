@@ -18,9 +18,9 @@ import java.util.UUID;
 @Component
 @ConditionalOnProperty(name = "engagement.mock-auth", havingValue = "true", matchIfMissing = false)
 public class MockAuthFilter extends OncePerRequestFilter {
-    private final CurrentUser currentUser;
+    private final RequestScopedCurrentUser currentUser;
 
-    public MockAuthFilter(CurrentUser currentUser) {
+    public MockAuthFilter(RequestScopedCurrentUser currentUser) {
         this.currentUser = currentUser;
     }
 

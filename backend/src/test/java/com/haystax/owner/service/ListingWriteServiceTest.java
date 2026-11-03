@@ -6,7 +6,7 @@ import com.haystax.owner.dto.ListingWriteDto;
 import com.haystax.owner.dto.LocationDto;
 import com.haystax.owner.entity.ProfileEntity;
 import com.haystax.owner.exception.OwnerApiException;
-import com.haystax.owner.mapper.ListingMapper;
+import com.haystax.owner.mapper.OwnerListingMapper;
 import com.haystax.owner.repository.ListingWriteRepository;
 import com.haystax.owner.repository.ProfileRepository;
 import com.haystax.owner.util.CurrentUser;
@@ -56,7 +56,7 @@ class ListingWriteServiceTest {
         MockitoAnnotations.openMocks(this);
         CurrentUser currentUser = new CurrentUser();
         service = new ListingWriteService(currentUser, profileRepository, repository,
-                new ListingMapper());
+                new OwnerListingMapper());
         ownerId = UUID.randomUUID();
         otherOwnerId = UUID.randomUUID();
         SecurityContextHolder.getContext().setAuthentication(

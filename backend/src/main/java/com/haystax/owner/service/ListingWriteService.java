@@ -12,7 +12,7 @@ import com.haystax.owner.dto.ListingWriteDto;
 import com.haystax.owner.dto.LocationDto;
 import com.haystax.owner.entity.ProfileEntity;
 import com.haystax.owner.exception.OwnerApiException;
-import com.haystax.owner.mapper.ListingMapper;
+import com.haystax.owner.mapper.OwnerListingMapper;
 import com.haystax.owner.repository.ListingWriteRepository;
 import com.haystax.owner.repository.ProfileRepository;
 import com.haystax.owner.util.CurrentUser;
@@ -46,12 +46,12 @@ public class ListingWriteService {
     private final CurrentUser currentUser;
     private final ProfileRepository profileRepository;
     private final ListingWriteRepository repository;
-    private final ListingMapper mapper;
+    private final OwnerListingMapper mapper;
 
     public ListingWriteService(CurrentUser currentUser,
                                ProfileRepository profileRepository,
                                ListingWriteRepository repository,
-                               ListingMapper mapper) {
+                               OwnerListingMapper mapper) {
         this.currentUser = currentUser;
         this.profileRepository = profileRepository;
         this.repository = repository;

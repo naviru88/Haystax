@@ -15,7 +15,7 @@ import java.util.List;
  * repository and passed straight through.
  */
 @Component
-public class ListingMapper {
+public class OwnerListingMapper {
 
     public ListingDto toDto(ListingWriteRepository.ListingRow row,
                             List<AmenityDto> amenities,

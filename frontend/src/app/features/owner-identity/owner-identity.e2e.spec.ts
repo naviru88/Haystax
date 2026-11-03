@@ -10,6 +10,7 @@ import { OWNER_API } from './services/owner-api.interface';
 import { SupabaseAuthService } from './services/supabase-auth.service';
 import { BookingSummaryAdapter } from '../../shared/adapters/engagement-booking.adapter';
 import { ListingWrite } from './models/owner-listing.model';
+import { environment } from '../../../environments/environment';
 
 /**
  * W4-C3 — E2E dummy run (AGENTS-W4 §5 W4-C3.3).
@@ -48,7 +49,13 @@ const BOOKING = {
 };
 
 describe('Owner & Identity E2E (dummy session)', () => {
+  // This flow covers the M3 adapter path, so pin the flag: flipping it for manual
+  // click-through testing must not silently swap in the fixture pending-requests.
+  const mockFlagAtLoad = environment.useMockApi;
+  afterEach(() => { (environment as { useMockApi: boolean }).useMockApi = mockFlagAtLoad; });
+
   beforeEach(async () => {
+    (environment as { useMockApi: boolean }).useMockApi = false;
     await TestBed.configureTestingModule({
       providers: [
         provideRouter([]),

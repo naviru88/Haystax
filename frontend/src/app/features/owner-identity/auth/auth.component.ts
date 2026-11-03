@@ -222,7 +222,7 @@ export class AuthComponent implements OnInit {
     } else if (me.is_owner) {
       await this.router.navigate(['/owner/dashboard']);
     } else {
-      await this.router.navigate(['/']);
+      await this.router.navigate(['/discover']);         // tenant landing page
     }
     this.state.set('success');
   }

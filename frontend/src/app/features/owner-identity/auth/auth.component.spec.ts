@@ -105,14 +105,14 @@ describe('AuthComponent', () => {
     fixture.detectChanges();
   }
 
-  it('redirects a tenant to / after login', async () => {
+  it('redirects a tenant to /discover after login', async () => {
     const { component, router } = await setup({ api: makeApiStub(TENANT) });
     const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
     component.loginForm.setValue({ email: 'rashmi@student.lk', password: 'secret1' });
     await component.submit();
 
-    expect(navigate).toHaveBeenCalledWith(['/']);
+    expect(navigate).toHaveBeenCalledWith(['/discover']);
   });
 
   it('redirects an owner to /owner/dashboard after login', async () => {
@@ -182,7 +182,8 @@ describe('AuthComponent', () => {
     const gate = new Promise<void>(res => { resolveSignIn = res; });
     const signIn = vi.fn(() => gate.then(() => undefined));
     const supabase = makeSupabaseStub({ signIn });
-    const { fixture, component } = await setup({ supabase, api: makeApiStub(() => Promise.resolve(TENANT)) });
+    const { fixture, component, router } = await setup({ supabase, api: makeApiStub(() => Promise.resolve(TENANT)) });
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
     component.loginForm.setValue({ email: 'rashmi@student.lk', password: 'secret1' });
 
@@ -379,7 +380,7 @@ describe('AuthComponent (mock mode, D-MOCK)', () => {
     expect(navigate).toHaveBeenCalledWith(['/owner/dashboard']);
   });
 
-  it('signs in the mock tenant and redirects home', async () => {
+  it('signs in the mock tenant and redirects to /discover', async () => {
     const fixture = TestBed.createComponent(AuthComponent);
     const component = fixture.componentInstance;
     const router = TestBed.inject(Router);
@@ -388,7 +389,7 @@ describe('AuthComponent (mock mode, D-MOCK)', () => {
 
     await component.mockSignIn('rashmi@student.lk');
 
-    expect(navigate).toHaveBeenCalledWith(['/']);
+    expect(navigate).toHaveBeenCalledWith(['/discover']);
   });
 
   it('shows invalid-credentials for an unknown mock email', async () => {

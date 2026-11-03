@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 
-import { provideOwnerApi } from './services/provide-owner-api';
 import { authGuard } from './guards/auth.guard';
 import { ownerGuard } from './guards/owner.guard';
 
@@ -13,7 +12,7 @@ import { ownerGuard } from './guards/owner.guard';
 export const ownerIdentityRoutes: Routes = [
   {
     path: '',
-    providers: [provideOwnerApi()],
+    // OwnerApi comes from app.config.ts (one shared instance across login + guarded pages).
     children: [
       {
         path: 'dashboard',

@@ -22,16 +22,23 @@ export const authGuard: CanActivateFn = async () => {
   }
 
   const auth = inject(SupabaseAuthService);
-  const session = await auth.restoreSession();
 
-  if (!session) {
+  try {
+    const session = await auth.restoreSession();
+
+    if (!session) {
+      return router.createUrlTree(['/auth/login']);
+    }
+
+    if (!auth.isEmailConfirmed(session)) {
+      // Notification, not a silent redirect: the auth page reads this query param.
+      return router.createUrlTree(['/auth/login'], { queryParams: { notice: 'confirm-email' } });
+    }
+
+    return true;
+  } catch {
+    // Supabase not configured yet (placeholders in environment.ts) or unreachable during
+    // SSR. Failing the navigation would render a blank page, so send the user to the form.
     return router.createUrlTree(['/auth/login']);
   }
-
-  if (!auth.isEmailConfirmed(session)) {
-    // Notification, not a silent redirect: the auth page reads this query param.
-    return router.createUrlTree(['/auth/login'], { queryParams: { notice: 'confirm-email' } });
-  }
-
-  return true;
 };

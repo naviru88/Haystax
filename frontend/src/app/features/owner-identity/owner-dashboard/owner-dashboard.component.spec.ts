@@ -8,6 +8,7 @@ import { ApiError } from '../services/api-error';
 import { OwnerUser } from '../models/owner-user.model';
 import { OwnerListing } from '../models/owner-listing.model';
 import { BookingSummaryAdapter } from '../../../shared/adapters/engagement-booking.adapter';
+import { environment } from '../../../../environments/environment';
 
 const OWNER: OwnerUser = {
   id: 'u-owner', display_name: 'Kavinda Silva', email: 'kavinda@haystax.lk',
@@ -84,6 +85,12 @@ async function createComponent(
 }
 
 describe('OwnerDashboardComponent', () => {
+  // These specs cover the real API + M3 adapter paths. Pin the flag so that flipping
+  // `environment.useMockApi` for manual click-through testing cannot change the outcome.
+  const mockFlagAtLoad = environment.useMockApi;
+  beforeEach(() => { (environment as { useMockApi: boolean }).useMockApi = false; });
+  afterEach(() => { (environment as { useMockApi: boolean }).useMockApi = mockFlagAtLoad; });
+
   it('renders only the listings the API returned (ready state)', async () => {
     const api = apiStub({});
     api.listListings = () => Promise.resolve([

@@ -1,5 +1,5 @@
-import { Component, effect, signal, HostListener } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Component, effect, signal, HostListener, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   heroHome,
@@ -15,11 +15,23 @@ import {
   heroChevronDoubleRight,
 } from '@ng-icons/heroicons/outline';
 
+import { environment } from '../../../../environments/environment';
+import { OWNER_API } from '../../../features/owner-identity/services/owner-api.interface';
+import { SupabaseAuthService } from '../../../features/owner-identity/services/supabase-auth.service';
+
 interface NavItem {
   label: string;
   route: string;
   icon: string;
   capability: 'public' | 'owner' | 'admin' | 'tenant';
+}
+
+/** What the topbar shows; derived from GET /api/owner/auth/me, never from the token. */
+interface ShellUser {
+  displayName: string;
+  isOwner: boolean;
+  isAdmin: boolean;
+  isTenant: boolean;
 }
 
 @Component({
@@ -43,17 +55,25 @@ interface NavItem {
   templateUrl: './app-shell.component.html',
 })
 export class AppShellComponent {
-  // Placeholder until Member 2's JWT adapter lands in Week 4
-  readonly currentUser = signal({
-    displayName: 'Guest',
+  private readonly api = inject(OWNER_API);
+  private readonly supabase = inject(SupabaseAuthService);
+  private readonly router = inject(Router);
+
+  /**
+   * Real roles, resolved once on shell creation. The shell only renders behind authGuard,
+   * so a session already exists; if /auth/me fails (backend down, mock quirks) we keep the
+   * guest placeholder rather than hiding the whole UI.
+   */
+  readonly currentUser = signal<ShellUser>({
+    displayName: 'Signed in',
     isOwner: false,
-    isAdmin: true,
+    isAdmin: false,
     isTenant: true,
   });
 
   readonly navItems: NavItem[] = [
-    { label: 'Home',            route: '/',                     icon: 'heroHome',                capability: 'public' },
-    { label: 'Owner Dashboard', route: '/owner',                icon: 'heroBuildingOffice2',     capability: 'owner' },
+    { label: 'Home',            route: '/discover',             icon: 'heroHome',                capability: 'public' },
+    { label: 'Owner Dashboard', route: '/owner/dashboard',      icon: 'heroBuildingOffice2',     capability: 'owner' },
     { label: 'Add Listing',     route: '/owner/listings/new',   icon: 'heroPlusCircle',          capability: 'owner' },
     { label: 'Messages',        route: '/messages',             icon: 'heroChatBubbleLeftRight', capability: 'tenant' },
     { label: 'Analytics',       route: '/analytics',            icon: 'heroChartBar',            capability: 'owner' },
@@ -81,6 +101,36 @@ export class AppShellComponent {
         // ignore quota / private mode errors
       }
     });
+    void this.loadCurrentUser();
+  }
+
+  /** Roles come from the server; a failure leaves the neutral placeholder in place. */
+  private async loadCurrentUser(): Promise<void> {
+    try {
+      const me = await this.api.getMe();
+      this.currentUser.set({
+        displayName: me.display_name,
+        isOwner: me.is_owner,
+        isAdmin: me.is_admin,
+        isTenant: !me.is_owner && !me.is_admin,
+      });
+    } catch {
+      // Backend unreachable — the page itself renders the error state.
+    }
+  }
+
+  /** Sign out, then return to the front door. Required: guestGuard bounces signed-in users away from /auth/login, so without this there is no way back to the form. */
+  async signOut(): Promise<void> {
+    try {
+      if (environment.useMockApi) {
+        this.api.switchUser('');          // mock-mode sign-out clears the fixture session
+      } else {
+        await this.supabase.signOut();
+      }
+    } catch {
+      // ignore — still leave the page
+    }
+    await this.router.navigate(['/auth/login']);
   }
 
   toggleSidebar(): void {

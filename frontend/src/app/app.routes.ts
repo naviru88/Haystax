@@ -14,27 +14,6 @@ export const routes: Routes = [
         .then(m => m.AuthComponent),
   },
   {
-    path: 'admin',
-    loadChildren: () =>
-      import('./features/admin/admin.routes').then(m => m.adminRoutes),
-  },
-  {
-    path: 'owner',
-    loadChildren: () =>
-      import('./features/owner-identity/owner-identity.routes')
-        .then(m => m.ownerIdentityRoutes),
-  },
-  // M3: Engagement feature (messaging, reviews, analytics, booking)
-  {
-    path: 'messages',
-    loadComponent: () =>
-      import('./features/engagement/messaging/messaging.component').then(
-        m => m.MessagingComponent
-      import('./features/owner-identity/auth/auth.component').then(
-        m => m.AuthComponent
-      ),
-  },
-  {
     path: '',
     canActivate: [authGuard],
     loadComponent: () =>

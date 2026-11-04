@@ -9,7 +9,7 @@ export interface FieldError {
   message: string;
 }
 
-export type ApiErrorKind = 'auth' | 'forbidden' | 'notfound' | 'conflict' | 'validation' | 'network' | 'server';
+export type ApiErrorKind = 'auth' | 'unconfirmed' | 'forbidden' | 'notfound' | 'conflict' | 'validation' | 'network' | 'server';
 
 export class ApiError extends Error {
   readonly status: number | null;
@@ -67,6 +67,7 @@ export function toApiError(err: unknown): ApiError {
 export function messageFor(kind: ApiErrorKind, serverMessage: string): string {
   switch (kind) {
     case 'auth': return serverMessage || 'Invalid login credentials.';
+    case 'unconfirmed': return serverMessage || 'Please confirm your email before logging in.';
     case 'network': return 'Cannot reach the server. Check that the backend is running and try again.';
     case 'forbidden': return serverMessage || 'You do not have permission to do that.';
     case 'notfound': return serverMessage || 'Not found.';

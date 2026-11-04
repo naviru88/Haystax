@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+
 import { App } from './app';
 
 describe('App', () => {
@@ -16,10 +17,13 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render the shell title', async () => {
+  it('renders only the router outlet — the shell belongs to the guarded route', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Haystax');
+
+    expect(compiled.querySelector('router-outlet')).toBeTruthy();
+    // /auth/login must render full-screen, so the root component holds no shell chrome.
+    expect(compiled.querySelector('app-shell')).toBeNull();
   });
 });

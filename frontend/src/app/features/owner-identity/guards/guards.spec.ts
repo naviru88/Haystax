@@ -4,6 +4,8 @@ import { provideHttpClient } from '@angular/common/http';
 
 import { authGuard } from './auth.guard';
 import { ownerGuard } from './owner.guard';
+import { guestGuard } from './guest.guard';
+import { adminGuard } from './admin.guard';
 import { OWNER_API } from '../services/owner-api.interface';
 import { SupabaseAuthService } from '../services/supabase-auth.service';
 import { MockAuthService } from '../services/mock-auth.service';
@@ -45,7 +47,7 @@ describe('authGuard', () => {
       providers: [
         provideRouter([]),
         provideHttpClient(),
-        { provide: SupabaseAuthService, useValue: { restoreSession: () => Promise.resolve(null) } },
+        { provide: SupabaseAuthService, useValue: { restoreSession: () => Promise.resolve(null), isEmailConfirmed: () => false } },
       ],
     });
 
@@ -61,7 +63,14 @@ describe('authGuard', () => {
       providers: [
         provideRouter([]),
         provideHttpClient(),
-        { provide: SupabaseAuthService, useValue: { restoreSession: () => Promise.resolve({}) } },
+        {
+          provide: SupabaseAuthService,
+          useValue: {
+            restoreSession: () => Promise.resolve({ user: { email_confirmed_at: '2026-10-01T00:00:00Z' } }),
+            isEmailConfirmed: (s: { user?: { email_confirmed_at?: string } } | null) =>
+              !!s?.user?.email_confirmed_at,
+          },
+        },
       ],
     });
 
@@ -69,6 +78,31 @@ describe('authGuard', () => {
     const result = await runGuard(authGuard);
 
     expect(result).toBe(true);
+  });
+
+  it('redirects an unconfirmed session to /auth/login with the confirm-email notice (D-AUTH-FLOW)', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        {
+          provide: SupabaseAuthService,
+          useValue: {
+            restoreSession: () => Promise.resolve({ user: { email_confirmed_at: null } }),
+            isEmailConfirmed: (s: { user?: { email_confirmed_at?: string | null } } | null) =>
+              !!s?.user?.email_confirmed_at,
+          },
+        },
+      ],
+    });
+
+    (environment as { useMockApi: boolean }).useMockApi = false;
+    const result = await runGuard(authGuard);
+
+    expect(result).toBeInstanceOf(UrlTree);
+    const tree = result as UrlTree;
+    expect(tree.toString()).toBe('/auth/login?notice=confirm-email');
+    expect(tree.queryParams['notice']).toBe('confirm-email');
   });
 
   it('blocks anonymous users in mock mode when no fixture is signed in', async () => {
@@ -155,5 +189,127 @@ describe('ownerGuard', () => {
     setup(() => Promise.reject(new ApiError(401, 'auth', 'Unauthorized')));
     const result = await runGuard(ownerGuard);
     expect((result as UrlTree).toString()).toBe('/auth/login');
+  });
+});
+/**
+ * guestGuard / adminGuard — the login-first routing pair.
+ * guestGuard is the mirror of authGuard, so the two share the same fake user matrix.
+ */
+describe('guestGuard', () => {
+  function setup(opts: {
+    mock?: boolean;
+    sessionUser?: OwnerUser;
+    me?: OwnerUser;
+    session?: unknown;
+  }) {
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        {
+          provide: OWNER_API,
+          useValue: {
+            getMockSessionUser: () => opts.sessionUser,
+            getMe: () => Promise.resolve(opts.me as OwnerUser),
+          },
+        },
+        {
+          provide: SupabaseAuthService,
+          useValue: {
+            restoreSession: () => Promise.resolve(opts.session ?? null),
+            isEmailConfirmed: () => true,
+          },
+        },
+      ],
+    });
+    (environment as { useMockApi: boolean }).useMockApi = !!opts.mock;
+    return TestBed.inject(Router);
+  }
+
+  afterEach(() => { (environment as { useMockApi: boolean }).useMockApi = false; });
+
+  it('lets an anonymous visitor see the auth page (mock mode)', async () => {
+    setup({ mock: true });
+    expect(await runGuard(guestGuard)).toBe(true);
+  });
+
+  it('bounces a signed-in tenant to /discover (mock mode)', async () => {
+    setup({ mock: true, sessionUser: TENANT, me: TENANT });
+    const result = await runGuard(guestGuard);
+    expect(result).toBeInstanceOf(UrlTree);
+    expect((result as UrlTree).toString()).toBe('/discover');
+  });
+
+  it('bounces a signed-in owner to /owner/dashboard (mock mode)', async () => {
+    setup({ mock: true, sessionUser: OWNER, me: OWNER });
+    expect((await runGuard(guestGuard) as UrlTree).toString()).toBe('/owner/dashboard');
+  });
+
+  it('does not redirect away from the login page when /auth/me fails', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        {
+          provide: OWNER_API,
+          useValue: {
+            getMockSessionUser: () => TENANT,
+            getMe: () => Promise.reject(new Error('backend down')),
+          },
+        },
+        { provide: SupabaseAuthService, useValue: {} },
+      ],
+    });
+    (environment as { useMockApi: boolean }).useMockApi = true;
+    expect(await runGuard(guestGuard)).toBe(true);
+  });
+
+  it('lets an anonymous visitor see the auth page (real mode)', async () => {
+    setup({ mock: false, session: null });
+    expect(await runGuard(guestGuard)).toBe(true);
+  });
+
+  it('bounces a signed-in admin to /admin (real mode)', async () => {
+    setup({
+      mock: false,
+      session: { user: { email_confirmed_at: '2026-01-01T00:00:00Z' } },
+      me: { ...TENANT, is_admin: true },
+    });
+    expect((await runGuard(guestGuard) as UrlTree).toString()).toBe('/admin');
+  });
+});
+
+describe('adminGuard', () => {
+  function setup(me: OwnerUser, sessionUser?: OwnerUser) {
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        {
+          provide: OWNER_API,
+          useValue: { getMockSessionUser: () => sessionUser, getMe: () => Promise.resolve(me) },
+        },
+        { provide: SupabaseAuthService, useValue: {} },
+      ],
+    });
+    (environment as { useMockApi: boolean }).useMockApi = false;
+  }
+
+  afterEach(() => { (environment as { useMockApi: boolean }).useMockApi = false; });
+
+  it('allows an admin through', async () => {
+    setup({ ...TENANT, is_admin: true });
+    expect(await runGuard(adminGuard)).toBe(true);
+  });
+
+  it('keeps a tenant out of the admin panel', async () => {
+    setup(TENANT);
+    expect((await runGuard(adminGuard) as UrlTree).toString()).toBe('/discover');
+  });
+
+  it('redirects to /auth/login when there is no mock session', async () => {
+    setup(TENANT, undefined);
+    (environment as { useMockApi: boolean }).useMockApi = true;
+    expect((await runGuard(adminGuard) as UrlTree).toString()).toBe('/auth/login');
   });
 });

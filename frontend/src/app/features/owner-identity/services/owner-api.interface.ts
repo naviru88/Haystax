@@ -4,19 +4,15 @@ import {
   Amenity, ListingRuleWrite, ListingWrite, OwnerListing, PhotoUploadEvent, UiState,
 } from '../models/owner-listing.model';
 import { OwnerProfile, OwnerUser, ProfileUpdate, SignUpResult } from '../models/owner-user.model';
+import type { BookingSummary } from '../../../shared/adapters/engagement-booking.adapter';
 
 /**
- * Week-3 pending-requests note (MOWN-07): tenancy requests come from Member 3's engagement
- * API; we only surface a placeholder in the dashboard. Nothing here calls engagement. [AGENTS §1]
+ * Incoming tenancy requests (MOWN-07). These are Member 3's data; the owner slice never
+ * imports their modules or tables. The shape is the adapter-owned local model
+ * (`BookingSummary`) produced by shared/adapters/engagement-booking.adapter.ts — M3 wire
+ * DTOs never reach a page. [AGENTS-W4 D-ADAPTERS]
  */
-export interface PendingRequest {
-  id: string;
-  listingId: string;
-  listingTitle: string;
-  tenantDisplayName: string;
-  requestedAt: string;
-  status: 'pending' | 'confirmed' | 'rejected';
-}
+export type PendingRequest = BookingSummary;
 
 /**
  * Contract the owner-identity pages depend on. Provided by MockAuthService (useMock=true)
@@ -53,7 +49,8 @@ export interface OwnerApi {
   // Mock-only helpers (fixtures).
   signInMock(email: string): Promise<OwnerUser | undefined>;
   signUpMock(dto: { display_name: string; email: string; password: string; phone_number?: string }): Promise<OwnerUser>;
-  getPendingRequests(): PendingRequest[];  // placeholder list, read-only
+  /** Mock-mode fixture source; real mode reads through BookingSummaryAdapter. */
+  getPendingRequests(): PendingRequest[];
 }
 
 export const OWNER_API = new InjectionToken<OwnerApi>('haystax.owner-api');

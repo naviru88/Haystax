@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
+import { RouterLink, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
+  imports: [RouterOutlet, RouterLink],
   template: `
     <nav style="background: #1976d2; padding: 16px; color: white; display: flex; gap: 20px;">
       <strong style="font-size: 18px;">Haystax Member 3</strong>

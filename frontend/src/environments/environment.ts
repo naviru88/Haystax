@@ -4,7 +4,8 @@
  */
 export const environment = {
   production: false,
-  useMockApi: false,             // true -> MockAuthService + fixtures, no network
+  useMockApi: false,             // production-safe default; ng serve overrides this file with
+                                 // environment.local.ts (angular.json → fileReplacements)
   apiBaseUrl: 'http://localhost:8080',
   supabaseUrl: '',               // placeholders — fill in environment.local.ts
   supabaseAnonKey: '',

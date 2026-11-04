@@ -16,14 +16,14 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class ListingMapper {
+public class DiscoveryListingMapper {
 
-    private static final Logger log = LoggerFactory.getLogger(ListingMapper.class);
+    private static final Logger log = LoggerFactory.getLogger(DiscoveryListingMapper.class);
 
     private final ObjectMapper objectMapper;
     private final PhotoUrlResolver photoUrlResolver;
 
-    public ListingMapper(ObjectMapper objectMapper, PhotoUrlResolver photoUrlResolver) {
+    public DiscoveryListingMapper(ObjectMapper objectMapper, PhotoUrlResolver photoUrlResolver) {
         this.objectMapper = objectMapper;
         this.photoUrlResolver = photoUrlResolver;
     }

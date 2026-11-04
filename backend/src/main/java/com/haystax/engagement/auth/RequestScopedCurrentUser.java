@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @RequestScope
 @Component
-public class CurrentUser {
+public class RequestScopedCurrentUser {
     private UUID id;
     private String role;
 

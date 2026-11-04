@@ -12,6 +12,11 @@ import listingsJson from '../mocks/listings.json';
 import amenitiesJson from '../mocks/amenities.json';
 import pendingRequestsJson from '../mocks/pending-requests.json';
 
+/** Structural copy of a fixture so mutations never reach the imported module singleton. */
+function deepCopy<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
 /**
  * Mock provider behind OwnerApi (environment.useMockApi = true). Reads fixtures only —
  * nothing writes to the live DB, no network. Same shape as the real OwnerApiService, so the
@@ -19,10 +24,13 @@ import pendingRequestsJson from '../mocks/pending-requests.json';
  */
 @Injectable({ providedIn: 'root' })
 export class MockAuthService implements OwnerApi {
-  private readonly users = usersJson as OwnerUser[];
-  private readonly listings = listingsJson as OwnerListing[];
-  private readonly amenities = amenitiesJson as Amenity[];
-  private readonly pending = pendingRequestsJson as PendingRequest[];
+  // Fixtures are module singletons shared by every injector in the test run, so each
+  // service instance gets its own deep copy. Without this, becomeOwner()/signUpMock()
+  // would permanently mutate users.json and leak into other spec files.
+  private readonly users = deepCopy(usersJson) as OwnerUser[];
+  private readonly listings = deepCopy(listingsJson) as OwnerListing[];
+  private readonly amenities = deepCopy(amenitiesJson) as Amenity[];
+  private readonly pending = deepCopy(pendingRequestsJson) as PendingRequest[];
 
   // Default to the mock owner so the dashboard renders owner content by default.
   private readonly _currentUser = signal<OwnerUser | undefined>(

@@ -25,6 +25,11 @@ export class SupabaseAuthService {
     });
   }
 
+  /**
+   * Register via Supabase Auth. With Email Confirmations on (D-AUTH-FLOW) Supabase returns
+   * no session: the user must click the emailed link before they can log in. There is no
+   * admin-approval step anywhere in this flow — the Supabase link is the whole gate.
+   */
   signUp(dto: SignUpRequest): Promise<{ requiresEmailConfirmation: boolean }> {
     const client = this.client();
     return client.auth
@@ -32,6 +37,8 @@ export class SupabaseAuthService {
         email: dto.email,
         password: dto.password,
         options: {
+          // Where Supabase sends the user after they click the confirmation link.
+          emailRedirectTo: this.emailRedirectTo(),
           // The signup trigger reads display_name from raw_user_meta_data under this key.
           // TODO(ask Anoj): confirm this is the exact key the signup trigger reads.
           data: { display_name: dto.display_name },
@@ -41,6 +48,16 @@ export class SupabaseAuthService {
         if (error) throw this.mapSupabaseError(error);
         const requiresEmailConfirmation = !data.session;
         return { requiresEmailConfirmation };
+      });
+  }
+
+  /** Re-send the Supabase signup confirmation mail (check-your-email state). [D-AUTH-FLOW] */
+  resendConfirmation(email: string): Promise<void> {
+    const client = this.client();
+    return client.auth
+      .resend({ type: 'signup', email, options: { emailRedirectTo: this.emailRedirectTo() } })
+      .then(({ error }) => {
+        if (error) throw this.mapSupabaseError(error);
       });
   }
 
@@ -68,6 +85,23 @@ export class SupabaseAuthService {
     return client.auth.getSession().then(({ data }) => data.session ?? null);
   }
 
+  /**
+   * D-AUTH-FLOW: a session is only usable once Supabase has confirmed the email address.
+   * With Email Confirmations on, Supabase does not issue a session for an unconfirmed
+   * account, so this is a defensive gate for legacy/pre-confirmation sessions.
+   */
+  isEmailConfirmed(session: Session | null): boolean {
+    if (!session) return false;
+    return !!session.user.email_confirmed_at || !!session.user.confirmed_at;
+  }
+
+  /** Where Supabase should return the user after the confirmation link. */
+  private emailRedirectTo(): string | undefined {
+    // Browser only — SSR has no origin, and Supabase falls back to the project's Site URL.
+    const origin = typeof location !== 'undefined' ? location.origin : '';
+    return origin ? `${origin}/auth/login` : undefined;
+  }
+
   /** Lazily create the client so an empty placeholder config fails loudly but only on use. */
   private client(): SupabaseClient {
     const { supabaseUrl, supabaseAnonKey } = this.environment;
@@ -86,6 +120,10 @@ export class SupabaseAuthService {
 
     if (m.includes('invalid login credentials')) {
       return new ApiError(401, 'auth', 'Invalid login credentials');
+    }
+    // D-AUTH-FLOW: email confirmation replaces the old admin-approval gate.
+    if (m.includes('email not confirmed') || m.includes('not confirmed')) {
+      return new ApiError(status ?? 403, 'unconfirmed', 'Please confirm your email before logging in.');
     }
     if (m.includes('already registered')) {
       return new ApiError(409, 'conflict', 'This email is already registered');

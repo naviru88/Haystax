@@ -7,6 +7,8 @@ import { OWNER_API } from '../services/owner-api.interface';
 import { ApiError } from '../services/api-error';
 import { OwnerUser } from '../models/owner-user.model';
 import { OwnerListing } from '../models/owner-listing.model';
+import { BookingSummaryAdapter } from '../../../shared/adapters/engagement-booking.adapter';
+import { environment } from '../../../../environments/environment';
 
 const OWNER: OwnerUser = {
   id: 'u-owner', display_name: 'Kavinda Silva', email: 'kavinda@haystax.lk',
@@ -51,7 +53,12 @@ function makeApi() {
   };
 }
 
-async function createComponent(api: unknown): Promise<{
+async function createComponent(
+  api: unknown,
+  bookings: { loadBookingSummaries: () => Promise<unknown> } = {
+    loadBookingSummaries: () => Promise.resolve({ ok: true, requests: [] }),
+  },
+): Promise<{
   fixture: import('@angular/core/testing').ComponentFixture<OwnerDashboardComponent>;
   component: OwnerDashboardComponent;
 }> {
@@ -61,6 +68,7 @@ async function createComponent(api: unknown): Promise<{
       provideRouter([]),
       provideHttpClient(),
       { provide: OWNER_API, useValue: api },
+      { provide: BookingSummaryAdapter, useValue: bookings },
     ],
   }).compileComponents();
 
@@ -77,6 +85,12 @@ async function createComponent(api: unknown): Promise<{
 }
 
 describe('OwnerDashboardComponent', () => {
+  // These specs cover the real API + M3 adapter paths. Pin the flag so that flipping
+  // `environment.useMockApi` for manual click-through testing cannot change the outcome.
+  const mockFlagAtLoad = environment.useMockApi;
+  beforeEach(() => { (environment as { useMockApi: boolean }).useMockApi = false; });
+  afterEach(() => { (environment as { useMockApi: boolean }).useMockApi = mockFlagAtLoad; });
+
   it('renders only the listings the API returned (ready state)', async () => {
     const api = apiStub({});
     api.listListings = () => Promise.resolve([
@@ -289,6 +303,54 @@ describe('OwnerDashboardComponent', () => {
 
     revokeSpy.mockRestore();
     createSpy.mockRestore();
+  });
+
+  it('renders Member 3 booking summaries through the adapter (MOWN-07)', async () => {
+    const api = apiStub({});
+    api.listListings = () => Promise.resolve([listing({ id: 'l-1', title: 'Kandy Boarding' })]);
+
+    const bookings = {
+      loadBookingSummaries: () => Promise.resolve({
+        ok: true,
+        requests: [
+          {
+            id: 'b-1', listingId: 'l-1', listingTitle: 'Kandy Boarding',
+            tenantDisplayName: 'Tenant u1111111', requestedAt: '2026-10-03T09:15:00Z',
+            status: 'pending',
+          },
+        ],
+      }),
+    };
+
+    const { fixture, component } = await createComponent(api, bookings);
+
+    expect(component.pendingState()).toBe('ready');
+    expect(component.pending().map(r => r.id)).toEqual(['b-1']);
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Tenant u1111111');
+    expect(text).toContain('Kandy Boarding');
+    expect(text).toContain('Pending');
+  });
+
+  it('renders the fallback state and keeps the dashboard usable when M3 is unreachable', async () => {
+    const api = apiStub({});
+    api.listListings = () => Promise.resolve([listing({ id: 'l-1', title: 'Kandy Boarding' })]);
+
+    const bookings = {
+      loadBookingSummaries: () => Promise.resolve({
+        ok: false,
+        message: 'Booking requests are temporarily unavailable.',
+      }),
+    };
+
+    const { fixture, component } = await createComponent(api, bookings);
+
+    expect(component.state()).toBe('ready');            // listings still render
+    expect(component.pendingState()).toBe('error');
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Booking requests unavailable');
+    expect(text).toContain('Booking requests are temporarily unavailable.');
+    expect(text).toContain('Kandy Boarding');
   });
 
   it('falls back to the placeholder when the photo blob fails', async () => {

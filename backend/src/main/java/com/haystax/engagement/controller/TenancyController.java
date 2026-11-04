@@ -1,7 +1,7 @@
 package com.haystax.engagement.controller;
 
 import com.haystax.engagement.dto.TenancyDto;
-import com.haystax.engagement.auth.CurrentUser;
+import com.haystax.engagement.auth.RequestScopedCurrentUser;
 import com.haystax.engagement.service.TenancyService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +16,9 @@ import java.util.UUID;
 public class TenancyController {
 
     private final TenancyService tenancyService;
-    private final CurrentUser currentUser;
+    private final RequestScopedCurrentUser currentUser;
 
-    public TenancyController(TenancyService tenancyService, CurrentUser currentUser) {
+    public TenancyController(TenancyService tenancyService, RequestScopedCurrentUser currentUser) {
         this.tenancyService = tenancyService;
         this.currentUser = currentUser;
     }

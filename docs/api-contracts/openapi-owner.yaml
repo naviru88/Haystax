@@ -3,12 +3,49 @@ info:
   title: Haystax Owner & Identity API (Member 2 slice)
   description: |
     Owner & identity API for the Haystax boarding marketplace.
-    Week 1 (C1) contract — design only. Register and login are handled by Supabase Auth,
-    NOT by Spring: the Angular app signs the user in via the Supabase client and then calls
-    these endpoints with the Supabase-issued JWT in the Authorization header.
-    x-todo: which Supabase client library the Angular app uses for register/login (ask Anoj).
-  version: 0.1.0-wip
+    Register and login are handled by Supabase Auth, NOT by Spring: the Angular app signs the
+    user in via the Supabase client and then calls these endpoints with the Supabase-issued
+    JWT in the Authorization header.
+
+    Published versions (Week 4 — integration & finalization):
+      - auth@1.0.0   — /api/owner/auth/me, /api/owner/profile*, email-confirmation signup (D-AUTH-FLOW).
+      - listing@1.0.0 — /api/owner/listings*, publish, photos, amenities.
+    A published version is frozen: any further change bumps the minor version and is recorded
+    in x-changelog below.
+  version: 1.0.0
   x-owner: Anoj (Member 2)
+  x-contract-version: 1.0.0
+  x-contracts:
+    - name: auth
+      version: 1.0.0
+      paths:
+        - /api/owner/auth/me
+        - /api/owner/profile
+        - /api/owner/profile/become-owner
+    - name: listing
+      version: 1.0.0
+      paths:
+        - /api/owner/listings
+        - /api/owner/listings/{id}
+        - /api/owner/listings/{id}/publish
+        - /api/owner/listings/{id}/photos
+        - /api/owner/listings/{id}/photos/{photoId}
+        - /api/owner/listings/{id}/photos/{photoId}/content
+        - /api/owner/amenities
+  x-changelog:
+    - version: 1.0.0
+      week: 4
+      changes:
+        - Published the auth and listing contracts as versioned groups (no path or schema
+          change since 0.3.0; this is the freeze point for cross-module consumption).
+        - D-AUTH-FLOW — account activation is Supabase email confirmation. Admin manual
+          approval is removed; no endpoint or schema in this contract ever exposed it.
+        - Cross-module consumers (Member 1 discovery, Member 3 booking summaries) integrate
+          through adapters only; no shared tables, no shared DTOs.
+    - version: 0.3.0
+      week: 3
+      changes:
+        - CC-2 photo bytes endpoint; become-owner endpoint; publish endpoint.
 
 servers:
   - url: http://localhost:8080
@@ -17,6 +54,7 @@ servers:
 tags:
   - name: Owner & Identity
     description: Member 2 slice — auth/me, profile, listings, photos, amenities.
+    x-contract-version: 1.0.0
 
 security:
   - bearerAuth: []
@@ -87,6 +125,30 @@ paths:
           $ref: '#/components/responses/ValidationError'
       x-source: AGENTS C1 table row 2
       x-todo: become-owner flow — see is_owner self-service question vs approved workflow (ask Anoj)
+
+  /api/owner/profile/become-owner:
+    post:
+      tags: [Owner & Identity]
+      summary: Become an owner (CC-1)
+      description: |
+        Sets profiles.is_owner=true for the caller. Authenticated, not suspended.
+        Idempotent — an already-owner caller gets 200 with the profile unchanged.
+        This is the ONLY way roles change here; PUT /profile never changes roles.
+        Roles are resolved from public.profiles, never from token claims (D-ROLES).
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile with role flags (is_owner now true)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      x-source: CC-1 (approved contract change)
 
   /api/owner/listings:
     get:
@@ -273,7 +335,7 @@ paths:
         '422':
           $ref: '#/components/responses/ValidationError'
       x-source: AGENTS C1 table row 8
-      x-todo: which storage backend in Weeks 1-3 (Supabase Storage bucket listing-photos vs local files) — ask Anoj
+      x-decision: D-PHOTO — local disk behind PhotoStorage in Weeks 2-3; Supabase Storage is the Week 4 swap.
 
   /api/owner/listings/{id}/photos/{photoId}:
     parameters:
@@ -294,6 +356,42 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
       x-source: AGENTS C1 table row 9
+
+  /api/owner/listings/{id}/photos/{photoId}/content:
+    parameters:
+      - $ref: '#/components/parameters/ListingId'
+      - $ref: '#/components/parameters/PhotoId'
+    get:
+      tags: [Owner & Identity]
+      summary: Download one of the calling owner's listing photo bytes (CC-2)
+      description: |
+        Owner + owns listing + photo belongs to that listing (else 404).
+        Content type is derived from the stored extension. Approved CC-2 change.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Photo bytes
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/webp:
+              schema:
+                type: string
+                format: binary
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-source: CC-2 (approved contract change)
 
   /api/owner/amenities:
     get:

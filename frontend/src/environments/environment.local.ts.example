@@ -1,0 +1,21 @@
+/**
+ * TEMPLATE — copy to `environment.local.ts` and fill in your own dev values.
+ *
+ *     cp src/environments/environment.local.ts.example src/environments/environment.local.ts
+ *
+ * `environment.local.ts` is git-ignored and replaces `environment.ts` for `ng serve` /
+ * `ng build --configuration development` (see angular.json → fileReplacements).
+ *
+ *   useMockApi: true   → fixtures only: no backend, no Supabase (works offline)
+ *   useMockApi: false  → real mode: needs the Spring backend running and Supabase reachable
+ *
+ * The Supabase anon/publishable key is safe to ship to a browser; the service_role key is
+ * NOT — never put it in a frontend file.
+ */
+export const environment = {
+  production: false,
+  useMockApi: true,
+  apiBaseUrl: 'http://localhost:8080',
+  supabaseUrl: 'https://<your-project-ref>.supabase.co',
+  supabaseAnonKey: '<your-anon-publishable-key>',
+};

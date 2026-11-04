@@ -3,4 +3,6 @@ export const environment = {
   useMockApi: false,
   apiBaseUrl: '/api',            // same-origin through nginx in prod
   googleMapsApiKey: 'AIzaSyDAnjasyGGqWuLPQWrk3v4a5fn74lobgJM',
+  supabaseUrl: '',               // supplied at deploy time
+  supabaseAnonKey: '',
 };

@@ -3,7 +3,7 @@ package com.haystax.discovery.service;
 import com.haystax.discovery.dto.ListingDto;
 import com.haystax.discovery.dto.SearchFiltersDto;
 import com.haystax.discovery.entity.PublishedListingView;
-import com.haystax.discovery.mapper.ListingMapper;
+import com.haystax.discovery.mapper.DiscoveryListingMapper;
 import com.haystax.discovery.repository.ListingReadRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ public class GeoSearchServiceTest {
     private ListingReadRepository repository;
 
     @Mock
-    private ListingMapper mapper;
+    private DiscoveryListingMapper mapper;
 
     @InjectMocks
     private GeoSearchService service;

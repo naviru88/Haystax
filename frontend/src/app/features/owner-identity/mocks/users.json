@@ -1,42 +1,42 @@
 [
   {
     "id": "00000000-0000-4000-8000-000000000001",
-    "displayName": "Rashmi Perera",
+    "display_name": "Rashmi Perera",
     "email": "rashmi@student.lk",
-    "phoneNumber": "+94 71 234 5678",
-    "isOwner": false,
-    "isAdmin": false,
-    "isSuspended": false,
-    "lastSeenAt": "2026-10-03T09:15:00Z"
+    "phone_number": "+94 71 234 5678",
+    "is_owner": false,
+    "is_admin": false,
+    "is_suspended": false,
+    "last_seen_at": "2026-10-03T09:15:00Z"
   },
   {
     "id": "00000000-0000-4000-8000-000000000002",
-    "displayName": "Kavinda Silva",
+    "display_name": "Kavinda Silva",
     "email": "kavinda@haystax.lk",
-    "phoneNumber": "+94 77 890 1234",
-    "isOwner": true,
-    "isAdmin": false,
-    "isSuspended": false,
-    "lastSeenAt": "2026-10-04T08:00:00Z"
+    "phone_number": "+94 77 890 1234",
+    "is_owner": true,
+    "is_admin": false,
+    "is_suspended": false,
+    "last_seen_at": "2026-10-04T08:00:00Z"
   },
   {
     "id": "00000000-0000-4000-8000-000000000003",
-    "displayName": "Nadeesha Perera",
+    "display_name": "Nadeesha Perera",
     "email": "nadeesha@haystax.lk",
-    "isOwner": false,
-    "isAdmin": true,
-    "isSuspended": false,
-    "lastSeenAt": "2026-10-03T18:30:00Z"
+    "is_owner": false,
+    "is_admin": true,
+    "is_suspended": false,
+    "last_seen_at": "2026-10-03T18:30:00Z"
   },
   {
     "id": "00000000-0000-4000-8000-000000000004",
-    "displayName": "Chandana Rajapaksa",
+    "display_name": "Chandana Rajapaksa",
     "email": "chandana@haystax.lk",
-    "phoneNumber": "+94 75 456 7890",
-    "isOwner": true,
-    "isAdmin": false,
-    "isSuspended": true,
-    "suspensionReason": "Ownership removed after 3 listings were removed by moderation.",
-    "lastSeenAt": "2026-09-28T11:45:00Z"
+    "phone_number": "+94 75 456 7890",
+    "is_owner": true,
+    "is_admin": false,
+    "is_suspended": true,
+    "suspension_reason": "Ownership removed after 3 listings were removed by moderation.",
+    "last_seen_at": "2026-09-28T11:45:00Z"
   }
 ]

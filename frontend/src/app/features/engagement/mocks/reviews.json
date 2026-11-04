@@ -1,0 +1,30 @@
+[
+  {
+    "id": "r1111111-0000-0000-0000-000000000001",
+    "listingId": "b1111111-0000-0000-0000-000000000102",
+    "studentId": "u1111111-0000-0000-0000-000000000001",
+    "authorId": "u1111111-0000-0000-0000-000000000001",
+    "tenancyId": "a1b2c3d4-0000-0000-0000-000000000202",
+    "rating": 5,
+    "title": "Great location",
+    "comment": "Clean and close to campus.",
+    "body": "Clean and close to campus.",
+    "ownerResponse": "Thank you for your review.",
+    "status": "published",
+    "createdAt": "2026-10-29T00:03:00Z"
+  },
+  {
+    "id": "r1111111-0000-0000-0000-000000000002",
+    "listingId": "b1111111-0000-0000-0000-000000000103",
+    "studentId": "u1111111-0000-0000-0000-000000000001",
+    "authorId": "u1111111-0000-0000-0000-000000000001",
+    "tenancyId": "a1b2c3d4-0000-0000-0000-000000000203",
+    "rating": 2,
+    "title": "Pending tenancy fixture",
+    "comment": "This review must not be accepted.",
+    "body": "This review must not be accepted.",
+    "ownerResponse": null,
+    "status": "hidden",
+    "createdAt": "2026-10-29T00:04:00Z"
+  }
+]

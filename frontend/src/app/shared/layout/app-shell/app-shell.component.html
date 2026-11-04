@@ -59,7 +59,7 @@
           <a
             [routerLink]="item.route"
             routerLinkActive="sidebar-link-active"
-            [routerLinkActiveOptions]="{ exact: item.route === '/' }"
+            [routerLinkActiveOptions]="{ exact: item.route === '/discover' }"
             class="sidebar-link"
             [class.justify-center]="collapsed()"
             [class.!px-2]="collapsed()"
@@ -106,6 +106,13 @@
             </p>
           </div>
         </div>
+        <button
+          type="button"
+          class="ml-2 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600
+                 hover:bg-gray-100 transition-colors"
+          (click)="signOut()">
+          Sign out
+        </button>
       </div>
     </header>
 

@@ -7,6 +7,7 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
  * RabbitMQ topology for Haystax messaging.
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
  * All beans are declared durable so they survive broker restarts.
  */
 @Configuration
+@ConditionalOnProperty(name = "engagement.event-bus", havingValue = "rabbit")
 public class RabbitMQConfig {
 
     // ── Constants ─────────────────────────────────────────────────────────────

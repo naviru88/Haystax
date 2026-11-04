@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:haystax-test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: none
+  rabbitmq:
+    listener:
+      simple:
+        auto-startup: false
+  flyway:
+    enabled: false
+
+logging:
+  level:
+    com.haystax: INFO
+    org.hibernate: WARN
+
+engagement:
+  mock-auth: true

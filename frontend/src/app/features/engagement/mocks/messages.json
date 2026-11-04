@@ -1,0 +1,29 @@
+[
+  {
+    "id": "m1111111-0000-0000-0000-000000000001",
+    "type": "MESSAGE",
+    "senderId": "u1111111-0000-0000-0000-000000000001",
+    "recipientId": "u1111111-0000-0000-0000-000000000002",
+    "content": "Hi, is room 101 available?",
+    "isRead": true,
+    "createdAt": "2026-10-29T00:00:00Z"
+  },
+  {
+    "id": "m1111111-0000-0000-0000-000000000002",
+    "type": "MESSAGE",
+    "senderId": "u1111111-0000-0000-0000-000000000002",
+    "recipientId": "u1111111-0000-0000-0000-000000000001",
+    "content": "Yes, I can confirm the room is available.",
+    "isRead": false,
+    "createdAt": "2026-10-29T00:01:00Z"
+  },
+  {
+    "id": "m1111111-0000-0000-0000-000000000003",
+    "type": "MESSAGE",
+    "senderId": "u1111111-0000-0000-0000-000000000001",
+    "recipientId": "u1111111-0000-0000-0000-000000000002",
+    "content": "Could you share the house rules?",
+    "isRead": false,
+    "createdAt": "2026-10-29T00:02:00Z"
+  }
+]

@@ -1,8 +1,9 @@
 package com.haystax.engagement.service;
 
 import com.haystax.engagement.dto.MessageDto;
-import com.haystax.engagement.dto.MessageEvent;
 import com.haystax.engagement.entity.MessageEntity;
+import com.haystax.engagement.event.EngagementEventBus;
+import com.haystax.engagement.event.MessageCreatedEvent;
 import com.haystax.engagement.repository.MessageRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,12 +16,12 @@ import java.util.UUID;
 public class MessagingService {
 
     private final MessageRepository messageRepository;
-    private final MessagePublisher  messagePublisher;
+    private final EngagementEventBus eventBus;
 
     public MessagingService(MessageRepository messageRepository,
-                            MessagePublisher messagePublisher) {
+                            EngagementEventBus eventBus) {
         this.messageRepository = messageRepository;
-        this.messagePublisher  = messagePublisher;
+        this.eventBus = eventBus;
     }
 
     public List<MessageDto> getMessagesForConversation(UUID conversationId) {
@@ -48,15 +49,16 @@ public class MessagingService {
         MessageDto    result = mapToDto(saved);
 
         // 2. Publish event to RabbitMQ (safe — exceptions are swallowed in publisher)
-        MessageEvent event = new MessageEvent(
-                saved.getId().toString(),
-                saved.getConversationId().toString(),
-                saved.getSenderId().toString(),
-                result.getRecipientId(),
-                saved.getBody(),
-                saved.getSentAt().toLocalDateTime()
+        MessageCreatedEvent event = new MessageCreatedEvent(
+                UUID.randomUUID(),
+                1,
+                saved.getSentAt(),
+                saved.getConversationId(),
+                saved.getSenderId(),
+                UUID.fromString(result.getRecipientId()),
+                result
         );
-        messagePublisher.publish(event);
+        eventBus.publish(event);
 
         return result;
     }

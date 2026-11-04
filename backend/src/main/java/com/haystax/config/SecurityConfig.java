@@ -1,6 +1,7 @@
 package com.haystax.config;
 
 import com.haystax.security.JwtAuthFilter;
+import com.haystax.engagement.auth.MockAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -12,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
@@ -20,12 +22,15 @@ import org.springframework.web.cors.CorsConfigurationSource;
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final ObjectProvider<MockAuthFilter> mockAuthFilter;
     private final CorsConfigurationSource corsConfigurationSource;
 
     public SecurityConfig(JwtAuthFilter jwtAuthFilter,
-                          CorsConfigurationSource corsConfigurationSource) {
+                          CorsConfigurationSource corsConfigurationSource,
+                          ObjectProvider<MockAuthFilter> mockAuthFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.corsConfigurationSource = corsConfigurationSource;
+        this.mockAuthFilter = mockAuthFilter;
     }
 
     //Empty UserDetailsService
@@ -55,6 +60,7 @@ public class SecurityConfig {
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
+        addMockAuthFilter(http);
         return http.build();
     }
 
@@ -80,6 +86,14 @@ public class SecurityConfig {
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
+        addMockAuthFilter(http);
         return http.build();
+    }
+
+    private void addMockAuthFilter(HttpSecurity http) {
+        MockAuthFilter filter = mockAuthFilter.getIfAvailable();
+        if (filter != null) {
+            http.addFilterBefore(filter, JwtAuthFilter.class);
+        }
     }
 }

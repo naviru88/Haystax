@@ -142,6 +142,41 @@
   }
 }
 
+/* Leaflet (OpenStreetMap fallback) */
+
+/* Keep Leaflet panes below the app's own overlays (modals,
+   dropdowns, filter popovers) but above the page background. */
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+  z-index: 1;
+}
+.leaflet-control {
+  z-index: 2;
+}
+
+/* Match Haystax typography inside the map. Leaflet defaults
+   to a serif font which looks out of place next to Inter. */
+.leaflet-container {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  background: #F3F4F6;
+}
+
+/* Round the map container corners to match `.card` */
+.leaflet-container {
+  border-radius: var(--radius-card, 1rem);
+  overflow: hidden;
+}
+
 /* Leaflet popup + custom marker (Haystax) */
 
 .haystax-popup .leaflet-popup-content-wrapper {

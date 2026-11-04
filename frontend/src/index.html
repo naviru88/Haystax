@@ -6,6 +6,14 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script>
+    // Define the failure callback BEFORE the Google Maps script loads.
+    // Fires if the API key is invalid, billing is disabled, or quota exceeded.
+    window.gm_authFailure = function () {
+      console.error('[GoogleMaps] Auth failure — falling back to OSM');
+      window.dispatchEvent(new CustomEvent('google-maps-failed'));
+    };
+  </script>
 </head>
 <body>
   <app-root></app-root>

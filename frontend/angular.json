@@ -70,6 +70,7 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {"prebundle": false},
           "configurations": {
             "production": {
               "buildTarget": "haystax-frontend:build:production"

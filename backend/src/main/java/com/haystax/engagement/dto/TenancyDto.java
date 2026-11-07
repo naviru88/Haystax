@@ -10,6 +10,7 @@ public class TenancyDto {
     private UUID tenantId;
     private UUID ownerId;
     private LocalDate moveInDate;
+    private LocalDate endDate;
     private String status;
     private String notes;
     private OffsetDateTime createdAt;
@@ -28,6 +29,9 @@ public class TenancyDto {
 
     public LocalDate getMoveInDate() { return moveInDate; }
     public void setMoveInDate(LocalDate moveInDate) { this.moveInDate = moveInDate; }
+
+    public LocalDate getEndDate() { return endDate; }
+    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

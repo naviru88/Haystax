@@ -17,5 +17,8 @@ public class EngagementEventSubscription {
     @PostConstruct
     void registerHandlers() {
         eventBus.subscribe("message.created", notificationService::handle);
+        eventBus.subscribe("booking.created", notificationService::handle);
+        eventBus.subscribe("booking.confirmed", notificationService::handle);
+        eventBus.subscribe("booking.cancelled", notificationService::handle);
     }
 }

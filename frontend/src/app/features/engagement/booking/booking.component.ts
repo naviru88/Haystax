@@ -33,8 +33,8 @@ export class BookingComponent implements OnInit {
   loadBookings(): void {
     this.loading = true;
     this.apiService.getBookings('u1111111-0000-0000-0000-000000000001').subscribe({
-      next: (data) => {
-        this.bookings = data;
+      next: (response) => {
+        this.bookings = response?.content || [];
         this.loading = false;
       },
       error: () => {

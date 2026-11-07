@@ -11,13 +11,13 @@ import { EngagementApiService } from '../services/engagement-api.service';
 })
 export class ReviewsComponent implements OnInit {
   reviews: any[] = [];
-  listingId = 'listing-101';
+  listingId = 'b1111111-0000-0000-0000-000000000101';
 
   constructor(private apiService: EngagementApiService) {}
 
   ngOnInit(): void {
     this.apiService.getReviews(this.listingId).subscribe(data => {
-      this.reviews = data;
+      this.reviews = data?.content || [];
     });
   }
 }

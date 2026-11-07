@@ -1,10 +1,12 @@
 package com.haystax.engagement.controller;
 
+import com.haystax.engagement.dto.AnalyticsSummaryDto;
 import com.haystax.engagement.service.AnalyticsService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @RestController
@@ -18,7 +20,10 @@ public class AnalyticsController {
     }
 
     @GetMapping("/summary")
-    public ResponseEntity<Map<String, Object>> getSummary(@RequestParam UUID listingId) {
-        return ResponseEntity.ok(analyticsService.getAnalyticsSummary(listingId));
+    public ResponseEntity<AnalyticsSummaryDto> getSummary(
+            @RequestParam UUID listingId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        return ResponseEntity.ok(analyticsService.getAnalyticsSummary(listingId, from, to));
     }
 }

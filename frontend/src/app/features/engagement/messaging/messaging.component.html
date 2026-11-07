@@ -1,104 +1,166 @@
-<div class="messaging-page">
-  <!-- Page Header & Tab Bar -->
-  <div class="page-header">
-    <h2>Messages & Notifications Center</h2>
-    <div class="tab-buttons">
-      <button class="tab-btn" [class.active]="activeTab === 'messages'" (click)="activeTab = 'messages'">
-        💬 Messages
-      </button>
-      <button class="tab-btn" [class.active]="activeTab === 'notifications'" (click)="activeTab = 'notifications'">
-        🔔 Notifications
-        <span *ngIf="notifications.length > 0" class="badge-count">{{ notifications.length }}</span>
-      </button>
-    </div>
+<div class="p-6 max-w-7xl mx-auto space-y-6">
+
+  <app-page-header
+    title="Communications Center"
+    subtitle="Connect directly with owners, manage active discussions, and check notifications." />
+
+  <!-- Navigation Tab Pills -->
+  <div class="flex gap-2 border-b border-gray-200 pb-2">
+    <button
+      type="button"
+      class="px-4 py-2 rounded-xl text-sm font-semibold transition"
+      [ngClass]="activeTab === 'messages' ? 'bg-primary text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+      (click)="activeTab = 'messages'">
+      Direct Messages
+    </button>
+    <button
+      type="button"
+      class="px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-2"
+      [ngClass]="activeTab === 'notifications' ? 'bg-primary text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+      (click)="activeTab = 'notifications'">
+      <span>Notifications</span>
+      @if (notifications.length > 0) {
+        <span class="px-2 py-0.5 rounded-full text-xs" [ngClass]="activeTab === 'notifications' ? 'bg-white text-primary' : 'bg-primary text-white'">
+          {{ notifications.length }}
+        </span>
+      }
+    </button>
   </div>
 
-  <!-- Messages Tab View -->
-  <div *ngIf="activeTab === 'messages'" class="messaging-layout">
-    <!-- Sidebar Conversation Threads -->
-    <div class="threads-sidebar card">
-      <div class="sidebar-header">
-        <h3>Conversations</h3>
-      </div>
-      <div class="threads-list">
-        <div 
-          *ngFor="let thread of threads" 
-          class="thread-item"
-          [class.selected]="selectedThread.id === thread.id"
-          (click)="selectThread(thread)"
-        >
-          <div class="avatar">{{ thread.name.charAt(0) }}</div>
-          <div class="thread-info">
-            <div class="thread-title">
-              <span class="name">{{ thread.name }}</span>
-              <span class="time">{{ thread.lastMessageTime }}</span>
-            </div>
-            <div class="role-tag">{{ thread.role }}</div>
-            <p class="preview">{{ thread.lastMessage }}</p>
-          </div>
-          <span *ngIf="thread.unreadCount > 0" class="unread-pill">{{ thread.unreadCount }}</span>
+  @if (activeTab === 'messages') {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-[600px] bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+
+      <!-- Conversation Threads Sidebar -->
+      <div class="md:col-span-1 border-r border-gray-200 flex flex-col h-full bg-gray-50/50">
+        <div class="p-4 border-b border-gray-200 bg-white">
+          <h2 class="text-sm font-bold text-gray-900">Conversations</h2>
+        </div>
+        <div class="flex-1 overflow-y-auto divide-y divide-gray-100">
+          @for (thread of threads; track thread.id) {
+            <button
+              type="button"
+              (click)="selectThread(thread)"
+              class="w-full text-left p-4 hover:bg-white transition flex items-start gap-3"
+              [ngClass]="selectedThread.id === thread.id ? 'bg-white border-l-4 border-primary shadow-sm' : ''">
+              <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold shrink-0">
+                {{ thread.name.charAt(0) }}
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-baseline mb-1">
+                  <p class="text-xs font-bold text-gray-900 truncate">{{ thread.name }}</p>
+                  <span class="text-[10px] text-gray-400 shrink-0">{{ thread.lastMessageTime }}</span>
+                </div>
+                <p class="text-xs text-gray-500 truncate">{{ thread.lastMessage }}</p>
+              </div>
+              @if (thread.unreadCount > 0) {
+                <span class="w-2 h-2 rounded-full bg-primary shrink-0 self-center"></span>
+              }
+            </button>
+          }
         </div>
       </div>
-    </div>
 
-    <!-- Chat Window -->
-    <div class="chat-main card">
-      <div class="chat-header">
-        <div class="active-user">
-          <div class="avatar-large">{{ selectedThread.name.charAt(0) }}</div>
+      <!-- Active Chat Window -->
+      <div class="md:col-span-2 flex flex-col h-full bg-white">
+        <!-- Thread Header -->
+        <div class="p-4 border-b border-gray-200 flex items-center justify-between">
           <div>
-            <h4>{{ selectedThread.name }}</h4>
-            <span class="status-online">● Online</span>
+            <h3 class="text-sm font-bold text-gray-900">{{ selectedThread.name }}</h3>
+            <p class="text-xs text-gray-500">{{ selectedThread.role }}</p>
           </div>
         </div>
-      </div>
 
-      <div class="messages-list">
-        <div 
-          *ngFor="let msg of messages" 
-          class="message-bubble" 
-          [ngClass]="{'sent': msg.senderId === currentUserId, 'received': msg.senderId !== currentUserId}"
-        >
-          <p class="content">{{ msg.content }}</p>
-          <small class="time">{{ msg.createdAt | date:'shortTime' }}</small>
+        <!-- Messages stream -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-3">
+          @if (loadingMessages) {
+            <div class="space-y-2">
+              <app-skeleton-card />
+            </div>
+          } @else if (messages.length === 0) {
+            <app-state-view
+              kind="empty"
+              title="No messages yet"
+              message="Start a conversation by typing a greeting below." />
+          } @else {
+            @for (msg of messages; track msg.id) {
+              <div class="flex flex-col" [ngClass]="msg.senderId === currentUserId ? 'items-end' : 'items-start'">
+                <div
+                  class="max-w-[75%] px-4 py-2.5 rounded-2xl text-xs"
+                  [ngClass]="msg.senderId === currentUserId ? 'bg-primary text-white rounded-br-none' : 'bg-gray-100 text-gray-800 rounded-bl-none'">
+                  <p>{{ msg.content }}</p>
+                </div>
+                <span class="text-[10px] text-gray-400 mt-1 px-1">
+                  {{ msg.createdAt | date:'shortTime' }}
+                </span>
+              </div>
+            }
+          }
         </div>
-      </div>
 
-      <div class="chat-input-bar">
-        <input 
-          type="text" 
-          [(ngModel)]="newMessageContent" 
-          (keyup.enter)="sendMessage()" 
-          placeholder="Type a message to {{ selectedThread.name }}..." 
-        />
-        <button (click)="sendMessage()" [disabled]="!newMessageContent.trim()" class="btn-send">
-          Send ➔
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Notifications Tab View -->
-  <div *ngIf="activeTab === 'notifications'" class="notifications-layout card">
-    <h3>System & Activity Alerts</h3>
-    <div class="notif-list">
-      <div 
-        *ngFor="let notif of notifications" 
-        class="notif-card"
-        [class.unread]="!notif.isRead"
-        (click)="markNotificationRead(notif)"
-      >
-        <div class="notif-icon" [ngClass]="notif.type">
-          {{ notif.type === 'success' ? '✔' : 'ℹ' }}
-        </div>
-        <div class="notif-content">
-          <div class="notif-header">
-            <strong class="title">{{ notif.title }}</strong>
-            <span class="time">{{ notif.time }}</span>
-          </div>
-          <p class="body">{{ notif.body }}</p>
+        <!-- Send input form -->
+        <div class="p-3 border-t border-gray-200 bg-gray-50 flex gap-2">
+          <input
+            type="text"
+            [(ngModel)]="newMessageContent"
+            (keyup.enter)="sendMessage()"
+            placeholder="Type your message..."
+            class="flex-1 px-4 py-2 text-xs border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white" />
+          <button
+            type="button"
+            (click)="sendMessage()"
+            class="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-xs font-semibold shadow-sm transition">
+            Send
+          </button>
         </div>
       </div>
     </div>
-  </div>
+  }
+
+  @if (activeTab === 'notifications') {
+    <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+      <h2 class="text-lg font-bold text-gray-900 mb-4">Notification Center</h2>
+
+      @if (loadingNotifications) {
+        <div class="space-y-3">
+          <app-skeleton-card />
+        </div>
+      } @else if (notifications.length === 0) {
+        <app-state-view
+          kind="empty"
+          title="No notifications"
+          message="You are all caught up! No unread notifications found." />
+      } @else {
+        <div class="divide-y divide-gray-100">
+          @for (notif of notifications; track notif.id) {
+            <div
+              class="py-4 flex items-start justify-between gap-4 transition"
+              [ngClass]="!notif.isRead ? 'bg-primary-50/20 px-3 rounded-xl' : ''">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="text-sm font-semibold text-gray-900">{{ notif.title }}</h4>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-gray-100 text-gray-600">
+                    {{ notif.type }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-600 mt-1">{{ notif.body }}</p>
+                <small class="text-[10px] text-gray-400 mt-1 block">
+                  {{ notif.createdAt | date:'medium' }}
+                </small>
+              </div>
+
+              @if (!notif.isRead) {
+                <button
+                  type="button"
+                  (click)="markNotificationRead(notif)"
+                  class="text-xs text-primary font-medium hover:underline shrink-0">
+                  Mark as read
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
 </div>

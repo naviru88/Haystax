@@ -1,26 +1,88 @@
-<div class="analytics-container">
-  <h2>Engagement & Occupancy Analytics</h2>
+<div class="p-6 max-w-7xl mx-auto space-y-6">
 
-  <div class="kpi-grid">
-    <div class="kpi-card card">
-      <span class="kpi-title">Total Inquiries</span>
-      <span class="kpi-value">{{ totalInquiries }}</span>
+  <app-page-header
+    title="Engagement & Occupancy Analytics"
+    subtitle="Monitor inquiry conversion, booking volumes, occupancy trends, and rental revenue." />
+
+  <!-- Filter Bar -->
+  <div class="card bg-white rounded-2xl border border-gray-200 p-4 shadow-sm flex flex-wrap items-center justify-between gap-4">
+    <div class="flex flex-wrap items-center gap-3 text-xs">
+      <div>
+        <label class="block text-gray-500 font-medium mb-1">Listing</label>
+        <input
+          type="text"
+          [(ngModel)]="listingId"
+          placeholder="Listing UUID"
+          class="px-3 py-1.5 border border-gray-300 rounded-lg text-gray-800 text-xs w-64 bg-gray-50" />
+      </div>
+
+      <div>
+        <label class="block text-gray-500 font-medium mb-1">From</label>
+        <input
+          type="date"
+          [(ngModel)]="fromDate"
+          class="px-3 py-1.5 border border-gray-300 rounded-lg text-gray-800 text-xs" />
+      </div>
+
+      <div>
+        <label class="block text-gray-500 font-medium mb-1">To</label>
+        <input
+          type="date"
+          [(ngModel)]="toDate"
+          class="px-3 py-1.5 border border-gray-300 rounded-lg text-gray-800 text-xs" />
+      </div>
     </div>
-    <div class="kpi-card card">
-      <span class="kpi-title">Total Bookings</span>
-      <span class="kpi-value">{{ totalBookings }}</span>
-    </div>
-    <div class="kpi-card card">
-      <span class="kpi-title">Occupancy Rate</span>
-      <span class="kpi-value">{{ occupancyRate }}%</span>
-    </div>
-    <div class="kpi-card card">
-      <span class="kpi-title">Estimated Revenue</span>
-      <span class="kpi-value">Rs. {{ estimatedRevenue | number }}</span>
-    </div>
-    <div class="kpi-card card">
-      <span class="kpi-title">Average Rating</span>
-      <span class="kpi-value">⭐ {{ averageRating }}</span>
-    </div>
+
+    <button
+      type="button"
+      (click)="loadAnalytics()"
+      class="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-xs font-semibold shadow-sm transition">
+      Apply Filter
+    </button>
   </div>
+
+  @if (errorMessage) {
+    <div role="alert" class="rounded-xl bg-destructive-bg text-destructive-text border border-destructive/30 px-4 py-3 text-sm">
+      {{ errorMessage }}
+    </div>
+  }
+
+  @if (loading) {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <app-skeleton-card />
+      <app-skeleton-card />
+      <app-skeleton-card />
+    </div>
+  } @else {
+    <!-- KPI Cards Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div class="card bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1">Total Inquiries</span>
+        <span class="text-2xl font-black text-gray-900">{{ summary.totalInquiries }}</span>
+      </div>
+
+      <div class="card bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1">Total Bookings</span>
+        <span class="text-2xl font-black text-primary">{{ summary.totalBookings }}</span>
+      </div>
+
+      <div class="card bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1">Occupancy Rate</span>
+        <span class="text-2xl font-black text-green-600">{{ summary.occupancyRate | number:'1.1-2' }}%</span>
+      </div>
+
+      <div class="card bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1">Estimated Revenue</span>
+        <span class="text-2xl font-black text-gray-900">LKR {{ summary.estimatedRevenue | number:'1.0-0' }}</span>
+      </div>
+
+      <div class="card bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1">Avg Rating</span>
+        <span class="text-2xl font-black text-amber-500">
+          {{ summary.averageRating != null ? (summary.averageRating | number:'1.1-1') : 'N/A' }} ★
+        </span>
+      </div>
+    </div>
+  }
+
 </div>

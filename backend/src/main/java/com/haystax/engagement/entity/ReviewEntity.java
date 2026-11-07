@@ -32,6 +32,9 @@ public class ReviewEntity {
     @Column(nullable = false)
     private String status;
 
+    @Column(name = "owner_response")
+    private String ownerResponse;
+
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
@@ -61,6 +64,9 @@ public class ReviewEntity {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getOwnerResponse() { return ownerResponse; }
+    public void setOwnerResponse(String ownerResponse) { this.ownerResponse = ownerResponse; }
 
     public OffsetDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }

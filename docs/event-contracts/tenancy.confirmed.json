@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TenancyConfirmedEvent",
+  "type": "object",
+  "required": ["eventId", "version", "occurredAt", "eventType", "aggregateId", "actorId", "payload"],
+  "properties": {
+    "eventId": { "type": "string", "format": "uuid" },
+    "version": { "type": "integer", "const": 1 },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "eventType": { "type": "string", "const": "booking.confirmed" },
+    "aggregateId": { "type": "string", "format": "uuid" },
+    "actorId": { "type": "string", "format": "uuid" },
+    "payload": {
+      "type": "object",
+      "required": ["id", "listingId", "tenantId", "status", "moveInDate", "createdAt"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "listingId": { "type": "string", "format": "uuid" },
+        "tenantId": { "type": "string", "format": "uuid" },
+        "ownerId": { "type": "string", "format": "uuid" },
+        "moveInDate": { "type": "string", "format": "date" },
+        "endDate": { "type": "string", "format": "date" },
+        "status": { "type": "string", "enum": ["confirmed", "active"] },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}
+

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -63,6 +64,23 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 req.getRequestURI());
         return ResponseEntity.badRequest().body(body);
+    }
+
+    @ExceptionHandler({BookingConflictException.class, DataIntegrityViolationException.class})
+    public ResponseEntity<ApiError> handleConflict(Exception ex, HttpServletRequest req) {
+        ApiError body = ApiError.of(
+                HttpStatus.CONFLICT.value(),
+                "Conflict",
+                ex.getMessage() == null ? "The request conflicts with existing data." : ex.getMessage(),
+                req.getRequestURI());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    @ExceptionHandler(SecurityException.class)
+    public ResponseEntity<ApiError> handleForbidden(SecurityException ex, HttpServletRequest req) {
+        ApiError body = ApiError.of(HttpStatus.FORBIDDEN.value(), "Forbidden",
+                ex.getMessage(), req.getRequestURI());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
 
     @ExceptionHandler(Exception.class)

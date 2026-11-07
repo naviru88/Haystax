@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ReviewCreatedEvent",
+  "type": "object",
+  "required": ["eventId", "version", "occurredAt", "eventType", "aggregateId", "actorId", "payload"],
+  "properties": {
+    "eventId": { "type": "string", "format": "uuid" },
+    "version": { "type": "integer", "const": 1 },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "eventType": { "type": "string", "const": "review.created" },
+    "aggregateId": { "type": "string", "format": "uuid" },
+    "actorId": { "type": "string", "format": "uuid" },
+    "payload": {
+      "type": "object",
+      "required": ["id", "listingId", "authorId", "rating", "body", "status", "createdAt"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "listingId": { "type": "string", "format": "uuid" },
+        "authorId": { "type": "string", "format": "uuid" },
+        "tenancyId": { "type": "string", "format": "uuid" },
+        "rating": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "title": { "type": "string" },
+        "body": { "type": "string" },
+        "status": { "type": "string", "const": "published" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}
+

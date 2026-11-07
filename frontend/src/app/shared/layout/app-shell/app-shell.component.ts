@@ -75,7 +75,9 @@ export class AppShellComponent {
     { label: 'Home',            route: '/discover',             icon: 'heroHome',                capability: 'public' },
     { label: 'Owner Dashboard', route: '/owner/dashboard',      icon: 'heroBuildingOffice2',     capability: 'owner' },
     { label: 'Add Listing',     route: '/owner/listings/new',   icon: 'heroPlusCircle',          capability: 'owner' },
+    { label: 'Bookings',        route: '/booking',              icon: 'heroHome',                capability: 'tenant' },
     { label: 'Messages',        route: '/messages',             icon: 'heroChatBubbleLeftRight', capability: 'tenant' },
+    { label: 'Reviews',         route: '/reviews',              icon: 'heroBuildingOffice2',     capability: 'public' },
     { label: 'Analytics',       route: '/analytics',            icon: 'heroChartBar',            capability: 'owner' },
     { label: 'Admin Panel',     route: '/admin',                icon: 'heroShieldCheck',         capability: 'admin' },
   ];

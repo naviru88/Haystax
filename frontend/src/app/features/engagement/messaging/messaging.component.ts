@@ -1,8 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EngagementApiService } from '../services/engagement-api.service';
 import { DirectMessage } from '../../../core/models/message.model';
+import { NotificationItem } from '../../../core/models/notification.model';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { StateViewComponent } from '../../../shared/components/state-view/state-view.component';
+import { SkeletonCardComponent } from '../../../shared/components/skeleton-card/skeleton-card.component';
 
 export interface ConversationThread {
   id: string;
@@ -16,9 +20,15 @@ export interface ConversationThread {
 @Component({
   selector: 'app-messaging',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './messaging.component.html',
-  styleUrls: ['./messaging.component.css']
+  imports: [
+    CommonModule,
+    FormsModule,
+    DatePipe,
+    PageHeaderComponent,
+    StateViewComponent,
+    SkeletonCardComponent
+  ],
+  templateUrl: './messaging.component.html'
 })
 export class MessagingComponent implements OnInit {
   activeTab: 'messages' | 'notifications' = 'messages';
@@ -38,31 +48,16 @@ export class MessagingComponent implements OnInit {
       role: 'Student Tenant',
       lastMessage: 'I sent the booking inquiry form.',
       lastMessageTime: 'Yesterday',
-      unreadCount: 2
+      unreadCount: 1
     }
   ];
 
   selectedThread: ConversationThread = this.threads[0];
   messages: DirectMessage[] = [];
-  notifications: any[] = [
-    {
-      id: 'notif-1',
-      title: 'Booking Approved',
-      body: 'Your tenancy request for GreenVilla listing-101 has been APPROVED by the owner.',
-      time: '2 hours ago',
-      isRead: false,
-      type: 'success'
-    },
-    {
-      id: 'notif-2',
-      title: 'New System Announcement',
-      body: 'Scheduled maintenance this Friday at 11:00 PM UTC.',
-      time: '1 day ago',
-      isRead: true,
-      type: 'info'
-    }
-  ];
+  notifications: NotificationItem[] = [];
 
+  loadingMessages = false;
+  loadingNotifications = false;
   newMessageContent = '';
   currentUserId = 'u1111111-0000-0000-0000-000000000001';
 
@@ -70,6 +65,7 @@ export class MessagingComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadMessages();
+    this.loadNotifications();
   }
 
   selectThread(thread: ConversationThread): void {
@@ -79,8 +75,28 @@ export class MessagingComponent implements OnInit {
   }
 
   loadMessages(): void {
-    this.apiService.getMessages(this.currentUserId).subscribe(data => {
-      this.messages = data;
+    this.loadingMessages = true;
+    this.apiService.getMessages(this.currentUserId).subscribe({
+      next: (data) => {
+        this.messages = data || [];
+        this.loadingMessages = false;
+      },
+      error: () => {
+        this.loadingMessages = false;
+      }
+    });
+  }
+
+  loadNotifications(): void {
+    this.loadingNotifications = true;
+    this.apiService.getNotifications(this.currentUserId).subscribe({
+      next: (data) => {
+        this.notifications = data || [];
+        this.loadingNotifications = false;
+      },
+      error: () => {
+        this.loadingNotifications = false;
+      }
     });
   }
 
@@ -91,15 +107,18 @@ export class MessagingComponent implements OnInit {
     this.apiService.sendMessage(
       { recipientId: this.selectedThread.id, content: content },
       this.currentUserId
-    ).subscribe(msg => {
-      this.messages.push(msg);
-      this.selectedThread.lastMessage = content;
-      this.selectedThread.lastMessageTime = 'Just now';
-      this.newMessageContent = '';
+    ).subscribe({
+      next: (msg) => {
+        this.messages.push(msg);
+        this.selectedThread.lastMessage = content;
+        this.selectedThread.lastMessageTime = 'Just now';
+        this.newMessageContent = '';
+      }
     });
   }
 
-  markNotificationRead(notif: any): void {
+  markNotificationRead(notif: NotificationItem): void {
     notif.isRead = true;
+    this.apiService.markNotificationRead(notif.id).subscribe();
   }
 }

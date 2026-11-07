@@ -5,6 +5,11 @@ spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 12MB
+
   datasource:
     url: ${HAYSTAX_DB_URL}
     username: ${HAYSTAX_DB_USER}
@@ -60,7 +65,13 @@ haystax:
     allowed-origins: ${HAYSTAX_CORS_ORIGINS:http://localhost:4200}
   jwt:
     issuer: ${HAYSTAX_JWT_ISSUER:haystax}
+    # Legacy HS256 shared secret. Supabase projects created with asymmetric signing keys
+    # (ES256) issue tokens that are verified against the published JWKS instead — see below.
     secret: ${HAYSTAX_JWT_SECRET:dev-only-secret-change-in-production}
+    # Project URL (SUPABASE_URL in backend/.env) → {project-url}/auth/v1/.well-known/jwks.json
+    project-url: ${SUPABASE_URL:}
+    # Optional explicit override for the JWKS endpoint.
+    jwks-url: ${HAYSTAX_JWT_JWKS_URL:}
   storage:
     public-base-url: ${HAYSTAX_STORAGE_PUBLIC_URL:}
 

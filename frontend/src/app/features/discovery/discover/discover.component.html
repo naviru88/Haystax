@@ -85,12 +85,36 @@
     </div>
   }
 
-  <!-- Error state -->
+  <!-- API error state -->
   @if (error(); as err) {
     <div class="card mb-4 !border-destructive/40 !bg-destructive-bg/40">
       <p class="text-sm text-destructive-text">{{ err }}</p>
     </div>
   }
+
+  <!-- Map — Google Maps primary, OpenStreetMap fallback -->
+  <div class="card mb-6 overflow-hidden !p-0 relative" style="height: 400px;">
+    @if (!googleMapsFailed()) {
+      <google-map
+        height="400px"
+        width="100%"
+        [center]="center()"
+        [zoom]="zoom()">
+        @for (m of markers(); track m.id) {
+          <map-marker
+            [position]="m.position"
+            [title]="m.title"
+            (mapClick)="onMarkerClick(m.id)">
+          </map-marker>
+        }
+      </google-map>
+    } @else {
+      <div #osmContainer style="height: 100%; width: 100%;"></div>
+      <div class="absolute bottom-2 left-2 bg-white/90 px-2 py-1 text-xs rounded shadow z-[1000]">
+        Map powered by OpenStreetMap (Google Maps unavailable)
+      </div>
+    }
+  </div>
 
   <!-- Grid -->
   @if (loading()) {

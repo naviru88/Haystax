@@ -1,129 +1,173 @@
 [
   {
     "id": "10000000-0000-4000-8000-000000001001",
-    "ownerId": "00000000-0000-4000-8000-000000000002",
+    "owner_id": "00000000-0000-4000-8000-000000000002",
     "title": "Cozy Room near Nugegoda Town",
     "description": "Quiet room in a family house, 5 minutes from Nugegoda town. Suits a single student.",
-    "addressLine1": "123 Weligama Road",
+    "address_line_1": "123 Weligama Road",
     "city": "Nugegoda",
     "district": "Colombo",
-    "locationLabel": "Nugegoda Town",
-    "lat": 6.8667,
-    "lng": 79.9013,
-    "priceAmount": 18000,
-    "currencyCode": "LKR",
-    "genderPolicy": "any",
-    "totalSlots": 2,
-    "availableSlots": 2,
+    "location_label": "Nugegoda Town",
+    "location": { "lat": 6.8667, "lng": 79.9013 },
+    "price_amount": 18000,
+    "currency_code": "LKR",
+    "gender_policy": "any",
+    "total_slots": 2,
+    "available_slots": 2,
     "status": "draft",
-    "createdAt": "2026-10-01T10:00:00Z",
-    "updatedAt": "2026-10-01T10:00:00Z",
+    "created_at": "2026-10-01T10:00:00Z",
+    "updated_at": "2026-10-01T10:00:00Z",
     "amenities": [
-      { "id": "a1", "code": "wifi", "name": "Wi-Fi", "description": "High-speed internet", "isActive": true, "sortOrder": 1 },
-      { "id": "a3", "code": "furnished", "name": "Furnished", "description": "Room comes furnished", "isActive": true, "sortOrder": 3 },
-      { "id": "a7", "code": "water_included", "name": "Water included", "description": "Water bill covered", "isActive": true, "sortOrder": 7 }
+      { "id": "a1", "code": "wifi", "name": "Wi-Fi", "description": "High-speed internet", "is_active": true, "sort_order": 1 },
+      { "id": "a3", "code": "furnished", "name": "Furnished", "description": "Room comes furnished", "is_active": true, "sort_order": 3 },
+      { "id": "a7", "code": "water_included", "name": "Water included", "description": "Water bill covered", "is_active": true, "sort_order": 7 }
     ],
     "rules": [
-      { "id": "r1", "ruleCode": "no_smoking", "label": "No smoking indoors", "isAllowed": false, "notes": "Smoking outside only" },
-      { "id": "r2", "ruleCode": "quiet_hours", "label": "Quiet hours 22:00–06:00", "isAllowed": true }
+      { "id": "r1", "rule_code": "no_smoking", "label": "No smoking indoors", "is_allowed": false, "notes": "Smoking outside only" },
+      { "id": "r2", "rule_code": "quiet_hours", "label": "Quiet hours 22:00–06:00", "is_allowed": true }
     ],
     "photos": [
-      { "id": "p101", "storagePath": "/images/owner-identity/l1-cozy-room.svg", "altText": "Cozy room near Nugegoda Town", "sortOrder": 1, "isPrimary": true, "isApproved": false }
+      { "id": "p101", "listing_id": "10000000-0000-4000-8000-000000001001", "storage_path": "/images/owner-identity/l1-cozy-room.svg", "alt_text": "Cozy room near Nugegoda Town", "sort_order": 1, "is_primary": true, "is_approved": false, "created_at": "2026-10-01T10:05:00Z" }
     ]
   },
   {
     "id": "10000000-0000-4000-8000-000000001002",
-    "ownerId": "00000000-0000-4000-8000-000000000002",
+    "owner_id": "00000000-0000-4000-8000-000000000002",
     "title": "Girls-Only Hostel Room, Wellawatta",
     "description": "Safe girls-only hostel room with common kitchen and laundry. Walking distance to Wellawatta beach.",
-    "addressLine1": "45 Lake Avenue",
+    "address_line_1": "45 Lake Avenue",
     "city": "Colombo",
     "district": "Colombo",
-    "locationLabel": "Wellawatta",
-    "lat": 6.8645,
-    "lng": 79.8561,
-    "priceAmount": 22000,
-    "currencyCode": "LKR",
-    "genderPolicy": "female_only",
-    "totalSlots": 4,
-    "availableSlots": 3,
+    "location_label": "Wellawatta",
+    "location": { "lat": 6.8645, "lng": 79.8561 },
+    "price_amount": 22000,
+    "currency_code": "LKR",
+    "gender_policy": "female_only",
+    "total_slots": 4,
+    "available_slots": 3,
     "status": "pending_review",
-    "createdAt": "2026-09-28T14:20:00Z",
-    "updatedAt": "2026-10-02T09:00:00Z",
+    "created_at": "2026-09-28T14:20:00Z",
+    "updated_at": "2026-10-02T09:00:00Z",
     "amenities": [
-      { "id": "a5", "code": "common_kitchen", "name": "Common kitchen", "description": "Shared kitchen", "isActive": true, "sortOrder": 5 },
-      { "id": "a6", "code": "laundry", "name": "Laundry", "description": "Washing facilities", "isActive": true, "sortOrder": 6 },
-      { "id": "a9", "code": "attached_bathroom", "name": "Attached bathroom", "description": "Private bathroom", "isActive": true, "sortOrder": 9 }
+      { "id": "a5", "code": "common_kitchen", "name": "Common kitchen", "description": "Shared kitchen", "is_active": true, "sort_order": 5 },
+      { "id": "a6", "code": "laundry", "name": "Laundry", "description": "Washing facilities", "is_active": true, "sort_order": 6 },
+      { "id": "a9", "code": "attached_bathroom", "name": "Attached bathroom", "description": "Private bathroom", "is_active": true, "sort_order": 9 }
     ],
     "rules": [
-      { "id": "r3", "ruleCode": "female_only", "label": "Female tenants only", "isAllowed": false }
+      { "id": "r3", "rule_code": "female_only", "label": "Female tenants only", "is_allowed": false }
     ],
     "photos": [
-      { "id": "p102", "storagePath": "/images/owner-identity/l2-girls-hostel.svg", "altText": "Girls-only hostel room, Wellawatta", "sortOrder": 1, "isPrimary": true, "isApproved": false }
+      { "id": "p102", "listing_id": "10000000-0000-4000-8000-000000001002", "storage_path": "/images/owner-identity/l2-girls-hostel.svg", "alt_text": "Girls-only hostel room, Wellawatta", "sort_order": 1, "is_primary": true, "is_approved": false, "created_at": "2026-09-28T14:25:00Z" }
     ]
   },
   {
     "id": "10000000-0000-4000-8000-000000001003",
-    "ownerId": "00000000-0000-4000-8000-000000000002",
+    "owner_id": "00000000-0000-4000-8000-000000000002",
     "title": "Modern Student Room – Moratuwa Campus",
     "description": "Furnished room 10 minutes from University of Moratuwa. Electricity and water included.",
-    "addressLine1": "78 Beach Road",
+    "address_line_1": "78 Beach Road",
     "city": "Moratuwa",
     "district": "Colombo",
-    "locationLabel": "Katubedda",
-    "lat": 6.7859,
-    "lng": 79.8827,
-    "priceAmount": 15000,
-    "currencyCode": "LKR",
-    "genderPolicy": "any",
-    "totalSlots": 3,
-    "availableSlots": 1,
+    "location_label": "Katubedda",
+    "location": { "lat": 6.7859, "lng": 79.8827 },
+    "price_amount": 15000,
+    "currency_code": "LKR",
+    "gender_policy": "any",
+    "total_slots": 3,
+    "available_slots": 1,
     "status": "published",
-    "publishedAt": "2026-09-25T08:30:00Z",
-    "createdAt": "2026-09-20T11:00:00Z",
-    "updatedAt": "2026-09-25T08:30:00Z",
+    "published_at": "2026-09-25T08:30:00Z",
+    "created_at": "2026-09-20T11:00:00Z",
+    "updated_at": "2026-09-25T08:30:00Z",
     "amenities": [
-      { "id": "a1", "code": "wifi", "name": "Wi-Fi", "description": "High-speed internet", "isActive": true, "sortOrder": 1 },
-      { "id": "a8", "code": "electricity_included", "name": "Electricity included", "description": "Electricity bill covered", "isActive": true, "sortOrder": 8 },
-      { "id": "a10", "code": "security", "name": "Security", "description": "24/7 security", "isActive": true, "sortOrder": 10 }
+      { "id": "a1", "code": "wifi", "name": "Wi-Fi", "description": "High-speed internet", "is_active": true, "sort_order": 1 },
+      { "id": "a8", "code": "electricity_included", "name": "Electricity included", "description": "Electricity bill covered", "is_active": true, "sort_order": 8 },
+      { "id": "a10", "code": "security", "name": "Security", "description": "24/7 security", "is_active": true, "sort_order": 10 }
     ],
     "rules": [
-      { "id": "r4", "ruleCode": "no_smoking", "label": "No smoking indoors", "isAllowed": false }
+      { "id": "r4", "rule_code": "no_smoking", "label": "No smoking indoors", "is_allowed": false }
     ],
     "photos": [
-      { "id": "p103", "storagePath": "/images/owner-identity/l3-modern-student.svg", "altText": "Modern student room, Moratuwa", "sortOrder": 1, "isPrimary": true, "isApproved": true }
+      { "id": "p103", "listing_id": "10000000-0000-4000-8000-000000001003", "storage_path": "/images/owner-identity/l3-modern-student.svg", "alt_text": "Modern student room, Moratuwa", "sort_order": 1, "is_primary": true, "is_approved": true, "created_at": "2026-09-20T11:05:00Z" }
     ]
   },
   {
     "id": "10000000-0000-4000-8000-000000001004",
-    "ownerId": "00000000-0000-4000-8000-000000000002",
+    "owner_id": "00000000-0000-4000-8000-000000000002",
     "title": "Male-Only Room near University of Moratuwa",
     "description": "Budget male-only room close to campus. Parking available.",
-    "addressLine1": "12 Station Lane",
+    "address_line_1": "12 Station Lane",
     "city": "Moratuwa",
     "district": "Colombo",
-    "locationLabel": "Katubedda Station",
-    "lat": 6.7712,
-    "lng": 79.8865,
-    "priceAmount": 20000,
-    "currencyCode": "LKR",
-    "genderPolicy": "male_only",
-    "totalSlots": 2,
-    "availableSlots": 0,
+    "location_label": "Katubedda Station",
+    "location": { "lat": 6.7712, "lng": 79.8865 },
+    "price_amount": 20000,
+    "currency_code": "LKR",
+    "gender_policy": "male_only",
+    "total_slots": 2,
+    "available_slots": 0,
     "status": "published",
-    "moderationNote": "Under review — 2 active reports (at capacity).",
-    "publishedAt": "2026-09-10T07:00:00Z",
-    "createdAt": "2026-09-08T12:00:00Z",
-    "updatedAt": "2026-10-01T16:00:00Z",
+    "moderation_note": "Under review — 2 active reports (at capacity).",
+    "published_at": "2026-09-10T07:00:00Z",
+    "created_at": "2026-09-08T12:00:00Z",
+    "updated_at": "2026-10-01T16:00:00Z",
     "amenities": [
-      { "id": "a2", "code": "parking", "name": "Parking", "description": "Vehicle parking available", "isActive": true, "sortOrder": 2 },
-      { "id": "a10", "code": "security", "name": "Security", "description": "24/7 security", "isActive": true, "sortOrder": 10 }
+      { "id": "a2", "code": "parking", "name": "Parking", "description": "Vehicle parking available", "is_active": true, "sort_order": 2 },
+      { "id": "a10", "code": "security", "name": "Security", "description": "24/7 security", "is_active": true, "sort_order": 10 }
     ],
     "rules": [
-      { "id": "r5", "ruleCode": "male_only", "label": "Male tenants only", "isAllowed": false }
+      { "id": "r5", "rule_code": "male_only", "label": "Male tenants only", "is_allowed": false }
     ],
     "photos": [
-      { "id": "p104", "storagePath": "/images/owner-identity/l4-male-room.svg", "altText": "Male-only room near University of Moratuwa", "sortOrder": 1, "isPrimary": true, "isApproved": true }
+      { "id": "p104", "listing_id": "10000000-0000-4000-8000-000000001004", "storage_path": "/images/owner-identity/l4-male-room.svg", "alt_text": "Male-only room near University of Moratuwa", "sort_order": 1, "is_primary": true, "is_approved": true, "created_at": "2026-09-08T12:05:00Z" }
     ]
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000001005",
+    "owner_id": "00000000-0000-4000-8000-000000000002",
+    "title": "Paused Room near Kottawa",
+    "description": "Room temporarily paused by the owner.",
+    "address_line_1": "9 Pannipitiya Road",
+    "city": "Kottawa",
+    "district": "Colombo",
+    "location_label": "Kottawa",
+    "location": { "lat": 6.8406, "lng": 79.9458 },
+    "price_amount": 12000,
+    "currency_code": "LKR",
+    "gender_policy": "any",
+    "total_slots": 2,
+    "available_slots": 1,
+    "status": "paused",
+    "created_at": "2026-09-15T08:00:00Z",
+    "updated_at": "2026-09-30T12:00:00Z",
+    "amenities": [
+      { "id": "a4", "code": "air_conditioning", "name": "Air conditioning", "description": "AC available", "is_active": true, "sort_order": 4 }
+    ],
+    "rules": [],
+    "photos": []
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000001006",
+    "owner_id": "00000000-0000-4000-8000-000000000002",
+    "title": "Removed Room – Maharagama",
+    "description": "This listing was removed by moderation.",
+    "address_line_1": "22 High Level Road",
+    "city": "Maharagama",
+    "district": "Colombo",
+    "location_label": "Maharagama",
+    "location": { "lat": 6.848, "lng": 79.925 },
+    "price_amount": 16000,
+    "currency_code": "LKR",
+    "gender_policy": "any",
+    "total_slots": 1,
+    "available_slots": 1,
+    "status": "removed",
+    "moderation_note": "Removed by moderation for duplicate listing content.",
+    "removed_at": "2026-10-04T09:00:00Z",
+    "created_at": "2026-09-05T09:00:00Z",
+    "updated_at": "2026-10-04T09:00:00Z",
+    "amenities": [],
+    "rules": [],
+    "photos": []
   }
 ]

@@ -1,21 +1,61 @@
 import { Component, OnInit } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { EngagementApiService } from '../services/engagement-api.service';
+import { AnalyticsSummary } from '../../../core/models/review.model';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { StateViewComponent } from '../../../shared/components/state-view/state-view.component';
+import { SkeletonCardComponent } from '../../../shared/components/skeleton-card/skeleton-card.component';
 
 @Component({
   selector: 'app-analytics',
   standalone: true,
-  imports: [DecimalPipe],
-  templateUrl: './analytics.component.html',
-  styleUrls: ['./analytics.component.css']
+  imports: [
+    CommonModule,
+    FormsModule,
+    DecimalPipe,
+    PageHeaderComponent,
+    SkeletonCardComponent
+  ],
+  templateUrl: './analytics.component.html'
 })
 export class AnalyticsComponent implements OnInit {
-  totalInquiries = 24;
-  totalBookings = 18;
-  occupancyRate = 85.5;
-  estimatedRevenue = 45000;
-  averageRating = 4.7;
+  listingId = 'b1111111-0000-0000-0000-000000000101';
+  fromDate = '';
+  toDate = '';
 
-  constructor() {}
+  loading = true;
+  errorMessage = '';
 
-  ngOnInit(): void {}
+  summary: AnalyticsSummary = {
+    listingId: this.listingId,
+    totalInquiries: 0,
+    totalBookings: 0,
+    occupancyRate: 0,
+    estimatedRevenue: 0,
+    averageRating: null
+  };
+
+  constructor(private apiService: EngagementApiService) {}
+
+  ngOnInit(): void {
+    this.loadAnalytics();
+  }
+
+  loadAnalytics(): void {
+    this.loading = true;
+    this.errorMessage = '';
+
+    this.apiService.getAnalyticsSummary(this.listingId, this.fromDate || undefined, this.toDate || undefined)
+      .subscribe({
+        next: (data) => {
+          this.summary = data;
+          this.loading = false;
+        },
+        error: () => {
+          this.errorMessage = 'Could not load analytics data. Ensure you have owner access for this listing.';
+          this.loading = false;
+        }
+      });
+  }
 }

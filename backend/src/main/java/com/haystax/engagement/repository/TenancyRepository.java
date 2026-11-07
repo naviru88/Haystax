@@ -25,4 +25,6 @@ public interface TenancyRepository extends JpaRepository<TenancyEntity, UUID> {
     long countOverlappingBookings(UUID listingId, LocalDate startDate, LocalDate endDate);
 
     Optional<TenancyEntity> findByTenancyRequestId(UUID tenancyRequestId);
+
+    long countByListingId(UUID listingId);
 }

@@ -12,7 +12,9 @@ public class ReviewDto {
     private String title;
     private String body;
     private String status;
+    private String ownerResponse;
     private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
@@ -38,6 +40,12 @@ public class ReviewDto {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
+    public String getOwnerResponse() { return ownerResponse; }
+    public void setOwnerResponse(String ownerResponse) { this.ownerResponse = ownerResponse; }
+
     public OffsetDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
+
+    public OffsetDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(OffsetDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

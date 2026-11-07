@@ -22,4 +22,6 @@ public interface TenancyRequestRepository extends JpaRepository<TenancyRequestEn
           and r.endDate > :startDate
         """)
     long countOverlapping(UUID listingId, LocalDate startDate, LocalDate endDate);
+
+    long countByListingId(UUID listingId);
 }

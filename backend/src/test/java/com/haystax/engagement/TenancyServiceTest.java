@@ -2,7 +2,7 @@ package com.haystax.engagement;
 
 import com.haystax.common.exception.BookingConflictException;
 import com.haystax.engagement.adapter.ListingContractClient;
-import com.haystax.engagement.auth.CurrentUser;
+import com.haystax.engagement.auth.RequestScopedCurrentUser;
 import com.haystax.engagement.dto.TenancyDto;
 import com.haystax.engagement.entity.TenancyEntity;
 import com.haystax.engagement.entity.TenancyRequestEntity;
@@ -29,7 +29,7 @@ class TenancyServiceTest {
     private static final UUID LISTING = UUID.randomUUID();
     private TenancyRepository tenancyRepository;
     private TenancyRequestRepository requestRepository;
-    private CurrentUser currentUser;
+    private RequestScopedCurrentUser currentUser;
     private ListingContractClient listingClient;
     private EngagementEventBus eventBus;
     private TenancyService service;
@@ -38,7 +38,7 @@ class TenancyServiceTest {
     void setUp() {
         tenancyRepository = mock(TenancyRepository.class);
         requestRepository = mock(TenancyRequestRepository.class);
-        currentUser = new CurrentUser();
+        currentUser = new RequestScopedCurrentUser();
         listingClient = mock(ListingContractClient.class);
         eventBus = mock(EngagementEventBus.class);
         service = new TenancyService(tenancyRepository, requestRepository, currentUser,

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MessageCreatedEvent",
+  "type": "object",
+  "required": ["eventId", "version", "occurredAt", "eventType", "aggregateId", "actorId", "payload"],
+  "properties": {
+    "eventId": { "type": "string", "format": "uuid" },
+    "version": { "type": "integer", "const": 1 },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "eventType": { "type": "string", "const": "message.created" },
+    "aggregateId": { "type": "string", "format": "uuid" },
+    "actorId": { "type": "string", "format": "uuid" },
+    "payload": {
+      "type": "object",
+      "required": ["id", "type", "senderId", "recipientId", "content", "createdAt"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "type": { "type": "string", "const": "MESSAGE" },
+        "senderId": { "type": "string", "format": "uuid" },
+        "recipientId": { "type": "string", "format": "uuid" },
+        "content": { "type": "string" },
+        "isRead": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}
+

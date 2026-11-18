@@ -51,7 +51,7 @@ describe('OwnerAuthInterceptor', () => {
     return firstValueFrom(interceptor.intercept(req, handler) as never).catch(e => e as unknown);
   }
 
-  it('adds the Authorization header only to /api/owner URLs on the API base', async () => {
+  it('adds the Authorization header to backend API URLs, but not external URLs', async () => {
     const base = environment.apiBaseUrl;
 
     // Owner API URL → header added.
@@ -82,7 +82,7 @@ describe('OwnerAuthInterceptor', () => {
       interceptor.intercept(new HttpRequest('GET', `${base}/api/discovery/listings`), discHandler) as never,
     );
     const discReq = discSpy.mock.calls[0]?.[0] as HttpRequest<unknown>;
-    expect(discReq.headers.has('Authorization')).toBe(false);
+    expect(discReq.headers.get('Authorization')).toBe('Bearer test-access-token');
   });
 
   it('does not add the header when no token is present', async () => {
@@ -99,7 +99,7 @@ describe('OwnerAuthInterceptor', () => {
     expect(req.headers.has('Authorization')).toBe(false);
   });
 
-  it('signs out and redirects to /auth/login on a 401 from the owner API', async () => {
+  it('signs out and redirects to /auth/login on a 401 from a backend API', async () => {
     const base = environment.apiBaseUrl;
     const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
@@ -115,17 +115,17 @@ describe('OwnerAuthInterceptor', () => {
     expect((err as ApiError).kind).toBe('auth');
   });
 
-  it('does NOT sign out on a 401 from another slice', async () => {
+  it('signs out on a 401 from another backend slice too', async () => {
     const base = environment.apiBaseUrl;
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
     const handler = handlerStub();
     handler.handle = () =>
       throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }));
 
-    const err = await runThrough(`${base}/api/discovery/listings`, handler);
+    const err = await runThrough(`${base}/api/engagement/messages`, handler);
 
-    // Non-owner URLs are outside the interceptor scope: passed through untouched.
-    expect(tokenStub.signedOut).toBe(false);
-    expect(err).toBeInstanceOf(HttpErrorResponse);
+    expect(tokenStub.signedOut).toBe(true);
+    expect(err).toBeInstanceOf(ApiError);
   });
 
   it('passes through non-owner URLs untouched (no token fetch)', async () => {

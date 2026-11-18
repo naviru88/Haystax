@@ -65,10 +65,10 @@ export class AppShellComponent {
    * guest placeholder rather than hiding the whole UI.
    */
   readonly currentUser = signal<ShellUser>({
-    displayName: 'Signed in',
+    displayName: 'Guest',
     isOwner: false,
     isAdmin: false,
-    isTenant: true,
+    isTenant: false,
   });
 
   readonly navItems: NavItem[] = [
@@ -109,6 +109,11 @@ export class AppShellComponent {
   /** Roles come from the server; a failure leaves the neutral placeholder in place. */
   private async loadCurrentUser(): Promise<void> {
     try {
+      if (environment.useMockApi) {
+        if (!this.api.getMockSessionUser()) return;
+      } else if (!(await this.supabase.restoreSession())) {
+        return;
+      }
       const me = await this.api.getMe();
       this.currentUser.set({
         displayName: me.display_name,

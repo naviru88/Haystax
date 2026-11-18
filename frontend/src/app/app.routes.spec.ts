@@ -68,36 +68,45 @@ async function setup(): Promise<{ harness: RouterTestingHarness; router: Router 
   return { harness, router: TestBed.inject(Router) };
 }
 
-describe('app routes (login first)', () => {
+describe('app routes (public discovery, guarded private pages)', () => {
   beforeEach(() => {
     sessionUser = undefined;
     (environment as { useMockApi: boolean }).useMockApi = true;
+    // Discovery renders its Google Maps component in a browser. Supply inert constructors
+    // so route integration tests do not need the external Maps JavaScript API.
+    (window as Window & { google?: unknown }).google = {
+      maps: {
+        Map: class { addListener() { return { remove: () => undefined }; } },
+        Marker: class { addListener() { return { remove: () => undefined }; } setMap() {} setOptions() {} },
+      },
+    };
   });
 
   afterEach(() => { (environment as { useMockApi: boolean }).useMockApi = true; });
 
-  it('sends an anonymous visitor from / to the login page', async () => {
+  it('sends an anonymous visitor from / to public discovery', async () => {
     const { harness, router } = await setup();
 
     await harness.navigateByUrl('/');
 
-    expect(router.url).toBe('/auth/login');
+    expect(router.url).toBe('/discover');
   });
 
-  it('keeps an anonymous visitor out of /discover', async () => {
+  it('lets an anonymous visitor browse /discover', async () => {
     const { harness, router } = await setup();
 
     await harness.navigateByUrl('/discover');
 
-    expect(router.url).toBe('/auth/login');
+    expect(router.url).toBe('/discover');
+    expect(harness.routeNativeElement?.querySelector('app-discover')).toBeTruthy();
   });
 
-  it('sends unknown URLs to the login page', async () => {
+  it('sends unknown URLs to public discovery', async () => {
     const { harness, router } = await setup();
 
     await harness.navigateByUrl('/no-such-page');
 
-    expect(router.url).toBe('/auth/login');
+    expect(router.url).toBe('/discover');
   });
 
   it('renders the login page without the app shell', async () => {

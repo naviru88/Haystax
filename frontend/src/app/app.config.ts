@@ -7,11 +7,13 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 
 import { routes } from './app.routes';
 import { environment } from '../environments/environment';
+import { provideOwnerApi } from './features/owner-identity/services/provide-owner-api';
+import { OwnerAuthInterceptor } from './features/owner-identity/services/owner-auth.interceptor';
 
 function loadGoogleMaps(apiKey: string): Promise<void> {
   if ((window as any).google?.maps) return Promise.resolve();
@@ -33,7 +35,9 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withFetch(), withInterceptorsFromDi()),
+    { provide: HTTP_INTERCEPTORS, useClass: OwnerAuthInterceptor, multi: true },
+    provideOwnerApi(),
     provideClientHydration(withEventReplay()),
     provideAppInitializer(() => {
       if (!isPlatformBrowser(inject(PLATFORM_ID))) return;

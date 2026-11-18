@@ -1,10 +1,11 @@
 import { Routes } from '@angular/router';
 
 import { authGuard } from './features/owner-identity/guards/auth.guard';
+import { ownerGuard } from './features/owner-identity/guards/owner.guard';
 import { adminGuard } from './features/owner-identity/guards/admin.guard';
 import { guestGuard } from './features/owner-identity/guards/guest.guard';
 
-// Login-first routing.
+// Public discovery, with explicit guards on authenticated feature routes.
 export const routes: Routes = [
   {
     path: 'auth/login',
@@ -15,7 +16,6 @@ export const routes: Routes = [
   },
   {
     path: '',
-    canActivate: [authGuard],
     loadComponent: () =>
       import('./shared/layout/app-shell/app-shell.component').then(
         m => m.AppShellComponent
@@ -51,6 +51,7 @@ export const routes: Routes = [
       // M3: Engagement feature (messaging, reviews, analytics, booking)
       {
         path: 'messages',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./features/engagement/messaging/messaging.component').then(
             m => m.MessagingComponent
@@ -58,6 +59,7 @@ export const routes: Routes = [
       },
       {
         path: 'analytics',
+        canActivate: [authGuard, ownerGuard],
         loadComponent: () =>
           import('./features/engagement/analytics/analytics.component').then(
             m => m.AnalyticsComponent
@@ -65,6 +67,7 @@ export const routes: Routes = [
       },
       {
         path: 'booking',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./features/engagement/booking/booking.component').then(
             m => m.BookingComponent
@@ -79,6 +82,6 @@ export const routes: Routes = [
       },
     ],
   },
-  // Unknown URL → the front door, which is the login page.
-  { path: '**', redirectTo: 'auth/login' },
+  // Unknown URL → the public discovery front door.
+  { path: '**', redirectTo: 'discover' },
 ];

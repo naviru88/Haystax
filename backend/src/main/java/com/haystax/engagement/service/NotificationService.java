@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -19,6 +20,28 @@ public class NotificationService {
 
     public NotificationService(NotificationRepository notificationRepository) {
         this.notificationRepository = notificationRepository;
+    }
+
+    public List<NotificationEntity> getForRecipient(UUID recipientId, boolean unreadOnly) {
+        return unreadOnly
+                ? notificationRepository.findByRecipientIdAndReadFalseOrderByCreatedAtDesc(recipientId)
+                : notificationRepository.findByRecipientIdOrderByCreatedAtDesc(recipientId);
+    }
+
+    @Transactional
+    public NotificationEntity markRead(UUID notificationId, UUID recipientId) {
+        NotificationEntity notification = notificationRepository.findByIdAndRecipientId(notificationId, recipientId)
+                .orElseThrow(() -> new IllegalArgumentException("Notification was not found"));
+        if (!notification.isRead()) {
+            notification.setRead(true);
+            notification.setReadAt(OffsetDateTime.now());
+            return notificationRepository.save(notification);
+        }
+        return notification;
+    }
+
+    public long unreadCount(UUID recipientId) {
+        return notificationRepository.countByRecipientIdAndReadFalse(recipientId);
     }
 
     @Transactional

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public class MessageDto {
     private String id;
     private String type;
+    private String conversationId;
     private String senderId;
     private String recipientId;
     private String content;
@@ -16,6 +17,9 @@ public class MessageDto {
 
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
+
+    public String getConversationId() { return conversationId; }
+    public void setConversationId(String conversationId) { this.conversationId = conversationId; }
 
     public String getSenderId() { return senderId; }
     public void setSenderId(String senderId) { this.senderId = senderId; }

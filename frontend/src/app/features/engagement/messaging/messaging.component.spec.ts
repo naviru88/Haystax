@@ -14,6 +14,7 @@ describe('MessagingComponent', () => {
     {
       id: 'm-1',
       type: 'MESSAGE',
+      conversationId: 'c1111111-0000-0000-0000-000000000001',
       senderId: 'u1111111-0000-0000-0000-000000000001',
       recipientId: 'u1111111-0000-0000-0000-000000000002',
       content: 'Hello owner',
@@ -36,10 +37,11 @@ describe('MessagingComponent', () => {
 
   beforeEach(async () => {
     apiServiceMock = {
-      getMessages: vi.fn().mockReturnValue(of(mockMessages)),
+      getCurrentUserId: vi.fn().mockReturnValue(of('u1111111-0000-0000-0000-000000000001')),
+      getMessages: vi.fn().mockReturnValue(of({ content: mockMessages, page: { page: 0, size: 20, totalElements: 1, totalPages: 1 } })),
       sendMessage: vi.fn(),
-      getNotifications: vi.fn().mockReturnValue(of(mockNotifications)),
-      markNotificationRead: vi.fn().mockReturnValue(of(void 0))
+      getNotifications: vi.fn().mockReturnValue(of({ content: mockNotifications, page: { page: 0, size: 20, totalElements: 1, totalPages: 1 } })),
+      markNotificationRead: vi.fn().mockReturnValue(of({ ...mockNotifications[0], isRead: true }))
     };
 
     await TestBed.configureTestingModule({
@@ -65,6 +67,7 @@ describe('MessagingComponent', () => {
     const sentMessage: DirectMessage = {
       id: 'm-2',
       type: 'MESSAGE',
+      conversationId: component.selectedThread.id,
       senderId: component.currentUserId,
       recipientId: component.selectedThread.id,
       content: 'New message content',

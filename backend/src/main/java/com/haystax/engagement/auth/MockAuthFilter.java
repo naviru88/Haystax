@@ -32,6 +32,14 @@ public class MockAuthFilter extends OncePerRequestFilter {
             return;
         }
 
+        // A real bearer token is authenticated by JwtAuthFilter later in the chain.
+        // Never let client-supplied mock identity headers replace that principal.
+        String authorization = request.getHeader("Authorization");
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String userHeader = request.getHeader("X-Mock-User-Id");
         String role = request.getHeader("X-Mock-Role");
         if (userHeader == null || role == null) {

@@ -10,11 +10,10 @@ import { ApiError, toApiError } from './api-error';
 import { Router } from '@angular/router';
 
 /**
- * D-TOKEN: adds `Authorization: Bearer <access token>` ONLY to requests whose URL starts
- * with apiBaseUrl + '/api/owner'. Supabase and other slices' URLs are left untouched.
- * A 401 from the owner API signs the user out and returns to /auth/login (the page still
- * receives the ApiError so it never shows stale content).
- * Registered in app.config.ts (shared — diff shown to Anoj first). [AGENTS-W3 D-TOKEN, W3-C1.3]
+ * D-TOKEN: adds `Authorization: Bearer <access token>` to Haystax backend API requests.
+ * Supabase and other external URLs are left untouched. A 401 from the backend signs the
+ * user out and returns to /auth/login (the page still receives the ApiError).
+ * Registered in app.config.ts. [D-TOKEN, W3-C1.3]
  */
 @Injectable()
 export class OwnerAuthInterceptor implements HttpInterceptor {
@@ -23,9 +22,14 @@ export class OwnerAuthInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const base = environment.apiBaseUrl;
-    const isOwnerApi = !!base && req.url.startsWith(`${base}/api/owner`);
+    const isBackendApi = !!base && req.url.startsWith(`${base}/api/`);
+    const isProtectedApi = !!base && [
+      `${base}/api/owner/`,
+      `${base}/api/engagement/`,
+      `${base}/api/admin/`,
+    ].some(prefix => req.url.startsWith(prefix));
 
-    if (!isOwnerApi) {
+    if (!isBackendApi) {
       return next.handle(req);
     }
 
@@ -36,17 +40,17 @@ export class OwnerAuthInterceptor implements HttpInterceptor {
           out = req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
         }
         return next.handle(out).pipe(
-          catchError((err: unknown) => this.handleError(err)),
+          catchError((err: unknown) => this.handleError(err, isProtectedApi)),
         );
       }),
     );
   }
 
-  private handleError(err: unknown): Observable<never> {
+  private handleError(err: unknown, isProtectedApi: boolean): Observable<never> {
     const apiError = toApiError(err);
 
     // 401 from the API → sign out and go to login (W3-C1.3).
-    if (apiError.kind === 'auth' && apiError.status === 401 && err instanceof HttpErrorResponse) {
+    if (isProtectedApi && apiError.kind === 'auth' && apiError.status === 401 && err instanceof HttpErrorResponse) {
       this.auth.signOut().catch(() => undefined);
       void this.router.navigate(['/auth/login']);
     }

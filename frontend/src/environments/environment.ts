@@ -3,4 +3,6 @@ export const environment = {
   useMockApi: false,
   apiBaseUrl: 'http://localhost:8080',
   googleMapsApiKey: 'AIzaSyDAnjasyGGqWuLPQWrk3v4a5fn74lobgJM',
+  supabaseUrl: '',
+  supabaseAnonKey: '',
 };

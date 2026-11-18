@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,9 +47,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     public static final String CLAIMS_ATTR = "haystax.jwt.claims";
 
     private final JwtService jwtService;
+    private final JdbcTemplate jdbcTemplate;
 
     public JwtAuthFilter(JwtService jwtService) {
         this.jwtService = jwtService;
+        this.jdbcTemplate = null;
+    }
+
+    @Autowired
+    public JwtAuthFilter(JwtService jwtService, JdbcTemplate jdbcTemplate) {
+        this.jwtService = jwtService;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -92,10 +102,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private void setAuthentication(JwtService.JwtClaims claims, HttpServletRequest request) {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        if (claims.isOwner()) {
+        boolean isOwner = claims.isOwner();
+        boolean isAdmin = claims.isAdmin();
+        String path = request.getRequestURI();
+        if (path.startsWith("/api/admin/") || path.startsWith("/api/engagement/")) {
+            ProfileRoles roles = rolesFromProfiles(claims.subject());
+            if (roles == null) {
+                SecurityContextHolder.clearContext();
+                return;
+            }
+            isOwner = roles.isOwner();
+            isAdmin = roles.isAdmin();
+        }
+        if (isOwner) {
             authorities.add(new SimpleGrantedAuthority("OWNER"));
         }
-        if (claims.isAdmin()) {
+        if (isAdmin) {
             authorities.add(new SimpleGrantedAuthority("ADMIN"));
         }
         authorities.add(new SimpleGrantedAuthority("USER"));
@@ -105,6 +127,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
+
+    private ProfileRoles rolesFromProfiles(String subject) {
+        if (jdbcTemplate == null) return null;
+        try {
+            List<ProfileRoles> roles = jdbcTemplate.query(
+                    "select is_owner, is_admin from public.profiles where id = ?",
+                    (resultSet, rowNumber) -> new ProfileRoles(
+                            resultSet.getBoolean("is_owner"), resultSet.getBoolean("is_admin")),
+                    java.util.UUID.fromString(subject));
+            return roles.isEmpty() ? null : roles.get(0);
+        } catch (org.springframework.dao.DataAccessException ex) {
+            return null;
+        }
+    }
+
+    private record ProfileRoles(boolean isOwner, boolean isAdmin) { }
 
     private void writeError(HttpServletResponse response, HttpStatus status,
                             HttpServletRequest request) throws IOException {

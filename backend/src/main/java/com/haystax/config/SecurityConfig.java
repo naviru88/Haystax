@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
@@ -39,7 +40,7 @@ public class SecurityConfig {
         return new InMemoryUserDetailsManager();
     }
 
-    //Dev profile: permit /api/admin/** anonymously for local testing.
+    //Dev profile: public read APIs and protected owner, engagement, and admin routes.
     @Bean
     @Profile("dev")
     public SecurityFilterChain devFilterChain(HttpSecurity http) throws Exception {
@@ -50,12 +51,13 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                         "/api/discovery/**",
-                        "/api/admin/**",           // dev only — remove when M2 ships JWT
                         "/actuator/**",
                         "/v3/api-docs/**",
                         "/swagger-ui.html",
                         "/swagger-ui/**"
                 ).permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/engagement/reviews").permitAll()
+                .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -81,6 +83,7 @@ public class SecurityConfig {
                         "/swagger-ui.html",
                         "/swagger-ui/**"
                 ).permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/engagement/reviews").permitAll()
                 .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                 .anyRequest().authenticated()
             )

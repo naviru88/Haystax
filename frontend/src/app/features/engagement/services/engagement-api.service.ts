@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import { TenancyRequest, CreateTenancyPayload } from '../../../core/models/tenancy.model';
 import { DirectMessage, SendMessagePayload } from '../../../core/models/message.model';
@@ -13,16 +13,17 @@ import { ReviewItem, ReviewCreateRequest, ReviewUpdateRequest, AnalyticsSummary,
 })
 export class EngagementApiService {
   private readonly baseUrl = `${environment.apiBaseUrl}/api/engagement`;
-  private readonly currentUserId = 'u1111111-0000-0000-0000-000000000001';
-  private readonly currentRole = 'TENANT';
 
   constructor(private http: HttpClient) {}
 
+  /** Resolve the current identity through the versioned owner identity API. */
+  public getCurrentUserId(): Observable<string> {
+    return this.http.get<{ id: string }>(`${environment.apiBaseUrl}/api/owner/auth/me`)
+      .pipe(map(me => me.id));
+  }
+
   private getAuthHeaders(idempotencyKey?: string): HttpHeaders {
-    let headers = new HttpHeaders({
-      'X-Mock-User-Id': this.currentUserId,
-      'X-Mock-Role': this.currentRole
-    });
+    let headers = new HttpHeaders();
     if (idempotencyKey) {
       headers = headers.set('Idempotency-Key', idempotencyKey);
     }
@@ -31,9 +32,8 @@ export class EngagementApiService {
 
   // --- Tenancies & Bookings ---
 
-  public getBookings(userId: string = this.currentUserId, page: number = 0, size: number = 20): Observable<PageResponse<TenancyRequest>> {
+  public getBookings(page: number = 0, size: number = 20): Observable<PageResponse<TenancyRequest>> {
     const params = new HttpParams()
-      .set('userId', userId)
       .set('page', page.toString())
       .set('size', size.toString());
 
@@ -46,7 +46,6 @@ export class EngagementApiService {
   public createBooking(payload: CreateTenancyPayload, idempotencyKey?: string): Observable<TenancyRequest> {
     const body: any = {
       listingId: payload.listingId,
-      tenantId: payload.tenantId || this.currentUserId,
       moveInDate: payload.moveInDate,
       endDate: payload.endDate,
       notes: payload.notes
@@ -71,18 +70,20 @@ export class EngagementApiService {
 
   // --- Direct Messages & Conversations ---
 
-  public getMessages(userId: string = this.currentUserId): Observable<DirectMessage[]> {
-    const params = new HttpParams().set('userId', userId);
-    return this.http.get<DirectMessage[]>(`${this.baseUrl}/messages`, {
+  public getMessages(conversationId: string, page = 0, size = 20): Observable<PageResponse<DirectMessage>> {
+    const params = new HttpParams()
+      .set('conversationId', conversationId)
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get<PageResponse<DirectMessage>>(`${this.baseUrl}/messages`, {
       headers: this.getAuthHeaders(),
       params
     });
   }
 
-  public sendMessage(payload: SendMessagePayload, senderId: string = this.currentUserId): Observable<DirectMessage> {
+  public sendMessage(payload: SendMessagePayload): Observable<DirectMessage> {
     const body = {
-      senderId,
-      recipientId: payload.recipientId,
+      conversationId: payload.conversationId,
       content: payload.content
     };
     return this.http.post<DirectMessage>(`${this.baseUrl}/messages`, body, {
@@ -92,16 +93,19 @@ export class EngagementApiService {
 
   // --- Notifications ---
 
-  public getNotifications(userId: string = this.currentUserId): Observable<NotificationItem[]> {
-    const params = new HttpParams().set('userId', userId);
-    return this.http.get<NotificationItem[]>(`${this.baseUrl}/notifications`, {
+  public getNotifications(page = 0, size = 20, unreadOnly = false): Observable<PageResponse<NotificationItem>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('unreadOnly', unreadOnly.toString());
+    return this.http.get<PageResponse<NotificationItem>>(`${this.baseUrl}/notifications`, {
       headers: this.getAuthHeaders(),
-      params
+      params,
     });
   }
 
-  public markNotificationRead(notificationId: string): Observable<void> {
-    return this.http.patch<void>(`${this.baseUrl}/notifications/${notificationId}/read`, {}, {
+  public markNotificationRead(notificationId: string): Observable<NotificationItem> {
+    return this.http.post<NotificationItem>(`${this.baseUrl}/notifications/${notificationId}/read`, {}, {
       headers: this.getAuthHeaders()
     });
   }

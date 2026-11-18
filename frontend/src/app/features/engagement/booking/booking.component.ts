@@ -43,7 +43,7 @@ export class BookingComponent implements OnInit {
   loadBookings(): void {
     this.loading = true;
     this.errorMessage = '';
-    this.apiService.getBookings('u1111111-0000-0000-0000-000000000001').subscribe({
+    this.apiService.getBookings().subscribe({
       next: (response) => {
         this.bookings = response?.content || [];
         this.loading = false;

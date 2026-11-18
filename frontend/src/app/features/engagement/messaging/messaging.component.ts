@@ -59,13 +59,21 @@ export class MessagingComponent implements OnInit {
   loadingMessages = false;
   loadingNotifications = false;
   newMessageContent = '';
-  currentUserId = 'u1111111-0000-0000-0000-000000000001';
-
+  currentUserId = '';
   constructor(private apiService: EngagementApiService) {}
 
   ngOnInit(): void {
-    this.loadMessages();
-    this.loadNotifications();
+    this.apiService.getCurrentUserId().subscribe({
+      next: (id) => {
+        this.currentUserId = id;
+        this.loadMessages();
+        this.loadNotifications();
+      },
+      error: () => {
+        this.loadingMessages = false;
+        this.loadingNotifications = false;
+      }
+    });
   }
 
   selectThread(thread: ConversationThread): void {
@@ -76,9 +84,9 @@ export class MessagingComponent implements OnInit {
 
   loadMessages(): void {
     this.loadingMessages = true;
-    this.apiService.getMessages(this.currentUserId).subscribe({
+    this.apiService.getMessages(this.selectedThread.id).subscribe({
       next: (data) => {
-        this.messages = data || [];
+        this.messages = data?.content || [];
         this.loadingMessages = false;
       },
       error: () => {
@@ -89,9 +97,9 @@ export class MessagingComponent implements OnInit {
 
   loadNotifications(): void {
     this.loadingNotifications = true;
-    this.apiService.getNotifications(this.currentUserId).subscribe({
+    this.apiService.getNotifications().subscribe({
       next: (data) => {
-        this.notifications = data || [];
+        this.notifications = data?.content || [];
         this.loadingNotifications = false;
       },
       error: () => {
@@ -105,8 +113,7 @@ export class MessagingComponent implements OnInit {
 
     const content = this.newMessageContent.trim();
     this.apiService.sendMessage(
-      { recipientId: this.selectedThread.id, content: content },
-      this.currentUserId
+      { conversationId: this.selectedThread.id, content }
     ).subscribe({
       next: (msg) => {
         this.messages.push(msg);
@@ -118,7 +125,8 @@ export class MessagingComponent implements OnInit {
   }
 
   markNotificationRead(notif: NotificationItem): void {
-    notif.isRead = true;
-    this.apiService.markNotificationRead(notif.id).subscribe();
+    this.apiService.markNotificationRead(notif.id).subscribe({
+      next: (updated) => Object.assign(notif, updated),
+    });
   }
 }

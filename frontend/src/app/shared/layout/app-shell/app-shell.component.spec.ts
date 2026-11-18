@@ -32,7 +32,10 @@ function setup(me: OwnerUser) {
           switchUser,
         },
       },
-      { provide: SupabaseAuthService, useValue: { signOut: () => Promise.resolve() } },
+      { provide: SupabaseAuthService, useValue: {
+        restoreSession: () => Promise.resolve({ access_token: 'test-token' }),
+        signOut: () => Promise.resolve(),
+      } },
     ],
   });
   return { switchUser };
@@ -47,6 +50,7 @@ async function render() {
 }
 
 describe('AppShellComponent', () => {
+  beforeEach(() => { (environment as { useMockApi: boolean }).useMockApi = true; });
   afterEach(() => { (environment as { useMockApi: boolean }).useMockApi = false; });
 
   it('renders the brand title', async () => {

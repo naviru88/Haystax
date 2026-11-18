@@ -72,6 +72,14 @@ describe('app routes (public discovery, guarded private pages)', () => {
   beforeEach(() => {
     sessionUser = undefined;
     (environment as { useMockApi: boolean }).useMockApi = true;
+    // Discovery renders its Google Maps component in a browser. Supply inert constructors
+    // so route integration tests do not need the external Maps JavaScript API.
+    (window as Window & { google?: unknown }).google = {
+      maps: {
+        Map: class { addListener() { return { remove: () => undefined }; } },
+        Marker: class { addListener() { return { remove: () => undefined }; } setMap() {} setOptions() {} },
+      },
+    };
   });
 
   afterEach(() => { (environment as { useMockApi: boolean }).useMockApi = true; });

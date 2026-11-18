@@ -2,12 +2,14 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  Injector,
   OnDestroy,
   PLATFORM_ID,
   ViewChild,
   computed,
   effect,
   inject,
+  runInInjectionContext,
   signal,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
@@ -51,6 +53,7 @@ export class DiscoverComponent implements AfterViewInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly injector = inject(Injector);
 
   // Map — center/zoom are signals so "Near me" can move them
   readonly center = signal<google.maps.LatLngLiteral>({ lat: 6.9271, lng: 79.8612 }); // Colombo
@@ -171,20 +174,22 @@ export class DiscoverComponent implements AfterViewInit, OnDestroy {
     }
 
     // When the failure signal flips, build/refresh the Leaflet map.
-    effect(() => {
-      if (this.googleMapsFailed()) {
-        setTimeout(() => void this.initOrRefreshLeaflet(), 0);
-      }
-    });
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        if (this.googleMapsFailed()) {
+          setTimeout(() => void this.initOrRefreshLeaflet(), 0);
+        }
+      });
 
-    // If markers or center change while the fallback is active, refresh it
-    effect(() => {
-      const _m = this.markers();
-      const _c = this.center();
-      if (this.googleMapsFailed() && this.leafletMap) {
-        this.refreshLeafletMarkers();
-        this.leafletMap.setView([_c.lat, _c.lng], this.zoom());
-      }
+      // If markers or center change while the fallback is active, refresh it
+      effect(() => {
+        const _m = this.markers();
+        const _c = this.center();
+        if (this.googleMapsFailed() && this.leafletMap) {
+          this.refreshLeafletMarkers();
+          this.leafletMap.setView([_c.lat, _c.lng], this.zoom());
+        }
+      });
     });
   }
 

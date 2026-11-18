@@ -56,6 +56,7 @@ public class SecurityConfig {
                         "/swagger-ui.html",
                         "/swagger-ui/**"
                 ).permitAll()
+                .requestMatchers("/api/owner/health").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/engagement/reviews").permitAll()
                 .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                 .anyRequest().authenticated()
@@ -83,6 +84,7 @@ public class SecurityConfig {
                         "/swagger-ui.html",
                         "/swagger-ui/**"
                 ).permitAll()
+                .requestMatchers("/api/owner/health").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/engagement/reviews").permitAll()
                 .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                 .anyRequest().authenticated()

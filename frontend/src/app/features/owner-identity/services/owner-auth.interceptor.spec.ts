@@ -117,6 +117,7 @@ describe('OwnerAuthInterceptor', () => {
 
   it('signs out on a 401 from another backend slice too', async () => {
     const base = environment.apiBaseUrl;
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
     const handler = handlerStub();
     handler.handle = () =>
       throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }));
